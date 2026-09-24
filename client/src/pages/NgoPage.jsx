@@ -20,7 +20,41 @@ export default function NgoPage({ lang }) {
     service_radius_km: 10 
   });
 
-  const [ngosList, setNgosList] = useState([]);
+  const [ngosList, setNgosList] = useState([
+    { 
+      id: 'NGO-001', 
+      name: 'Asha Care Foundation', 
+      phone: '9849011223', 
+      darpan_id: 'AP/2024/001928',
+      verified: 1, 
+      status: 'verified',
+      lat: 17.7200,
+      lng: 83.3100,
+      service_radius_km: 10 
+    },
+    { 
+      id: 'NGO-002', 
+      name: 'Akshaya Patra Branch', 
+      phone: '9849022334', 
+      darpan_id: 'AP/2024/002441',
+      verified: 1, 
+      status: 'verified',
+      lat: 17.7300,
+      lng: 83.3200,
+      service_radius_km: 15 
+    },
+    { 
+      id: 'NGO-003', 
+      name: 'Annamrita Foundation', 
+      phone: '9849033445', 
+      darpan_id: 'AP/2026/008891',
+      verified: 0, 
+      status: 'pending',
+      lat: 17.7100,
+      lng: 83.3000,
+      service_radius_km: 12 
+    }
+  ]);
   const [incoming, setIncoming] = useState([]);
   const [pickups, setPickups] = useState([]);
   const [showFssai, setShowFssai] = useState(false);
@@ -161,6 +195,9 @@ export default function NgoPage({ lang }) {
   };
 
   const allNgoDonations = [...incoming, ...pickups];
+  const displayNgos = ngosList.some(n => n.id === ngo.id) 
+    ? ngosList 
+    : [ngo, ...ngosList];
 
   return (
     <div className="space-y-6">
@@ -174,19 +211,19 @@ export default function NgoPage({ lang }) {
           <select 
             value={ngo.id} 
             onChange={(e) => {
-              const selected = ngosList.find(n => n.id === e.target.value);
+              const selected = displayNgos.find(n => n.id === e.target.value);
               if (selected) setNgo(selected);
             }} 
-            className="w-full sm:w-auto min-w-[240px] sm:min-w-[280px] max-w-full p-2.5 rounded-xl text-xs font-black text-slate-900 bg-white border border-slate-300 shadow-sm focus:outline-none cursor-pointer"
+            className="w-full sm:w-auto min-w-[240px] sm:min-w-[280px] max-w-full px-3.5 py-2.5 rounded-xl text-xs font-black text-slate-900 bg-white dark:bg-[#0A1628] dark:text-white border border-slate-300 dark:border-navy-700 shadow-md focus:outline-none focus:ring-2 focus:ring-[#00A86B] cursor-pointer"
           >
-            {ngosList.map(n => {
+            {displayNgos.map(n => {
               let label = '⏳ Pending Admin Audit';
-              if (n.verified && n.status === 'verified') label = '✓ Verified';
+              if (n.verified && (n.status === 'verified' || !n.status)) label = '✓ Verified';
               else if (n.status === 'rejected') label = '❌ Rejected by Admin';
               else if (n.status === 'suspended') label = '⚠️ Suspended';
 
               return (
-                <option key={n.id} value={n.id} className="text-slate-900 bg-white">
+                <option key={n.id} value={n.id} className="text-slate-900 dark:text-white bg-white dark:bg-[#0D1E36] font-bold">
                   {n.name} ({label})
                 </option>
               );
