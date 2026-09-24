@@ -170,14 +170,14 @@ export default function NgoPage({ lang }) {
           <h2 className="text-2xl sm:text-3xl font-black tracking-tight">{t.ngoTitle}</h2>
           <p className="text-slate-300 text-sm mt-1 max-w-2xl font-medium">{t.ngoSub}</p>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 flex-wrap sm:flex-nowrap">
           <select 
             value={ngo.id} 
             onChange={(e) => {
               const selected = ngosList.find(n => n.id === e.target.value);
               if (selected) setNgo(selected);
             }} 
-            className="p-2.5 rounded-xl text-xs font-black text-slate-900 bg-white border border-slate-300 shadow-sm focus:outline-none"
+            className="w-full sm:w-auto min-w-[240px] sm:min-w-[280px] max-w-full p-2.5 rounded-xl text-xs font-black text-slate-900 bg-white border border-slate-300 shadow-sm focus:outline-none cursor-pointer"
           >
             {ngosList.map(n => {
               let label = '⏳ Pending Admin Audit';
@@ -186,7 +186,7 @@ export default function NgoPage({ lang }) {
               else if (n.status === 'suspended') label = '⚠️ Suspended';
 
               return (
-                <option key={n.id} value={n.id}>
+                <option key={n.id} value={n.id} className="text-slate-900 bg-white">
                   {n.name} ({label})
                 </option>
               );
@@ -195,7 +195,7 @@ export default function NgoPage({ lang }) {
 
           <button 
             onClick={() => setShowRegModal(true)} 
-            className="px-4 py-2.5 bg-[#00A86B] hover:bg-[#00965E] text-white text-xs font-black rounded-xl shadow transition-all"
+            className="whitespace-nowrap px-4 py-2.5 bg-[#00A86B] hover:bg-[#00965E] text-white text-xs font-black rounded-xl shadow transition-all flex-shrink-0"
           >
             📝 Register New NGO
           </button>
