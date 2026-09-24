@@ -30,7 +30,7 @@ export default function AdminPage({ lang }) {
       localStorage.setItem('frn_admin_auth', 'true');
       setAuthError('');
     } else {
-      setAuthError('Invalid Admin Password! Please enter frn@123');
+      setAuthError('Invalid Admin Password. Access Denied.');
     }
   };
 
@@ -151,10 +151,6 @@ export default function AdminPage({ lang }) {
             🔓 Unlock Admin Portal
           </button>
         </form>
-
-        <div className="text-xs text-slate-400 font-mono">
-          Demo Admin Password: <strong className="text-[#00A86B] dark:text-emerald-400">frn@123</strong>
-        </div>
       </div>
     );
   }
