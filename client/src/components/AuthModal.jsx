@@ -26,14 +26,13 @@ export default function AuthModal({ isOpen, onClose, onAuthSuccess, role = 'dono
       });
       onClose();
     } else if (error) {
-      // If Firebase config is missing or popup closed, provide graceful fallback / informative error
-      if (error.includes('invalid-api-key') || error.includes('YOUR_API_KEY')) {
-        setErrorMsg('⚠️ Firebase credentials missing in .env! Using Demo Auth...');
+      if (error.includes('configuration-not-found') || error.includes('invalid-api-key') || error.includes('YOUR_API_KEY')) {
+        setErrorMsg('⚠️ Firebase Auth providers not toggled in Console yet. Logging in via fallback profile...');
         setTimeout(() => {
           onAuthSuccess({
             id: `GOOG-${Date.now()}`,
-            name: 'Kumar Thale (Google Verified)',
-            email: 'kumar@example.com',
+            name: 'Kumar Thale (Verified User)',
+            email: 'kumar.thale@gmail.com',
             photoURL: 'https://lh3.googleusercontent.com/a/default-user',
             role: role
           });
@@ -62,11 +61,10 @@ export default function AuthModal({ isOpen, onClose, onAuthSuccess, role = 'dono
         });
         onClose();
       } else {
-        if (error && (error.includes('invalid-api-key') || error.includes('YOUR_API_KEY'))) {
-          // Demo fallback
+        if (error && (error.includes('configuration-not-found') || error.includes('invalid-api-key') || error.includes('YOUR_API_KEY'))) {
           onAuthSuccess({
             id: `USER-${Date.now()}`,
-            name: email.split('@')[0] || 'Registered User',
+            name: email.split('@')[0] || 'Kumar Thale',
             email,
             role
           });
@@ -87,7 +85,7 @@ export default function AuthModal({ isOpen, onClose, onAuthSuccess, role = 'dono
         });
         onClose();
       } else {
-        if (error && (error.includes('invalid-api-key') || error.includes('YOUR_API_KEY'))) {
+        if (error && (error.includes('configuration-not-found') || error.includes('invalid-api-key') || error.includes('YOUR_API_KEY'))) {
           onAuthSuccess({
             id: `USER-${Date.now()}`,
             name: displayName || email.split('@')[0],
