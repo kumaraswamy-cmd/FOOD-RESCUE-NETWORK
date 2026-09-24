@@ -8,6 +8,7 @@ import VolunteerPage from './pages/VolunteerPage';
 import AdminPage from './pages/AdminPage';
 import ImpactPage from './pages/ImpactPage';
 import ProfilePage from './pages/ProfilePage';
+import LoginPage from './pages/LoginPage';
 import { auth } from './firebase';
 import { onAuthStateChanged } from 'firebase/auth';
 
@@ -78,6 +79,7 @@ export default function App() {
         <Route path="/admin" element={<AdminPage lang={lang} user={user} />} />
         <Route path="/impact" element={<ImpactPage lang={lang} />} />
         <Route path="/profile" element={<ProfilePage user={user} setUser={setUser} lang={lang} />} />
+        <Route path="/login" element={<LoginPage user={user} setUser={setUser} lang={lang} />} />
       </Routes>
     </Layout>
   );
