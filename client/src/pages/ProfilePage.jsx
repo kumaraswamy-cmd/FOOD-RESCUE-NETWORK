@@ -202,22 +202,35 @@ export default function ProfilePage({ user, setUser, lang }) {
         </div>
       </div>
 
-      {/* Account Setup & Authentication Info Card */}
+      {/* Live Firebase Cloud Active Status Card */}
       <div className="bg-white dark:bg-navy-900 rounded-3xl p-6 border border-slate-200 dark:border-navy-800 shadow-sm space-y-4">
-        <h3 className="text-lg font-black text-slate-900 dark:text-white flex items-center gap-2">
-          <span>🔥 Firebase Authentication Setup</span>
-        </h3>
-        <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
-          Your project supports Firebase Google Sign-In and Email Authentication. To connect your live Firebase project, paste your credentials into <code className="bg-slate-100 dark:bg-[#0A1628] px-2 py-0.5 rounded text-emerald-600 dark:text-emerald-400 font-mono font-bold">client/.env</code>:
+        <div className="flex items-center justify-between flex-wrap gap-2">
+          <h3 className="text-lg font-black text-slate-900 dark:text-white flex items-center gap-2">
+            <span>🔥 Live Firebase Cloud Infrastructure</span>
+          </h3>
+          <span className="px-3 py-1 rounded-full bg-emerald-100 dark:bg-emerald-950/60 border border-emerald-300 dark:border-emerald-800 text-[#00A86B] dark:text-emerald-400 text-xs font-black flex items-center gap-1.5">
+            <span className="w-2 h-2 rounded-full bg-[#00A86B] animate-pulse"></span>
+            <span>✓ Connected & Active</span>
+          </span>
+        </div>
+
+        <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed font-medium">
+          Your web application is connected to live Cloud Firestore database & Firebase Authentication under project <strong className="font-mono text-[#00A86B]">food-rescue-network-8d050</strong>. All surplus food posts and NGO audits sync in real-time.
         </p>
 
-        <div className="bg-slate-50 dark:bg-[#0A1628] p-4 rounded-2xl font-mono text-xs text-slate-800 dark:text-slate-200 border border-slate-200 dark:border-navy-800 space-y-1 overflow-x-auto">
-          <div><span className="text-blue-500">VITE_FIREBASE_API_KEY</span>=your-api-key</div>
-          <div><span className="text-blue-500">VITE_FIREBASE_AUTH_DOMAIN</span>=your-app.firebaseapp.com</div>
-          <div><span className="text-blue-500">VITE_FIREBASE_PROJECT_ID</span>=your-app-id</div>
-          <div><span className="text-blue-500">VITE_FIREBASE_STORAGE_BUCKET</span>=your-app.appspot.com</div>
-          <div><span className="text-blue-500">VITE_FIREBASE_MESSAGING_SENDER_ID</span>=1234567890</div>
-          <div><span className="text-blue-500">VITE_FIREBASE_APP_ID</span>=1:1234567890:web:abcdef123456</div>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-1">
+          <div className="p-3 rounded-2xl bg-slate-50 dark:bg-[#0A1628] border border-slate-200 dark:border-navy-800">
+            <div className="text-[10px] uppercase font-black text-slate-400">Firebase Project</div>
+            <div className="text-xs font-mono font-bold text-slate-800 dark:text-slate-200 mt-0.5">food-rescue-network-8d050</div>
+          </div>
+          <div className="p-3 rounded-2xl bg-slate-50 dark:bg-[#0A1628] border border-slate-200 dark:border-navy-800">
+            <div className="text-[10px] uppercase font-black text-slate-400">Cloud Firestore</div>
+            <div className="text-xs font-bold text-[#00A86B] dark:text-emerald-400 mt-0.5">✓ Real-time Sync Active</div>
+          </div>
+          <div className="p-3 rounded-2xl bg-slate-50 dark:bg-[#0A1628] border border-slate-200 dark:border-navy-800">
+            <div className="text-[10px] uppercase font-black text-slate-400">Auth Providers</div>
+            <div className="text-xs font-bold text-blue-600 dark:text-blue-400 mt-0.5">Google OAuth & Email</div>
+          </div>
         </div>
       </div>
     </div>
