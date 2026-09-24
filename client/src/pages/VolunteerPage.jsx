@@ -3,6 +3,7 @@ import StatusBadge from '../components/StatusBadge';
 import MapView from '../components/MapView';
 import { openLiveNavigation } from '../utils/navigation';
 import { i18nDict } from '../i18n';
+import { apiFetch } from '../utils/api';
 
 export default function VolunteerPage({ lang }) {
   const t = i18nDict[lang] || i18nDict.en;
@@ -14,25 +15,22 @@ export default function VolunteerPage({ lang }) {
 
   const fetchOpenJobs = async () => {
     try {
-      const res = await fetch('http://localhost:5001/api/volunteers/open-jobs');
-      const data = await res.json();
-      if (data.openJobs) setOpenJobs(data.openJobs);
+      const data = await apiFetch('/api/volunteers/open-jobs');
+      if (data && (data.jobs || data.openJobs)) setOpenJobs(data.jobs || data.openJobs);
     } catch(e) {}
   };
 
   const fetchMyTasks = async () => {
     try {
-      const res = await fetch(`http://localhost:5001/api/volunteers/${volunteer.id}/my-jobs`);
-      const data = await res.json();
-      if (data.jobs) setMyTasks(data.jobs);
+      const data = await apiFetch(`/api/volunteers/${volunteer.id}/my-jobs`);
+      if (data && data.jobs) setMyTasks(data.jobs);
     } catch(e) {}
   };
 
   const fetchNgos = async () => {
     try {
-      const res = await fetch('http://localhost:5001/api/ngos');
-      const data = await res.json();
-      if (data.ngos) setNgos(data.ngos);
+      const data = await apiFetch('/api/ngos');
+      if (data && data.ngos) setNgos(data.ngos);
     } catch(e) {}
   };
 
@@ -50,13 +48,12 @@ export default function VolunteerPage({ lang }) {
 
   const handleClaimJob = async (donationId) => {
     try {
-      const res = await fetch('http://localhost:5001/api/volunteers/claim-job', {
+      const data = await apiFetch('/api/volunteers/claim-job', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ volunteer_id: volunteer.id, donation_id: donationId })
       });
-      const data = await res.json();
-      if (data.success) {
+      if (data && data.success) {
         alert(`🛵 Transport delivery job claimed by ${volunteer.name}!`);
         fetchOpenJobs();
         fetchMyTasks();
@@ -68,13 +65,12 @@ export default function VolunteerPage({ lang }) {
 
   const handleUpdateStatus = async (donationId, status) => {
     try {
-      const res = await fetch('http://localhost:5001/api/deliveries/update-status', {
+      const data = await apiFetch('/api/deliveries/update-status', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ donation_id: donationId, status, beneficiary_name: 'Shelter Beneficiaries' })
       });
-      const data = await res.json();
-      if (data.success) {
+      if (data && data.success) {
         alert(`Status updated to ${status}!`);
         fetchMyTasks();
       }

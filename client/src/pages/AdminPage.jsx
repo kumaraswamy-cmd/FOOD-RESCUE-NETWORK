@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import StatusBadge from '../components/StatusBadge';
 import { i18nDict } from '../i18n';
+import { apiFetch } from '../utils/api';
 
 export default function AdminPage({ lang }) {
   const t = i18nDict[lang] || i18nDict.en;
@@ -43,24 +44,22 @@ export default function AdminPage({ lang }) {
   const fetchData = async () => {
     if (!authenticated) return;
     try {
-      const ngoRes = await fetch('http://localhost:5001/api/admin/pending-ngos');
-      const ngoData = await ngoRes.json();
-      if (ngoData.pending) setPendingNgos(ngoData.pending);
-      if (ngoData.verified) setVerifiedNgos(ngoData.verified);
-      if (ngoData.allNgos) setAllNgos(ngoData.allNgos);
-      if (ngoData.logs) setLogs(ngoData.logs);
+      const ngoData = await apiFetch('/api/admin/pending-ngos');
+      if (ngoData) {
+        if (ngoData.pending) setPendingNgos(ngoData.pending);
+        if (ngoData.verified) setVerifiedNgos(ngoData.verified);
+        if (ngoData.allNgos || ngoData.ngos) setAllNgos(ngoData.allNgos || ngoData.ngos);
+        if (ngoData.logs) setLogs(ngoData.logs);
+      }
 
-      const flaggedRes = await fetch('http://localhost:5001/api/admin/flagged-donations');
-      const flaggedData = await flaggedRes.json();
-      if (flaggedData.flagged) setFlaggedDonations(flaggedData.flagged);
+      const flaggedData = await apiFetch('/api/admin/flagged-donations');
+      if (flaggedData && (flaggedData.flagged || flaggedData.donations)) setFlaggedDonations(flaggedData.flagged || flaggedData.donations);
 
-      const donRes = await fetch('http://localhost:5001/api/admin/all-donations');
-      const donData = await donRes.json();
-      if (donData.donations) setDonations(donData.donations);
+      const donData = await apiFetch('/api/admin/all-donations');
+      if (donData && donData.donations) setDonations(donData.donations);
 
-      const statRes = await fetch('http://localhost:5001/api/admin/stats');
-      const statData = await statRes.json();
-      if (statData.stats) setStats(statData.stats);
+      const statData = await apiFetch('/api/admin/stats');
+      if (statData && statData.stats) setStats(statData.stats);
     } catch(e) {}
   };
 
@@ -74,18 +73,17 @@ export default function AdminPage({ lang }) {
 
   const handleVerifyNgo = async (ngoId, action) => {
     try {
-      const res = await fetch('http://localhost:5001/api/admin/verify-ngo', {
+      const data = await apiFetch('/api/admin/verify-ngo', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ ngo_id: ngoId, action, notes: reviewNotes, admin_password: 'frn@123' })
       });
-      const data = await res.json();
-      if (data.success) {
-        alert(data.message);
+      if (data && data.success) {
+        alert(data.message || `NGO ${action}d successfully!`);
         setReviewNotes('');
         fetchData();
       } else {
-        alert(data.error || 'Failed to update NGO verification status.');
+        alert(data ? data.error : 'Failed to update NGO verification status.');
       }
     } catch(e) {
       alert('Error updating NGO verification.');
@@ -94,14 +92,13 @@ export default function AdminPage({ lang }) {
 
   const handleReviewFlaggedDonation = async (donationId, action) => {
     try {
-      const res = await fetch('http://localhost:5001/api/admin/review-flagged-donation', {
+      const data = await apiFetch('/api/admin/review-flagged-donation', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ donation_id: donationId, action, admin_password: 'frn@123' })
       });
-      const data = await res.json();
-      if (data.success) {
-        alert(data.message);
+      if (data && data.success) {
+        alert(data.message || `Flagged donation ${action}d successfully!`);
         fetchData();
       }
     } catch(e) {

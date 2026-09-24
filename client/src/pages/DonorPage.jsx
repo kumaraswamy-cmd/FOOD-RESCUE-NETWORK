@@ -5,6 +5,7 @@ import OtpModal from '../components/OtpModal';
 import MapView from '../components/MapView';
 import { openLiveNavigation } from '../utils/navigation';
 import { i18nDict } from '../i18n';
+import { apiFetch } from '../utils/api';
 
 export default function DonorPage({ lang }) {
   const t = i18nDict[lang] || i18nDict.en;
@@ -29,17 +30,15 @@ export default function DonorPage({ lang }) {
 
   const fetchDonations = async () => {
     try {
-      const res = await fetch(`http://localhost:5001/api/donations/donor/${donor.id}`);
-      const data = await res.json();
-      if (data.donations) setDonations(data.donations);
+      const data = await apiFetch(`/api/donations/donor/${donor.id}`);
+      if (data && data.donations) setDonations(data.donations);
     } catch(e) {}
   };
 
   const fetchNgos = async () => {
     try {
-      const res = await fetch('http://localhost:5001/api/ngos');
-      const data = await res.json();
-      if (data.ngos) setNgos(data.ngos);
+      const data = await apiFetch('/api/ngos');
+      if (data && data.ngos) setNgos(data.ngos);
     } catch(e) {}
   };
 
@@ -90,7 +89,7 @@ export default function DonorPage({ lang }) {
 
     setLoading(true);
     try {
-      const res = await fetch('http://localhost:5001/api/donations', {
+      const data = await apiFetch('/api/donations', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -105,10 +104,10 @@ export default function DonorPage({ lang }) {
           notes
         })
       });
-      const data = await res.json();
-      if (data.success) {
+
+      if (data && data.success) {
         if (data.flagged) {
-          alert(`⚠️ ${data.message}\nReason: ${data.flagReason}`);
+          alert(`⚠️ ${data.message || 'Inspection Flagged'}\nReason: ${data.flagReason}`);
         } else {
           alert('🚀 Surplus food post published! Smart recommendation engine matched nearby verified NGOs.');
         }
@@ -116,6 +115,8 @@ export default function DonorPage({ lang }) {
         setNotes('');
         setShowPostModal(false);
         fetchDonations();
+      } else {
+        alert('Error creating donation post.');
       }
     } catch(e) {
       alert('Error creating donation post.');

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import MapView from '../components/MapView';
 import { i18nDict } from '../i18n';
+import { apiFetch } from '../utils/api';
 
 export default function ImpactPage({ lang }) {
   const t = i18nDict[lang] || i18nDict.en;
@@ -10,19 +11,16 @@ export default function ImpactPage({ lang }) {
   const [ngos, setNgos] = useState([]);
 
   useEffect(() => {
-    fetch('http://localhost:5001/api/admin/stats')
-      .then(res => res.json())
-      .then(data => data.stats && setStats(data.stats))
+    apiFetch('/api/admin/stats')
+      .then(data => data && data.stats && setStats(data.stats))
       .catch(() => {});
 
-    fetch('http://localhost:5001/api/admin/all-donations')
-      .then(res => res.json())
-      .then(data => data.donations && setDonations(data.donations))
+    apiFetch('/api/admin/all-donations')
+      .then(data => data && data.donations && setDonations(data.donations))
       .catch(() => {});
 
-    fetch('http://localhost:5001/api/ngos')
-      .then(res => res.json())
-      .then(data => data.ngos && setNgos(data.ngos))
+    apiFetch('/api/ngos')
+      .then(data => data && data.ngos && setNgos(data.ngos))
       .catch(() => {});
   }, []);
 

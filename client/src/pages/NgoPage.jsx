@@ -4,6 +4,7 @@ import FssaiModal from '../components/FssaiModal';
 import MapView from '../components/MapView';
 import { openLiveNavigation } from '../utils/navigation';
 import { i18nDict } from '../i18n';
+import { apiFetch } from '../utils/api';
 
 export default function NgoPage({ lang }) {
   const t = i18nDict[lang] || i18nDict.en;
@@ -75,9 +76,8 @@ export default function NgoPage({ lang }) {
 
   const fetchNgos = async () => {
     try {
-      const res = await fetch('http://localhost:5001/api/ngos');
-      const data = await res.json();
-      if (data.ngos) {
+      const data = await apiFetch('/api/ngos');
+      if (data && data.ngos) {
         setNgosList(data.ngos);
         const currentInDb = data.ngos.find(n => n.id === ngo.id);
         if (currentInDb) setNgo(currentInDb);
@@ -88,10 +88,9 @@ export default function NgoPage({ lang }) {
   const fetchIncoming = async () => {
     if (!ngo.id) return;
     try {
-      const res = await fetch(`http://localhost:5001/api/ngos/${ngo.id}/incoming-matches`);
-      const data = await res.json();
-      if (data.ngo) setNgo(data.ngo);
-      if (data.incoming) setIncoming(data.incoming);
+      const data = await apiFetch(`/api/ngos/${ngo.id}/incoming-matches`);
+      if (data && data.ngo) setNgo(data.ngo);
+      if (data && data.incoming) setIncoming(data.incoming);
       else setIncoming([]);
     } catch(e) {}
   };
@@ -99,9 +98,8 @@ export default function NgoPage({ lang }) {
   const fetchPickups = async () => {
     if (!ngo.id) return;
     try {
-      const res = await fetch(`http://localhost:5001/api/ngos/${ngo.id}/pickups`);
-      const data = await res.json();
-      if (data.pickups) setPickups(data.pickups);
+      const data = await apiFetch(`/api/ngos/${ngo.id}/pickups`);
+      if (data && data.pickups) setPickups(data.pickups);
     } catch(e) {}
   };
 
@@ -120,7 +118,7 @@ export default function NgoPage({ lang }) {
   const handleRegisterNgoSubmit = async (e) => {
     e.preventDefault();
     try {
-      const res = await fetch('http://localhost:5001/api/ngos/register', {
+      const data = await apiFetch('/api/ngos/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -136,8 +134,7 @@ export default function NgoPage({ lang }) {
           lng: regLng
         })
       });
-      const data = await res.json();
-      if (data.success && data.ngo) {
+      if (data && data.success && data.ngo) {
         alert('🏛️ Registration Application & Certificate submitted to Admin! Your profile is now pending verification.');
         setNgo(data.ngo);
         setShowRegModal(false);
@@ -156,7 +153,7 @@ export default function NgoPage({ lang }) {
   const handleConfirmAccept = async () => {
     if (!selectedDonation) return;
     try {
-      const res = await fetch(`http://localhost:5001/api/ngos/${ngo.id}/respond-match`, {
+      const data = await apiFetch(`/api/ngos/${ngo.id}/respond-match`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -165,14 +162,13 @@ export default function NgoPage({ lang }) {
           fssai_confirmed: true
         })
       });
-      const data = await res.json();
-      if (data.success) {
+      if (data && data.success) {
         alert(`📋 FSSAI Audit Passed! Donation accepted for ${ngo.name}.`);
         setShowFssai(false);
         fetchIncoming();
         fetchPickups();
       } else {
-        alert(data.error || 'Failed to accept match.');
+        alert(data ? data.error : 'Failed to accept match.');
       }
     } catch(e) {
       alert('Error accepting donation match.');
@@ -181,13 +177,12 @@ export default function NgoPage({ lang }) {
 
   const handleUpdateStatus = async (donationId, status) => {
     try {
-      const res = await fetch('http://localhost:5001/api/deliveries/update-status', {
+      const data = await apiFetch('/api/deliveries/update-status', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ donation_id: donationId, status })
       });
-      const data = await res.json();
-      if (data.success) {
+      if (data && data.success) {
         alert(`Status updated to ${status}!`);
         fetchPickups();
       }
