@@ -1,0 +1,2218 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Rescue Network — Enterprise Surplus Food Redistribution & Safety Platform</title>
+
+<!-- Web Fonts -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;700&family=Outfit:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+<style>
+  /* =========================================================
+     ENTERPRISE DESIGN SYSTEM & CSS TOKENS
+     ========================================================= */
+  :root {
+    --bg-main: #F4F7FA;
+    --surface-card: #FFFFFF;
+    --surface-alt: #F8FAFC;
+    --surface-hover: #F1F5F9;
+    --border: #E2E8F0;
+    --border-strong: #CBD5E1;
+
+    --text-primary: #0F172A;
+    --text-secondary: #475569;
+    --text-tertiary: #64748B;
+
+    --brand-primary: #0D1E36;
+    --brand-primary-light: #1C3B64;
+    --brand-accent: #00A86B;
+    --brand-accent-light: #00965E;
+    --brand-accent-glow: rgba(0, 168, 107, 0.22);
+
+    --amber-accent: #D97706;
+    --amber-bg: #FEF3C7;
+    --amber-text: #92400E;
+
+    --blue-info: #0EA5E9;
+    --blue-bg: #E0F2FE;
+    --blue-text: #0369A1;
+
+    --red-danger: #E11D48;
+    --red-bg: #FFE4E6;
+    --red-text: #9F1239;
+
+    --purple-csr: #7C3AED;
+    --purple-bg: #F3E8FF;
+    --purple-text: #5B21B6;
+
+    --radius-xs: 6px;
+    --radius-sm: 10px;
+    --radius-md: 16px;
+    --radius-lg: 24px;
+    --radius-pill: 9999px;
+
+    --shadow-xs: 0 1px 3px rgba(12, 26, 18, 0.05);
+    --shadow-sm: 0 4px 12px rgba(12, 26, 18, 0.06);
+    --shadow-md: 0 10px 30px rgba(12, 26, 18, 0.09);
+    --shadow-lg: 0 20px 50px rgba(12, 26, 18, 0.15);
+
+    --font-heading: 'Outfit', sans-serif;
+    --font-body: 'Plus Jakarta Sans', sans-serif;
+    --font-mono: 'JetBrains Mono', monospace;
+
+    --transition-fast: 0.16s cubic-bezier(0.16, 1, 0.3, 1);
+    --transition-normal: 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  [data-theme="dark"] {
+    --bg-main: #09120B;
+    --surface-card: #111F15;
+    --surface-alt: #182A1D;
+    --surface-hover: #213828;
+    --border: #233829;
+    --border-strong: #33523B;
+
+    --text-primary: #F0F7F2;
+    --text-secondary: #9EB5A5;
+    --text-tertiary: #6C8574;
+
+    --brand-primary: #34D399;
+    --brand-primary-light: #6EE7B7;
+    --brand-accent: #10B981;
+    --brand-accent-glow: rgba(52, 211, 153, 0.25);
+
+    --amber-accent: #FBBF24;
+    --amber-bg: #3B2A08;
+    --amber-text: #FDE68A;
+
+    --blue-info: #60A5FA;
+    --blue-bg: #1E293B;
+    --blue-text: #BFDBFE;
+
+    --red-danger: #F87171;
+    --red-bg: #3A1818;
+    --red-text: #FCA5A5;
+
+    --purple-csr: #A78BFA;
+    --purple-bg: #2E1065;
+    --purple-text: #DDD6FE;
+  }
+
+  /* Reset & Layout */
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: var(--font-body);
+    background-color: var(--bg-main);
+    color: var(--text-primary);
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    transition: background-color var(--transition-normal), color var(--transition-normal);
+  }
+
+  /* Enterprise Top Banner */
+  .top-ticker {
+    background: linear-gradient(90deg, #0A3220, #164830, #0A3220);
+    color: #E2F1E7;
+    padding: 7px 18px;
+    font-size: 12px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    letter-spacing: 0.02em;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+  }
+
+  .ticker-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .live-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: #10B981;
+    box-shadow: 0 0 10px #10B981;
+    animation: pulse 1.6s infinite;
+  }
+
+  @keyframes pulse { 0%, 100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.4); opacity: 0.4; } }
+
+  .ticker-btn {
+    background: rgba(255,255,255,0.15);
+    border: 1px solid rgba(255,255,255,0.25);
+    color: #FFF;
+    padding: 3px 10px;
+    border-radius: var(--radius-pill);
+    font-size: 11.5px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+  }
+  .ticker-btn:hover { background: rgba(255,255,255,0.3); }
+
+  /* App Navigation Header */
+  header.app-header {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(255, 255, 255, 0.88);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    border-bottom: 1px solid var(--border);
+    box-shadow: var(--shadow-xs);
+  }
+
+  [data-theme="dark"] header.app-header {
+    background: rgba(17, 31, 21, 0.9);
+  }
+
+  .header-container {
+    max-width: 1320px;
+    margin: 0 auto;
+    padding: 14px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+  }
+
+  .brand-logo {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    text-decoration: none;
+    color: inherit;
+  }
+
+  .logo-icon {
+    width: 46px;
+    height: 46px;
+    border-radius: var(--radius-sm);
+    background: linear-gradient(135deg, #0A3220, #059669);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    color: #FFF;
+    box-shadow: 0 6px 16px var(--brand-accent-glow);
+    transition: transform var(--transition-fast);
+  }
+
+  .brand-logo:hover .logo-icon { transform: scale(1.05) rotate(-2deg); }
+
+  .brand-text h1 {
+    font-family: var(--font-heading);
+    font-size: 22px;
+    font-weight: 800;
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+    background: linear-gradient(135deg, var(--text-primary), var(--brand-accent));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .brand-text p {
+    font-size: 12px;
+    color: var(--text-secondary);
+    font-weight: 600;
+  }
+
+  .header-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .ctrl-btn {
+    background: var(--surface-alt);
+    border: 1px solid var(--border);
+    color: var(--text-primary);
+    padding: 8px 14px;
+    border-radius: var(--radius-xs);
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    outline: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: all var(--transition-fast);
+  }
+  .ctrl-btn:hover { background: var(--surface-hover); border-color: var(--border-strong); }
+
+  /* Navigation Bar */
+  nav.role-tabs {
+    background: var(--surface-card);
+    border-top: 1px solid var(--border);
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  .tabs-wrapper {
+    max-width: 1320px;
+    margin: 0 auto;
+    display: flex;
+    padding: 0 24px;
+    gap: 4px;
+  }
+
+  .tab-item {
+    background: transparent;
+    border: none;
+    color: var(--text-secondary);
+    padding: 14px 20px;
+    font-family: var(--font-heading);
+    font-size: 14.5px;
+    font-weight: 700;
+    cursor: pointer;
+    white-space: nowrap;
+    border-bottom: 3px solid transparent;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: all var(--transition-fast);
+  }
+  .tab-item:hover { color: var(--brand-accent); }
+  .tab-item.active {
+    color: var(--brand-accent);
+    border-bottom-color: var(--brand-accent);
+    background: var(--surface-alt);
+  }
+
+  /* Main View Container */
+  main.main-body {
+    flex: 1;
+    max-width: 1320px;
+    width: 100%;
+    margin: 0 auto;
+    padding: 28px 24px 80px;
+  }
+
+  .panel-view { display: none; }
+  .panel-view.active { display: block; animation: fadeInUp 0.28s ease; }
+
+  @keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Hero Banner Block */
+  .hero-banner {
+    background: linear-gradient(135deg, var(--surface-card), var(--surface-alt));
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: 26px 30px;
+    margin-bottom: 28px;
+    box-shadow: var(--shadow-xs);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    flex-wrap: wrap;
+  }
+
+  .hero-text h2 {
+    font-family: var(--font-heading);
+    font-size: 26px;
+    font-weight: 800;
+    margin-bottom: 6px;
+    letter-spacing: -0.01em;
+  }
+
+  .hero-text p {
+    color: var(--text-secondary);
+    font-size: 14.5px;
+    max-width: 760px;
+  }
+
+  /* Grid System */
+  .grid-12 {
+    display: grid;
+    grid-template-columns: repeat(12, 1fr);
+    gap: 24px;
+  }
+
+  .col-12 { grid-column: span 12; }
+  .col-8 { grid-column: span 8; }
+  .col-4 { grid-column: span 4; }
+  .col-6 { grid-column: span 6; }
+  .col-7 { grid-column: span 7; }
+  .col-5 { grid-column: span 5; }
+
+  @media (max-width: 1024px) {
+    .col-8, .col-4, .col-6, .col-7, .col-5 { grid-column: span 12; }
+  }
+
+  /* Card Containers */
+  .card-box {
+    background: var(--surface-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: 24px;
+    box-shadow: var(--shadow-sm);
+    transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+  }
+
+  .card-box:hover { box-shadow: var(--shadow-md); }
+
+  .card-title-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+    gap: 12px;
+  }
+
+  .card-title-row h3 {
+    font-family: var(--font-heading);
+    font-size: 19px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  /* Form Elements */
+  .form-group { margin-bottom: 18px; }
+
+  .form-group label {
+    display: block;
+    font-size: 12.5px;
+    font-weight: 800;
+    color: var(--text-secondary);
+    margin-bottom: 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+
+  .input-control {
+    width: 100%;
+    padding: 12px 16px;
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius-xs);
+    background: var(--surface-alt);
+    color: var(--text-primary);
+    font-family: var(--font-body);
+    font-size: 14.5px;
+    outline: none;
+    transition: all var(--transition-fast);
+  }
+
+  .input-control:focus {
+    border-color: var(--brand-accent);
+    background: var(--surface-card);
+    box-shadow: 0 0 0 3px var(--brand-accent-glow);
+  }
+
+  .form-row-2 {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+  }
+
+  @media (max-width: 600px) { .form-row-2 { grid-template-columns: 1fr; } }
+
+  /* Buttons */
+  .btn-ui {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 12px 20px;
+    border-radius: var(--radius-xs);
+    font-family: var(--font-heading);
+    font-size: 14.5px;
+    font-weight: 700;
+    cursor: pointer;
+    border: 1px solid transparent;
+    transition: all var(--transition-fast);
+    text-decoration: none;
+  }
+
+  .btn-primary {
+    background: linear-gradient(135deg, var(--brand-primary), var(--brand-primary-light));
+    color: #FFFFFF;
+    box-shadow: 0 4px 14px var(--brand-accent-glow);
+  }
+  .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 20px var(--brand-accent-glow); }
+
+  .btn-accent { background: var(--brand-accent); color: #FFFFFF; }
+  .btn-accent:hover { background: #047857; transform: translateY(-1px); }
+
+  .btn-outline { background: transparent; border-color: var(--border-strong); color: var(--text-primary); }
+  .btn-outline:hover { background: var(--surface-hover); }
+
+  .btn-purple { background: var(--purple-csr); color: #FFF; }
+  .btn-danger { background: var(--red-danger); color: #FFF; }
+  .btn-sm { padding: 7px 14px; font-size: 13px; border-radius: 6px; }
+
+  /* Badges & Pills */
+  .badge-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 12px;
+    border-radius: var(--radius-pill);
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: capitalize;
+  }
+
+  .badge-posted { background: var(--amber-bg); color: var(--amber-text); }
+  .badge-accepted { background: var(--blue-bg); color: var(--blue-text); }
+  .badge-pickup_scheduled { background: var(--purple-bg); color: var(--purple-text); }
+  .badge-picked_up { background: #FEF08A; color: #854D0E; }
+  .badge-delivered { background: #D1FAE5; color: #047857; }
+  .badge-expired { background: var(--red-bg); color: var(--red-text); }
+
+  /* Donation Card Item */
+  .food-card {
+    background: var(--surface-card);
+    border: 1px solid var(--border);
+    border-left: 6px solid var(--border-strong);
+    border-radius: var(--radius-md);
+    padding: 20px;
+    margin-bottom: 18px;
+    box-shadow: var(--shadow-xs);
+    transition: all var(--transition-fast);
+  }
+
+  .food-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); }
+
+  .food-card.status-posted { border-left-color: var(--amber-accent); }
+  .food-card.status-accepted { border-left-color: var(--blue-info); }
+  .food-card.status-pickup_scheduled { border-left-color: var(--purple-csr); }
+  .food-card.status-picked_up { border-left-color: #D97706; }
+  .food-card.status-delivered { border-left-color: var(--brand-accent); }
+  .food-card.status-expired { border-left-color: var(--red-danger); opacity: 0.75; }
+
+  .card-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 14px;
+    margin-bottom: 12px;
+  }
+
+  .food-title {
+    font-family: var(--font-heading);
+    font-size: 18px;
+    font-weight: 800;
+    color: var(--text-primary);
+  }
+
+  .food-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 6px;
+    font-size: 13.5px;
+    color: var(--text-secondary);
+  }
+
+  .meta-item { display: inline-flex; align-items: center; gap: 4px; }
+
+  /* Freshness Progress Bar */
+  .freshness-box { margin: 14px 0; }
+
+  .freshness-header {
+    display: flex;
+    justify-content: space-between;
+    font-size: 12.5px;
+    font-weight: 700;
+    margin-bottom: 6px;
+  }
+
+  .progress-track {
+    height: 8px;
+    width: 100%;
+    background: var(--surface-alt);
+    border-radius: var(--radius-pill);
+    overflow: hidden;
+    border: 1px solid var(--border);
+  }
+
+  .progress-fill {
+    height: 100%;
+    border-radius: var(--radius-pill);
+    transition: width 1s linear;
+  }
+
+  .fill-fresh { background: var(--brand-accent); }
+  .fill-warning { background: var(--amber-accent); }
+  .fill-urgent { background: var(--red-danger); animation: pulse 1s infinite; }
+
+  /* Stepper Progress Bar */
+  .stepper-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin: 18px 0 10px;
+    position: relative;
+  }
+
+  .stepper-line {
+    position: absolute;
+    top: 15px;
+    left: 30px;
+    right: 30px;
+    height: 3px;
+    background: var(--border);
+    z-index: 1;
+  }
+
+  .stepper-fill {
+    height: 100%;
+    background: var(--brand-accent);
+    width: 0%;
+    transition: width 0.4s ease;
+  }
+
+  .step-node {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+    z-index: 2;
+  }
+
+  .node-bubble {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: var(--surface-alt);
+    border: 2px solid var(--border);
+    color: var(--text-tertiary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: 800;
+    transition: all 0.3s ease;
+  }
+
+  .step-node.done .node-bubble { background: var(--brand-accent); border-color: var(--brand-accent); color: #FFF; }
+  .step-node.current .node-bubble { background: var(--brand-primary); border-color: var(--brand-accent); color: #FFF; box-shadow: 0 0 0 4px var(--brand-accent-glow); }
+
+  .node-label { font-size: 11.5px; font-weight: 700; color: var(--text-tertiary); margin-top: 6px; }
+  .step-node.done .node-label, .step-node.current .node-label { color: var(--text-primary); }
+
+  /* KPI Cards */
+  .kpi-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+    margin-bottom: 28px;
+  }
+
+  @media (max-width: 900px) { .kpi-row { grid-template-columns: repeat(2, 1fr); } }
+
+  .kpi-card {
+    background: var(--surface-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: 22px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    box-shadow: var(--shadow-xs);
+  }
+
+  .kpi-icon {
+    width: 56px;
+    height: 56px;
+    border-radius: var(--radius-md);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 26px;
+    flex-shrink: 0;
+  }
+
+  .bg-green { background: rgba(16, 185, 129, 0.14); color: var(--brand-accent); }
+  .bg-amber { background: rgba(217, 119, 6, 0.14); color: var(--amber-accent); }
+  .bg-blue { background: rgba(37, 99, 235, 0.14); color: var(--blue-info); }
+  .bg-purple { background: rgba(124, 58, 237, 0.14); color: var(--purple-csr); }
+
+  .kpi-number { font-family: var(--font-heading); font-size: 32px; font-weight: 800; line-height: 1; }
+  .kpi-title { font-size: 13px; color: var(--text-secondary); font-weight: 600; margin-top: 4px; }
+
+  /* Map Canvas */
+  .map-box {
+    width: 100%;
+    height: 380px;
+    background: #E2E8E0;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--border);
+    position: relative;
+    overflow: hidden;
+  }
+
+  [data-theme="dark"] .map-box { background: #111F15; }
+
+  canvas.map-canvas { width: 100%; height: 100%; display: block; }
+
+  /* Modal Backdrop */
+  .modal-overlay {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(12, 26, 18, 0.65);
+    backdrop-filter: blur(6px);
+    z-index: 250;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity var(--transition-normal);
+  }
+
+  .modal-overlay.active { opacity: 1; pointer-events: auto; }
+
+  .modal-dialog {
+    background: var(--surface-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    width: 100%;
+    max-width: 620px;
+    padding: 32px;
+    box-shadow: var(--shadow-lg);
+    transform: scale(0.94);
+    transition: transform var(--transition-normal);
+    max-height: 90vh;
+    overflow-y: auto;
+  }
+
+  .modal-overlay.active .modal-dialog { transform: scale(1); }
+
+  .modal-title { font-family: var(--font-heading); font-size: 22px; font-weight: 800; margin-bottom: 8px; }
+
+  /* Toast Notification */
+  .toast-hub {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    z-index: 300;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    pointer-events: none;
+  }
+
+  .toast-item {
+    background: var(--brand-primary);
+    color: #FFFFFF;
+    padding: 14px 20px;
+    border-radius: var(--radius-sm);
+    font-size: 14.5px;
+    font-weight: 700;
+    box-shadow: var(--shadow-lg);
+    pointer-events: auto;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    animation: slideRight 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  @keyframes slideRight {
+    from { opacity: 0; transform: translateX(50px); }
+    to { opacity: 1; transform: translateX(0); }
+  }
+
+  /* Printable Certificate Styling (@media print) */
+  @media print {
+    body { background: #FFF !important; color: #000 !important; }
+    header, nav, .top-ticker, .hero-banner, .btn-ui, .form-group, #toastHub { display: none !important; }
+    .printable-certificate { display: block !important; border: 4px double #0A3220; padding: 40px; text-align: center; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Enterprise Top Banner Ticker -->
+<div class="top-ticker">
+  <div class="ticker-left">
+    <span class="live-dot"></span>
+    <span><strong>MVGR B.Tech Community Project:</strong> Batch 04 &bull; Dept of Data Engineering / CSE-IoT</span>
+  </div>
+  <div>
+    <button class="ticker-btn" id="btnAcademicModalOpen">🎓 Academic Project Info & Certificate</button>
+    <button class="ticker-btn" id="btnCommandPaletteTrigger">⌨️ Command Palette (Ctrl+K)</button>
+  </div>
+</div>
+
+<!-- Application Header -->
+<header class="app-header">
+  <div class="header-container">
+    <a href="#" class="brand-logo">
+      <div class="logo-icon">🥗</div>
+      <div class="brand-text">
+        <h1 id="appTitle">Rescue Network</h1>
+        <p id="appSubtitle">MVGR College Community Project — Surplus Food Redistribution</p>
+      </div>
+    </a>
+
+    <div class="header-actions">
+      <!-- AI Expiry Calculator Trigger -->
+      <button id="btnOpenAiCalculator" class="ctrl-btn" title="AI Freshness Estimator">
+        ⚡ <span>AI Estimator</span>
+      </button>
+
+      <!-- Language Selector -->
+      <select id="selectLanguage" class="ctrl-btn" aria-label="Select Language">
+        <option value="en">🌐 English</option>
+        <option value="te">🌐 తెలుగు (Telugu)</option>
+        <option value="hi">🌐 हिन्दी (Hindi)</option>
+      </select>
+
+      <!-- Theme Switcher -->
+      <button id="btnToggleTheme" class="ctrl-btn" title="Toggle Dark/Light Theme">
+        <span id="themeIcon">🌙</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Role Navigation Bar -->
+  <nav class="role-tabs">
+    <div class="tabs-wrapper">
+      <button class="tab-item active" data-role="donor">
+        <span>🏬</span> <span data-i18n="tabDonor">Donor Portal</span>
+      </button>
+      <button class="tab-item" data-role="ngo">
+        <span>🏛️</span> <span data-i18n="tabNgo">NGO & Shelters</span>
+      </button>
+      <button class="tab-item" data-role="volunteer">
+        <span>🚴</span> <span data-i18n="tabVolunteer">Volunteer Network</span>
+      </button>
+      <button class="tab-item" data-role="admin">
+        <span>🛡️</span> <span data-i18n="tabAdmin">Admin Control</span>
+      </button>
+      <button class="tab-item" data-role="impact">
+        <span>📊</span> <span data-i18n="tabImpact">Impact & Analytics</span>
+      </button>
+    </div>
+  </nav>
+</header>
+
+<!-- Main Content Area -->
+<main class="main-body">
+
+  <!-- ================= 1. DONOR PANEL ================= -->
+  <section id="panel-donor" class="panel-view active">
+    <div class="hero-banner">
+      <div class="hero-text">
+        <h2 data-i18n="donorTitle">Surplus Food Donation Portal</h2>
+        <p data-i18n="donorSub">Connect surplus food from weddings, function halls, caterers & restaurants to verified nearby NGOs before it spoils.</p>
+      </div>
+      <div style="display: flex; gap: 10px;">
+        <button id="btnVerifyOtp" class="btn-ui btn-outline btn-sm">📱 Verify Phone (OTP)</button>
+        <button id="btnGenCert" class="btn-ui btn-purple btn-sm">🏆 CSR Impact Certificate</button>
+      </div>
+    </div>
+
+    <div class="grid-12">
+      <!-- Post Form -->
+      <div class="col-6">
+        <div class="card-box">
+          <div class="card-title-row">
+            <h3><span>🍲</span> <span data-i18n="postFormHeading">Post Surplus Food</span></h3>
+            <span class="badge-pill badge-posted">Instant NGO Dispatch</span>
+          </div>
+
+          <form id="formPostSurplus">
+            <div class="form-group">
+              <label data-i18n="lblDonorName">Donor / Venue Name</label>
+              <input type="text" id="donorName" class="input-control" placeholder="e.g. Royal Grand Palace Hall" required>
+            </div>
+
+            <div class="form-row-2">
+              <div class="form-group">
+                <label data-i18n="lblFoodItem">Food Items</label>
+                <input type="text" id="foodType" class="input-control" placeholder="e.g. Paneer Biryani & Curries" required>
+              </div>
+              <div class="form-group">
+                <label data-i18n="lblServings">Servings Count</label>
+                <input type="number" id="quantity" class="input-control" min="5" placeholder="e.g. 120 meals" required>
+              </div>
+            </div>
+
+            <div class="form-row-2">
+              <div class="form-group">
+                <label data-i18n="lblCookedTime">Cooked Time</label>
+                <input type="time" id="cookedTime" class="input-control" required>
+              </div>
+              <div class="form-group">
+                <label data-i18n="lblFreshnessWindow">Freshness Shelf-Life</label>
+                <select id="freshnessMinutes" class="input-control">
+                  <option value="60">1 Hour (Urgent Dispatch)</option>
+                  <option value="120" selected>2 Hours (Standard)</option>
+                  <option value="180">3 Hours (Good State)</option>
+                  <option value="240">4 Hours (Max Limit)</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="form-row-2">
+              <div class="form-group">
+                <label data-i18n="lblLocation">Pickup Location / Area</label>
+                <input type="text" id="pickupLocation" class="input-control" placeholder="e.g. Beach Road, Vizag" required>
+              </div>
+              <div class="form-group">
+                <label data-i18n="lblPhone">Contact Mobile</label>
+                <input type="tel" id="donorPhone" class="input-control" placeholder="10-digit mobile" required>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label data-i18n="lblPackaging">Packaging & Notes</label>
+              <textarea id="notes" class="input-control" rows="2" placeholder="Packed in stainless steel hot vessels. Need transport containers. Gate #2 entry."></textarea>
+            </div>
+
+            <button type="submit" class="btn-ui btn-primary" style="width: 100%;">
+              <span>🚀</span> <span data-i18n="btnSubmitDonation">Publish Food Rescue Post</span>
+            </button>
+          </form>
+        </div>
+      </div>
+
+      <!-- Active Donations List -->
+      <div class="col-6">
+        <div class="card-box">
+          <div class="card-title-row">
+            <h3><span>⏳</span> <span data-i18n="myDonationsTitle">Live Active Donations</span></h3>
+            <span class="badge-pill badge-posted" id="donorActiveBadge">0 Active</span>
+          </div>
+
+          <div id="donorDonationsList">
+            <!-- Dynamic cards -->
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= 2. NGO PANEL ================= -->
+  <section id="panel-ngo" class="panel-view">
+    <div class="hero-banner">
+      <div class="hero-text">
+        <h2 data-i18n="ngoTitle">NGO & Shelter Food Redistribution Portal</h2>
+        <p data-i18n="ngoSub">Browse nearby verified surplus food listings, run FSSAI safety inspections, and accept donations for orphanages, old age homes & shelters.</p>
+      </div>
+      <button class="btn-ui btn-outline btn-sm" id="btnNgoRegModal">📝 NGO Verification Portal</button>
+    </div>
+
+    <!-- Verified NGO Banner -->
+    <div class="card-box" style="margin-bottom: 24px; border-left: 6px solid var(--brand-accent); background: var(--surface-alt);">
+      <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 14px;">
+        <div style="display: flex; align-items: center; gap: 14px;">
+          <span style="font-size: 32px;">🏛️</span>
+          <div>
+            <h4 style="font-size: 17px; font-weight: 800;" id="ngoBannerName">Asha Care Foundation (Verified Partner)</h4>
+            <p style="font-size: 13px; color: var(--text-secondary);" id="ngoBannerSub">Govt Reg: AP/2024/098 &middot; Service Area: Vizag Urban &middot; Daily Capacity: 300 meals</p>
+          </div>
+        </div>
+        <span class="badge-pill badge-delivered">✓ FSSAI Verified NGO</span>
+      </div>
+    </div>
+
+    <div class="grid-12">
+      <!-- Surplus Feed -->
+      <div class="col-7">
+        <div class="card-box">
+          <div class="card-title-row">
+            <h3><span>📍</span> <span data-i18n="ngoSurplusHeading">Nearby Surplus Food Posts</span></h3>
+            <span class="badge-pill badge-accepted">Proximity Matching Engine</span>
+          </div>
+
+          <div id="ngoSurplusFeed">
+            <!-- Dynamic cards -->
+          </div>
+        </div>
+      </div>
+
+      <!-- Assigned Pickups -->
+      <div class="col-5">
+        <div class="card-box">
+          <div class="card-title-row">
+            <h3><span>📦</span> <span data-i18n="ngoPickupsHeading">NGO Assigned Pickups</span></h3>
+          </div>
+
+          <div id="ngoAssignedList">
+            <!-- Dynamic cards -->
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= 3. VOLUNTEER PANEL ================= -->
+  <section id="panel-volunteer" class="panel-view">
+    <div class="hero-banner">
+      <div class="hero-text">
+        <h2 data-i18n="volTitle">Volunteer Transport & Dispatch Network</h2>
+        <p data-i18n="volSub">Assist NGOs by picking up food from event venues and delivering to beneficiary homes.</p>
+      </div>
+      <span class="badge-pill badge-pickup_scheduled">🚀 Hero Logistics Dispatch</span>
+    </div>
+
+    <div class="grid-12">
+      <!-- Open Jobs -->
+      <div class="col-6">
+        <div class="card-box">
+          <div class="card-title-row">
+            <h3><span>🚴</span> <span data-i18n="volOpenJobs">Pickups Needing Transport</span></h3>
+          </div>
+
+          <div id="volOpenJobsList">
+            <!-- Dynamic list -->
+          </div>
+        </div>
+      </div>
+
+      <!-- Active Tasks -->
+      <div class="col-6">
+        <div class="card-box">
+          <div class="card-title-row">
+            <h3><span>🎯</span> <span data-i18n="volMyTasks">Your Active Deliveries</span></h3>
+          </div>
+
+          <div id="volMyTasksList">
+            <!-- Dynamic list -->
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= 4. ADMIN PANEL ================= -->
+  <section id="panel-admin" class="panel-view">
+    <div class="hero-banner">
+      <div class="hero-text">
+        <h2 data-i18n="adminTitle">Admin Control & Governance</h2>
+        <p data-i18n="adminSub">Manage NGO verification requests, monitor real-time surplus activity stream, and export system reports.</p>
+      </div>
+      <div style="display: flex; gap: 8px;">
+        <button id="btnExportData" class="btn-ui btn-outline btn-sm">📥 Export JSON</button>
+        <button id="btnResetSeed" class="btn-ui btn-danger btn-sm">🔄 Reset Seed Data</button>
+      </div>
+    </div>
+
+    <div class="grid-12">
+      <!-- NGO Approval Queue -->
+      <div class="col-12">
+        <div class="card-box" style="margin-bottom: 24px;">
+          <div class="card-title-row">
+            <h3><span>🛡️</span> <span data-i18n="adminNgoQueue">NGO Verification Approvals</span></h3>
+          </div>
+          <div id="adminNgoApprovalList">
+            <!-- Approval rows -->
+          </div>
+        </div>
+      </div>
+
+      <!-- Master Surplus Registry -->
+      <div class="col-12">
+        <div class="card-box">
+          <div class="card-title-row">
+            <h3><span>📑</span> <span data-i18n="adminAllPosts">Master Surplus Food Registry</span></h3>
+          </div>
+
+          <div style="overflow-x: auto;">
+            <table style="width: 100%; border-collapse: collapse; font-size: 13.5px;" id="adminTable">
+              <thead>
+                <tr style="border-bottom: 2px solid var(--border); text-align: left; color: var(--text-secondary);">
+                  <th style="padding: 10px;">ID</th>
+                  <th style="padding: 10px;">Food Description</th>
+                  <th style="padding: 10px;">Servings</th>
+                  <th style="padding: 10px;">Donor Venue</th>
+                  <th style="padding: 10px;">Location</th>
+                  <th style="padding: 10px;">Status</th>
+                  <th style="padding: 10px;">Assigned NGO</th>
+                  <th style="padding: 10px;">Action</th>
+                </tr>
+              </thead>
+              <tbody id="adminTableBody">
+                <!-- Dynamic rows -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= 5. IMPACT & ANALYTICS PANEL ================= -->
+  <section id="panel-impact" class="panel-view">
+    <div class="hero-banner">
+      <div class="hero-text">
+        <h2 data-i18n="impactTitle">Real-Time Impact & Community Analytics</h2>
+        <p data-i18n="impactSub">Tracking meals saved, food waste prevented, active partners, and live geographic rescue nodes.</p>
+      </div>
+      <button id="btnPrintCertificate" class="btn-ui btn-purple btn-sm">🖨️ Print CSR Report</button>
+    </div>
+
+    <!-- KPI Metric Row -->
+    <div class="kpi-row">
+      <div class="kpi-card">
+        <div class="kpi-icon bg-green">🍲</div>
+        <div>
+          <div class="kpi-number" id="kpiMealsSaved">0</div>
+          <div class="kpi-title" data-i18n="kpiLabelMeals">Meals Saved</div>
+        </div>
+      </div>
+
+      <div class="kpi-card">
+        <div class="kpi-icon bg-amber">⚖️</div>
+        <div>
+          <div class="kpi-number" id="kpiKgRescued">0 kg</div>
+          <div class="kpi-title" data-i18n="kpiLabelKg">Kg Surplus Rescued</div>
+        </div>
+      </div>
+
+      <div class="kpi-card">
+        <div class="kpi-icon bg-blue">🏛️</div>
+        <div>
+          <div class="kpi-number" id="kpiActiveNgos">0</div>
+          <div class="kpi-title" data-i18n="kpiLabelNgos">Verified NGO Partners</div>
+        </div>
+      </div>
+
+      <div class="kpi-card">
+        <div class="kpi-icon bg-purple">🚴</div>
+        <div>
+          <div class="kpi-number" id="kpiVolunteers">0</div>
+          <div class="kpi-title" data-i18n="kpiLabelVols">Active Volunteers</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid-12">
+      <!-- Live Rescue Network Map Canvas -->
+      <div class="col-8">
+        <div class="card-box">
+          <div class="card-title-row">
+            <h3><span>🗺️</span> <span data-i18n="mapHeading">Live Rescue Network Map Simulation</span></h3>
+            <span class="badge-pill badge-delivered">Real-Time Canvas Nodes</span>
+          </div>
+
+          <div class="map-box">
+            <canvas id="mapCanvas" class="map-canvas"></canvas>
+          </div>
+          <div style="display: flex; gap: 16px; margin-top: 14px; font-size: 12.5px; color: var(--text-secondary); justify-content: center;">
+            <span style="display: flex; align-items: center; gap: 6px;"><span style="width:10px;height:10px;border-radius:50%;background:#DC2626;display:inline-block;"></span> Surplus Food Node</span>
+            <span style="display: flex; align-items: center; gap: 6px;"><span style="width:10px;height:10px;border-radius:50%;background:#2563EB;display:inline-block;"></span> NGO / Shelter Node</span>
+            <span style="display: flex; align-items: center; gap: 6px;"><span style="width:10px;height:10px;border-radius:50%;background:#059669;display:inline-block;"></span> Delivery Dispatch Path</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Top Champions Leaderboard -->
+      <div class="col-4">
+        <div class="card-box">
+          <div class="card-title-row">
+            <h3><span>🏆</span> <span data-i18n="leaderboardHeading">Top Donors & Champions</span></h3>
+          </div>
+
+          <div id="leaderboardList" style="display: flex; flex-direction: column; gap: 12px;">
+            <!-- Dynamic rows -->
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<!-- ================= MODALS & OVERLAYS ================= -->
+
+<!-- 1. ACADEMIC PROJECT CERTIFICATE MODAL -->
+<div id="modalAcademicInfo" class="modal-overlay">
+  <div class="modal-dialog" style="max-width: 680px;">
+    <div style="text-align: center; border-bottom: 2px solid var(--border); padding-bottom: 16px; margin-bottom: 20px;">
+      <h2 style="font-family: var(--font-heading); font-size: 24px; font-weight: 800; color: var(--brand-accent);">
+        MAHARAJ VIJAYARAM GAJAPATHI RAJ COLLEGE OF ENGINEERING (Autonomous)
+      </h2>
+      <p style="font-size: 13px; color: var(--text-secondary); font-weight: 600;">
+        Department of Data Engineering &bull; B.Tech Community Project (Batch 04)
+      </p>
+      <p style="font-size: 12px; color: var(--text-tertiary); margin-top: 4px;">
+        Course Code: <strong>R24MSCSP001</strong> &middot; Regulation: R24 &middot; Academic Year: 2025-26
+      </p>
+    </div>
+
+    <div style="background: var(--surface-alt); padding: 18px; border-radius: var(--radius-sm); border: 1px solid var(--border); margin-bottom: 20px;">
+      <h3 style="font-size: 17px; font-weight: 800; color: var(--text-primary); margin-bottom: 8px;">
+        Project Title: FOOD RESCUE NETWORK
+      </h3>
+      <p style="font-size: 13.5px; color: var(--text-secondary); line-height: 1.6;">
+        A community-based digital platform connecting food donors directly with verified NGOs, volunteers, orphanages, old-age homes, and shelters for rapid food redistribution using location matching, food freshness countdown timers, and FSSAI safety checklists.
+      </p>
+    </div>
+
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px; font-size: 13px;">
+      <div style="background: var(--surface-card); padding: 14px; border-radius: var(--radius-xs); border: 1px solid var(--border);">
+        <strong style="color: var(--brand-accent); display: block; margin-bottom: 6px;">Team Members (Batch 04):</strong>
+        <div>1. P. SARVWAN (24331A4746)</div>
+        <div>2. CH. RAJAESHRI (24331A4709)</div>
+        <div>3. T. KUMARA SWAMY (24331A4760)</div>
+        <div>4. N. HANISH VARMA (24331A4742)</div>
+      </div>
+
+      <div style="background: var(--surface-card); padding: 14px; border-radius: var(--radius-xs); border: 1px solid var(--border);">
+        <strong style="color: var(--brand-accent); display: block; margin-bottom: 6px;">Project Faculty Guidance:</strong>
+        <div><strong>Guide:</strong> Ms P. Monika (Asst. Professor)</div>
+        <div><strong>Coordinator:</strong> Dr. T. Govindarao (Sr. Asst. Prof)</div>
+        <div><strong>HOD:</strong> Dr. V. Jyothi (Associate Professor)</div>
+      </div>
+    </div>
+
+    <div style="display: flex; gap: 10px; justify-content: flex-end;">
+      <button class="btn-ui btn-outline" id="btnCloseAcademicModal">Close</button>
+      <button class="btn-ui btn-purple" id="btnPrintAcademicCert">🖨️ Print Academic Certificate</button>
+    </div>
+  </div>
+</div>
+
+<!-- 2. Command Palette Modal (Ctrl+K) -->
+<div id="modalCommandPalette" class="modal-overlay">
+  <div class="modal-dialog">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+      <h3 class="modal-title">⌨️ Rescue Network Command Palette</h3>
+      <span style="font-size: 12px; font-family: var(--font-mono); color: var(--text-tertiary);">ESC to close</span>
+    </div>
+    <input type="text" id="cmdInput" class="input-control" placeholder="Type a command (e.g. 'post', 'ngo', 'impact', 'export', 'lang')..." style="margin-bottom: 16px;">
+    <div id="cmdResultsList" style="max-height: 240px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px;">
+      <!-- Dynamic command results -->
+    </div>
+  </div>
+</div>
+
+<!-- 3. AI Freshness & Expiry Estimator Modal -->
+<div id="modalAiEstimator" class="modal-overlay">
+  <div class="modal-dialog">
+    <h3 class="modal-title">⚡ AI Food Freshness & Shelf-Life Estimator</h3>
+    <p style="font-size: 13.5px; color: var(--text-secondary); margin-bottom: 18px;">
+      Calculates safe consumption window based on FSSAI microbial degradation rules & ambient temperature.
+    </p>
+
+    <div class="form-group">
+      <label>Dish Category</label>
+      <select id="aiDishType" class="input-control">
+        <option value="gravy">Cooked Meals / Dal / Gravies & Gravy Rice</option>
+        <option value="dry">Dry Roti / Pulao / Fried Snacks</option>
+        <option value="dairy">Dairy Products / Paneer Sweets / Payasam</option>
+        <option value="salad">Fresh Cut Salads & Cut Fruits</option>
+      </select>
+    </div>
+
+    <div class="form-row-2">
+      <div class="form-group">
+        <label>Ambient Temp (°C)</label>
+        <input type="number" id="aiTemp" class="input-control" value="30" min="15" max="45">
+      </div>
+      <div class="form-group">
+        <label>Packaging Type</label>
+        <select id="aiPackaging" class="input-control">
+          <option value="hot">Stainless Steel Hot Insulated Vessel</option>
+          <option value="foil">Sealed Food Foil Container</option>
+          <option value="open">Open Serving Trays</option>
+        </select>
+      </div>
+    </div>
+
+    <div id="aiResultBox" style="display: none; padding: 16px; background: var(--surface-alt); border: 1px solid var(--brand-accent); border-radius: var(--radius-sm); margin-top: 14px; text-align: center;">
+      <div style="font-size: 13px; color: var(--text-secondary);">Recommended Freshness Window:</div>
+      <div style="font-size: 26px; font-weight: 800; color: var(--brand-accent); font-family: var(--font-heading);" id="aiResultVal">2 Hours 15 Mins</div>
+      <div style="font-size: 12px; color: var(--text-tertiary); margin-top: 4px;" id="aiResultNotes">Maintain temp above 60°C or transport immediately.</div>
+    </div>
+
+    <div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 22px;">
+      <button class="btn-ui btn-outline" id="btnCloseAiModal">Close</button>
+      <button class="btn-ui btn-accent" id="btnCalcAi">Calculate Expiry</button>
+    </div>
+  </div>
+</div>
+
+<!-- 4. OTP Mobile Verification Modal -->
+<div id="modalOtp" class="modal-overlay">
+  <div class="modal-dialog">
+    <h3 class="modal-title">📱 SMS Mobile Verification</h3>
+    <p style="font-size: 13.5px; color: var(--text-secondary); margin-bottom: 18px;">
+      Verify mobile identity to build trust with receiving NGOs & shelters.
+    </p>
+
+    <div class="form-group">
+      <label>Mobile Number</label>
+      <input type="tel" id="otpPhone" class="input-control" value="9848022338" maxlength="10">
+    </div>
+
+    <div id="otpSimBox" style="display: none; margin: 16px 0; padding: 16px; background: var(--amber-bg); border-radius: var(--radius-sm); text-align: center;">
+      <div style="font-size: 13px; color: var(--amber-text); font-weight: 700;">Simulated 4-Digit OTP Code:</div>
+      <div style="font-size: 28px; font-weight: 800; letter-spacing: 6px; font-family: monospace; color: var(--amber-text);" id="otpCodeShow">8492</div>
+    </div>
+
+    <div class="form-group" id="otpInputRow" style="display: none;">
+      <label>Enter Code</label>
+      <input type="text" id="otpEntered" class="input-control" placeholder="e.g. 8492" maxlength="4">
+    </div>
+
+    <div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px;">
+      <button class="btn-ui btn-outline" id="btnOtpClose">Cancel</button>
+      <button class="btn-ui btn-primary" id="btnOtpSend">Send OTP Code</button>
+      <button class="btn-ui btn-accent" id="btnOtpConfirm" style="display: none;">Verify & Approve</button>
+    </div>
+  </div>
+</div>
+
+<!-- 5. FSSAI Food Safety Audit Modal -->
+<div id="modalFssai" class="modal-overlay">
+  <div class="modal-dialog">
+    <h3 class="modal-title">📋 FSSAI Food Safety Statutory Audit</h3>
+    <p style="font-size: 13.5px; color: var(--text-secondary); margin-bottom: 18px;">
+      Mandatory 4-point safety verification required under FSSAI Redistribution Guidelines.
+    </p>
+
+    <div style="display: flex; flex-direction: column; gap: 10px;">
+      <label style="display: flex; gap: 10px; font-size: 13.5px; background: var(--surface-alt); padding: 12px; border-radius: var(--radius-xs); border: 1px solid var(--border);">
+        <input type="checkbox" id="f1" checked>
+        <span><strong>Sensory Check:</strong> Normal aroma, color, and texture with zero spoilage.</span>
+      </label>
+      <label style="display: flex; gap: 10px; font-size: 13.5px; background: var(--surface-alt); padding: 12px; border-radius: var(--radius-xs); border: 1px solid var(--border);">
+        <input type="checkbox" id="f2" checked>
+        <span><strong>Preparation Window:</strong> Prepared within last 4 hrs and within active freshness timer.</span>
+      </label>
+      <label style="display: flex; gap: 10px; font-size: 13.5px; background: var(--surface-alt); padding: 12px; border-radius: var(--radius-xs); border: 1px solid var(--border);">
+        <input type="checkbox" id="f3" checked>
+        <span><strong>Container Hygiene:</strong> Covered stainless steel or sealed food-grade packaging.</span>
+      </label>
+      <label style="display: flex; gap: 10px; font-size: 13.5px; background: var(--surface-alt); padding: 12px; border-radius: var(--radius-xs); border: 1px solid var(--border);">
+        <input type="checkbox" id="f4" checked>
+        <span><strong>Dispatch Transit Plan:</strong> Transit arranged to deliver to shelter within 60 minutes.</span>
+      </label>
+    </div>
+
+    <div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 22px;">
+      <button class="btn-ui btn-outline" id="btnFssaiClose">Cancel</button>
+      <button class="btn-ui btn-accent" id="btnFssaiApprove">✓ Pass Audit & Accept Pickup</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast Hub -->
+<div id="toastHub" class="toast-hub"></div>
+
+<!-- ================= JAVASCRIPT ENGINE ================= -->
+<script>
+(function() {
+  'use strict';
+
+  // -------------------------------------------------------------
+  // 1. DICTIONARIES (EN, TE, HI)
+  // -------------------------------------------------------------
+  const i18n = {
+    en: {
+      tabDonor: "Donor Portal",
+      tabNgo: "NGO & Shelters",
+      tabVolunteer: "Volunteer Network",
+      tabAdmin: "Admin Control",
+      tabImpact: "Impact & Analytics",
+      donorTitle: "Surplus Food Donation Portal",
+      donorSub: "Connect surplus food from weddings, function halls, caterers & restaurants to verified nearby NGOs before it spoils.",
+      postFormHeading: "Post Surplus Food",
+      lblDonorName: "Donor / Venue Name",
+      lblFoodItem: "Food Items",
+      lblServings: "Servings Count",
+      lblCookedTime: "Cooked Time",
+      lblFreshnessWindow: "Freshness Shelf-Life",
+      lblLocation: "Pickup Location / Area",
+      lblPhone: "Contact Mobile",
+      lblPackaging: "Packaging & Notes",
+      btnSubmitDonation: "Publish Food Rescue Post",
+      myDonationsTitle: "Live Active Donations",
+      ngoTitle: "NGO & Shelter Food Redistribution Portal",
+      ngoSub: "Browse nearby verified surplus food listings, run FSSAI safety inspections, and accept donations for orphanages, old age homes & shelters.",
+      ngoSurplusHeading: "Nearby Surplus Food Posts",
+      ngoPickupsHeading: "NGO Assigned Pickups",
+      volTitle: "Volunteer Transport & Dispatch Network",
+      volSub: "Assist NGOs by picking up food from event venues and delivering to beneficiary homes.",
+      volOpenJobs: "Pickups Needing Transport",
+      volMyTasks: "Your Active Deliveries",
+      adminTitle: "Admin Control & Governance",
+      adminSub: "Manage NGO verification requests, monitor real-time surplus activity stream, and export system reports.",
+      adminNgoQueue: "NGO Verification Approvals",
+      adminAllPosts: "Master Surplus Food Registry",
+      impactTitle: "Real-Time Impact & Community Analytics",
+      impactSub: "Tracking meals saved, food waste prevented, active partners, and live geographic rescue nodes.",
+      kpiLabelMeals: "Meals Saved",
+      kpiLabelKg: "Kg Surplus Rescued",
+      kpiLabelNgos: "Verified NGO Partners",
+      kpiLabelVols: "Active Volunteers",
+      mapHeading: "Live Rescue Network Map Simulation",
+      leaderboardHeading: "Top Donors & Champions"
+    },
+    te: {
+      tabDonor: "దాతల పోర్టల్",
+      tabNgo: "NGO & ఆశ్రమాలు",
+      tabVolunteer: "వాలంటీర్ నెట్‌వర్క్",
+      tabAdmin: "అడ్మిన్ ప్యానెల్",
+      tabImpact: "ఇంపాక్ట్ & విశ్లేషణలు",
+      donorTitle: "మిగులు ఆహార విరాళాల పోర్టల్",
+      donorSub: "వివాహాలు, శుభకార్యాలు, రెస్టారెంట్ల నుండి మిగిలిన ఆహారాన్ని పాడవకుండా సమీపంలోని గుర్తింపు పొందిన NGOలకు అందించండి.",
+      postFormHeading: "మిగులు ఆహారాన్ని పోస్ట్ చేయండి",
+      lblDonorName: "దాత / కళ్యాణ మండపం పేరు",
+      lblFoodItem: "ఆహార వివరాలు",
+      lblServings: "భోజనాల సంఖ్య",
+      lblCookedTime: "వండిన సమయం",
+      lblFreshnessWindow: "తాజా సమయ పరిమితి",
+      lblLocation: "పికప్ ప్రదేశం / ప్రాంతం",
+      lblPhone: "ఫోన్ నంబర్",
+      lblPackaging: "ప్యాకేజింగ్ వివరాలు",
+      btnSubmitDonation: "విరాళం పోస్ట్ చేయండి",
+      myDonationsTitle: "మీ చురుకైన విరాళాలు",
+      ngoTitle: "NGO & ఆశ్రమాల ఆహార పంపిణీ పోర్టల్",
+      ngoSub: "సమీపంలోని మిగులు ఆహారాన్ని పరిశీలించి, FSSAI భద్రతా ప్రమాణాలను తనిఖీ చేసి స్వీకరించండి.",
+      ngoSurplusHeading: "అందుబాటులో ఉన్న ఆహారం",
+      ngoPickupsHeading: "NGO స్వీకరించిన పికప్‌లు",
+      volTitle: "వాలంటీర్ రవాణా నెట్‌వర్క్",
+      volSub: "కళ్యాణ మండపాల నుండి ఆహారాన్ని ఆశ్రమాలకు చేర్చడంలో సహాయపడండి.",
+      volOpenJobs: "రవాణా అవసరమైన విరాళాలు",
+      volMyTasks: "మీ డిలివరీ బాధ్యతలు",
+      adminTitle: "అడ్మిన్ నియంత్రణ & పర్యవేక్షణ",
+      adminSub: "NGO ధృవీకరణ అభ్యర్థనలను ఆమోదించండి మరియు మొత్తం వ్యవస్థను పర్యవేక్షించండి.",
+      adminNgoQueue: "NGO ధృవీకరణ ఆమోదాలు",
+      adminAllPosts: "మొత్తం విరాళాల రికార్డు",
+      impactTitle: "రియల్ టైమ్ ఇంపాక్ట్ & విశ్లేషణలు",
+      impactSub: "కాపాడిన భోజనాలు, నివారించిన ఆహార వృధా మరియు రవాణా మ్యాప్ వివరాలు.",
+      kpiLabelMeals: "కాపాడిన భోజనాలు",
+      kpiLabelKg: "కిలోల ఆహారం కాపాడబడింది",
+      kpiLabelNgos: "గుర్తింపు పొందిన NGOలు",
+      kpiLabelVols: "యాక్టివ్ వాలంటీర్లు",
+      mapHeading: "లైవ్ నెట్‌వర్క్ మ్యాప్ సిమ్యులేషన్",
+      leaderboardHeading: "అత్యుత్తమ దాతలు & నాయకులు"
+    },
+    hi: {
+      tabDonor: "दाता पोर्टल",
+      tabNgo: "एनजीओ एवं आश्रम",
+      tabVolunteer: "स्वयंसेवक नेटवर्क",
+      tabAdmin: "एडमिन पैनल",
+      tabImpact: "प्रभाव एवं विश्लेषण",
+      donorTitle: "अतिरिक्त भोजन दान पोर्टल",
+      donorSub: "शादियों, समारोहों और रेस्तरां से बचा हुआ भोजन खराब होने से पहले निकटतम सत्यापित एनजीओ तक पहुंचाएं।",
+      postFormHeading: "बचा हुआ भोजन पोस्ट करें",
+      lblDonorName: "दाता / मैरिज हॉल का नाम",
+      lblFoodItem: "भोजन का विवरण",
+      lblServings: "भोजन की संख्या",
+      lblCookedTime: "पकाने का समय",
+      lblFreshnessWindow: "ताजगी की समयावधि",
+      lblLocation: "पिकअप स्थान / क्षेत्र",
+      lblPhone: "संपर्क मोबाइल नंबर",
+      lblPackaging: "पैकिंग की जानकारी",
+      btnSubmitDonation: "भोजन दान पोस्ट करें",
+      myDonationsTitle: "आपके सक्रिय दान",
+      ngoTitle: "एनजीओ और आश्रम भोजन वितरण पोर्टल",
+      ngoSub: "आसपास के उपलब्ध भोजन को देखें, FSSAI सुरक्षा जांच करें और जरूरतमंदों के लिए स्वीकार करें।",
+      ngoSurplusHeading: "उपलब्ध अतिरिक्त भोजन",
+      ngoPickupsHeading: "स्वीकृत पिकअप सूची",
+      volTitle: "स्वयंसेवक परिवहन नेटवर्क",
+      volSub: "समारोह स्थल से भोजन उठाकर अनाथालयों और आश्रमों तक पहुंचाने में मदद करें।",
+      volOpenJobs: "परिवहन की आवश्यकता वाले कार्य",
+      volMyTasks: "आपकी सक्रिय डिलीवरी",
+      adminTitle: "एडमिन नियंत्रण एवं प्रशासन",
+      adminSub: "एनजीओ सत्यापन अनुरोधों को मंजूरी दें और पूरे सिस्टम की निगरानी करें।",
+      adminNgoQueue: "एनजीओ सत्यापन स्वीकृतियां",
+      adminAllPosts: "मास्टर भोजन दान रजिस्टर",
+      impactTitle: "लाइव प्रभाव और विश्लेषण",
+      impactSub: "बचाया गया भोजन, रोकी गई बर्बादी और लाइव नेटवर्क मैप की जानकारी।",
+      kpiLabelMeals: "बचाया गया भोजन (थाली)",
+      kpiLabelKg: "किग्रा बचा हुआ भोजन",
+      kpiLabelNgos: "सत्यापित एनजीओ पार्टनर",
+      kpiLabelVols: "सक्रिय स्वयंसेवक",
+      mapHeading: "लाइव रेस्क्यू नेटवर्क मैप",
+      leaderboardHeading: "शीर्ष दाता और चैंपियन"
+    }
+  };
+
+  // -------------------------------------------------------------
+  // 2. SEED DATA & BROADCAST MULTI-TAB SYNC
+  // -------------------------------------------------------------
+  const SEED_DONATIONS = [
+    {
+      id: "RESCUE-801",
+      donorName: "Royal Grand Palace Hall",
+      donorPhone: "9848022338",
+      foodType: "Paneer Biryani & Mixed Vegetable Meals",
+      quantity: 150,
+      cookedTime: "18:30",
+      freshnessMinutes: 120,
+      postedAt: new Date(Date.now() - 15 * 60000).toISOString(),
+      expiresAt: new Date(Date.now() + 105 * 60000).toISOString(),
+      location: "Beach Road, Visakhapatnam",
+      notes: "Packed in stainless steel hot vessels.",
+      status: "posted",
+      assignedNgoId: "",
+      assignedNgoName: "",
+      assignedVolunteerId: "",
+      assignedVolunteerName: "",
+      coords: { x: 0.35, y: 0.42 }
+    },
+    {
+      id: "RESCUE-802",
+      donorName: "Spice Garden Caterers",
+      donorPhone: "9100876543",
+      foodType: "Chicken Curry, Fried Rice & Sambar",
+      quantity: 80,
+      cookedTime: "19:00",
+      freshnessMinutes: 60,
+      postedAt: new Date(Date.now() - 30 * 60000).toISOString(),
+      expiresAt: new Date(Date.now() + 30 * 60000).toISOString(),
+      location: "RTC Complex Road, Vizag",
+      notes: "Need volunteer transport containers.",
+      status: "posted",
+      assignedNgoId: "",
+      assignedNgoName: "",
+      assignedVolunteerId: "",
+      assignedVolunteerName: "",
+      coords: { x: 0.58, y: 0.32 }
+    },
+    {
+      id: "RESCUE-803",
+      donorName: "Novotel Corporate Convention",
+      donorPhone: "9988776655",
+      foodType: "Buffet Meals & Salads",
+      quantity: 200,
+      cookedTime: "13:00",
+      freshnessMinutes: 180,
+      postedAt: new Date(Date.now() - 70 * 60000).toISOString(),
+      expiresAt: new Date(Date.now() + 110 * 60000).toISOString(),
+      location: "Siripuram Junction, Vizag",
+      notes: "Sealed foil containers.",
+      status: "accepted",
+      assignedNgoId: "NGO-01",
+      assignedNgoName: "Asha Care Foundation",
+      assignedVolunteerId: "VOL-01",
+      assignedVolunteerName: "Ramesh Kumar",
+      coords: { x: 0.45, y: 0.65 }
+    }
+  ];
+
+  const SEED_NGOS = [
+    { id: "NGO-01", name: "Asha Care Foundation", regNo: "AP/2024/098", area: "Siripuram & Beach Road", capacity: 300, verified: true },
+    { id: "NGO-02", name: "Akshaya Shelter Trust", regNo: "AP/2023/452", area: "Gajuwaka Industrial Belt", capacity: 200, verified: true },
+    { id: "NGO-03", name: "Mother Theresa Orphanage", regNo: "AP/2025/112", area: "RTC Complex Area", capacity: 100, verified: false }
+  ];
+
+  const SEED_VOLUNTEERS = [
+    { id: "VOL-01", name: "Ramesh Kumar", phone: "9876543210", vehicle: "Two Wheeler", deliveries: 22 },
+    { id: "VOL-02", name: "Suresh Varma", phone: "9123412345", vehicle: "Auto Rickshaw", deliveries: 31 }
+  ];
+
+  const broadcastChannel = typeof BroadcastChannel !== "undefined" ? new BroadcastChannel("food_rescue_enterprise_channel") : null;
+
+  function loadStore(key, fallback) {
+    try {
+      const v = localStorage.getItem(key);
+      return v ? JSON.parse(v) : fallback;
+    } catch(e) { return fallback; }
+  }
+
+  function saveStore(key, val) {
+    try {
+      localStorage.setItem(key, JSON.stringify(val));
+      if (broadcastChannel) broadcastChannel.postMessage({ type: "SYNC", key });
+    } catch(e) {}
+  }
+
+  let dbDonations = loadStore("frn_donations_ent", SEED_DONATIONS);
+  let dbNgos = loadStore("frn_ngos_ent", SEED_NGOS);
+  let dbVolunteers = loadStore("frn_volunteers_ent", SEED_VOLUNTEERS);
+  let isDonorVerified = loadStore("frn_donor_verified_ent", false);
+  let currentLang = loadStore("frn_lang_ent", "en");
+  let auditPendingId = null;
+
+  if (broadcastChannel) {
+    broadcastChannel.onmessage = (e) => {
+      if (e.data && e.data.type === "SYNC") {
+        dbDonations = loadStore("frn_donations_ent", SEED_DONATIONS);
+        dbNgos = loadStore("frn_ngos_ent", SEED_NGOS);
+        dbVolunteers = loadStore("frn_volunteers_ent", SEED_VOLUNTEERS);
+        renderAllPanels();
+      }
+    };
+  }
+
+  function syncData() {
+    saveStore("frn_donations_ent", dbDonations);
+    saveStore("frn_ngos_ent", dbNgos);
+    saveStore("frn_volunteers_ent", dbVolunteers);
+    renderAllPanels();
+  }
+
+  // -------------------------------------------------------------
+  // 3. TOAST & HELPERS
+  // -------------------------------------------------------------
+  function toast(msg, type = "info") {
+    const hub = document.getElementById("toastHub");
+    const item = document.createElement("div");
+    item.className = "toast-item";
+    item.innerHTML = `<span>${type==='success'?'✅':type==='danger'?'🚨':'ℹ️'}</span> ${msg}`;
+    hub.appendChild(item);
+    setTimeout(() => item.remove(), 3200);
+  }
+
+  function getTimerInfo(expiresIso, minutesTotal) {
+    const msLeft = new Date(expiresIso).getTime() - Date.now();
+    if (msLeft <= 0) return { pct: 0, text: "EXPIRED", cls: "fill-urgent" };
+    
+    const pct = Math.max(0, Math.min(100, Math.round((msLeft / (minutesTotal * 60000)) * 100)));
+    const mins = Math.floor(msLeft / 60000);
+    const secs = Math.floor((msLeft % 60000) / 1000);
+    const text = `${mins}m ${secs < 10 ? '0' : ''}${secs}s remaining`;
+
+    if (pct < 20) return { pct, text, cls: "fill-urgent" };
+    if (pct < 50) return { pct, text, cls: "fill-warning" };
+    return { pct, text, cls: "fill-fresh" };
+  }
+
+  function escapeHtml(str) {
+    return String(str || '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  }
+
+  // -------------------------------------------------------------
+  // 4. NAVIGATION & THEMES
+  // -------------------------------------------------------------
+  document.querySelectorAll(".tab-item").forEach(tab => {
+    tab.addEventListener("click", () => {
+      document.querySelectorAll(".tab-item").forEach(t => t.classList.remove("active"));
+      document.querySelectorAll(".panel-view").forEach(p => p.classList.remove("active"));
+
+      tab.classList.add("active");
+      const role = tab.dataset.role;
+      const target = document.getElementById(`panel-${role}`);
+      if (target) target.classList.add("active");
+
+      if (role === "impact") setTimeout(drawMapCanvas, 100);
+    });
+  });
+
+  // Theme Switcher
+  const btnToggleTheme = document.getElementById("btnToggleTheme");
+  const themeIcon = document.getElementById("themeIcon");
+  btnToggleTheme.addEventListener("click", () => {
+    const cur = document.documentElement.getAttribute("data-theme");
+    const next = cur === "dark" ? "light" : "dark";
+    document.documentElement.setAttribute("data-theme", next);
+    themeIcon.textContent = next === "dark" ? "☀️" : "🌙";
+    saveStore("frn_theme_ent", next);
+    drawMapCanvas();
+  });
+
+  const savedTheme = loadStore("frn_theme_ent", "light");
+  document.documentElement.setAttribute("data-theme", savedTheme);
+  themeIcon.textContent = savedTheme === "dark" ? "☀️" : "🌙";
+
+  // i18n Selector
+  const selectLanguage = document.getElementById("selectLanguage");
+  selectLanguage.value = currentLang;
+  selectLanguage.addEventListener("change", (e) => {
+    currentLang = e.target.value;
+    saveStore("frn_lang_ent", currentLang);
+    applyI18n();
+  });
+
+  function applyI18n() {
+    const dict = i18n[currentLang] || i18n.en;
+    document.querySelectorAll("[data-i18n]").forEach(el => {
+      const k = el.getAttribute("data-i18n");
+      if (dict[k]) el.textContent = dict[k];
+    });
+  }
+
+  // -------------------------------------------------------------
+  // 5. DONOR VIEW LOGIC
+  // -------------------------------------------------------------
+  const formPostSurplus = document.getElementById("formPostSurplus");
+  formPostSurplus.addEventListener("submit", (e) => {
+    e.preventDefault();
+    if (!isDonorVerified) {
+      openOtpModal();
+      return;
+    }
+
+    const name = document.getElementById("donorName").value.trim();
+    const food = document.getElementById("foodType").value.trim();
+    const qty = parseInt(document.getElementById("quantity").value, 10);
+    const cooked = document.getElementById("cookedTime").value;
+    const mins = parseInt(document.getElementById("freshnessMinutes").value, 10);
+    const loc = document.getElementById("pickupLocation").value.trim();
+    const phone = document.getElementById("donorPhone").value.trim();
+    const notes = document.getElementById("notes").value.trim();
+
+    const now = new Date();
+    const expires = new Date(now.getTime() + mins * 60000);
+
+    const post = {
+      id: "RESCUE-" + Math.floor(100 + Math.random() * 900),
+      donorName: name,
+      donorPhone: phone,
+      foodType: food,
+      quantity: qty,
+      cookedTime: cooked || "Just now",
+      freshnessMinutes: mins,
+      postedAt: now.toISOString(),
+      expiresAt: expires.toISOString(),
+      location: loc,
+      notes: notes,
+      status: "posted",
+      assignedNgoId: "",
+      assignedNgoName: "",
+      assignedVolunteerId: "",
+      assignedVolunteerName: "",
+      coords: { x: 0.2 + Math.random() * 0.6, y: 0.2 + Math.random() * 0.6 }
+    };
+
+    dbDonations.unshift(post);
+    syncData();
+    formPostSurplus.reset();
+    toast("Food rescue post published! Nearby verified NGOs notified.", "success");
+  });
+
+  function renderDonorPanel() {
+    const list = document.getElementById("donorDonationsList");
+    const badge = document.getElementById("donorActiveBadge");
+
+    const active = dbDonations.filter(d => d.status !== "delivered" && d.status !== "expired");
+    badge.textContent = `${active.length} Active Posts`;
+
+    if (dbDonations.length === 0) {
+      list.innerHTML = `<div style="text-align:center; padding:40px; color:var(--text-secondary); border:2px dashed var(--border); border-radius:var(--radius-md);">🥗 No surplus food posted yet. Use the form to publish.</div>`;
+      return;
+    }
+
+    list.innerHTML = dbDonations.map(d => {
+      const timer = getTimerInfo(d.expiresAt, d.freshnessMinutes);
+      if (timer.text === "EXPIRED" && d.status === "posted") d.status = "expired";
+
+      return `
+        <div class="food-card status-${d.status}">
+          <div class="card-top">
+            <div>
+              <div class="food-title">${escapeHtml(d.foodType)} (${d.quantity} Servings)</div>
+              <div class="food-meta">
+                <span class="meta-item">🏬 ${escapeHtml(d.donorName)}</span>
+                <span class="meta-item">📍 ${escapeHtml(d.location)}</span>
+                <span class="meta-item">🕒 Cooked: ${d.cookedTime}</span>
+              </div>
+            </div>
+            <span class="badge-pill badge-${d.status}">${d.status.replace('_', ' ')}</span>
+          </div>
+
+          <div class="freshness-box">
+            <div class="freshness-header">
+              <span>Freshness Shelf-Life Timer</span>
+              <span class="${timer.cls}">⏱️ ${timer.text}</span>
+            </div>
+            <div class="progress-track">
+              <div class="progress-fill ${timer.cls}" style="width: ${timer.pct}%;"></div>
+            </div>
+          </div>
+
+          ${renderStepper(d.status)}
+
+          ${d.notes ? `<div style="font-size:13px; color:var(--text-secondary); margin-top:8px; border-top:1px dashed var(--border); padding-top:8px;">"${escapeHtml(d.notes)}"</div>` : ''}
+          ${d.assignedNgoName ? `<div style="font-size:12.5px; font-weight:700; color:var(--blue-info); margin-top:6px;">🏛️ Matched NGO: ${escapeHtml(d.assignedNgoName)}</div>` : ''}
+        </div>
+      `;
+    }).join("");
+  }
+
+  function renderStepper(status) {
+    const steps = ["posted", "accepted", "picked_up", "delivered"];
+    const labels = ["Posted", "NGO Matched", "Picked Up", "Delivered"];
+    const curIdx = steps.indexOf(status === "pickup_scheduled" ? "accepted" : status);
+
+    let pct = 0;
+    if (curIdx >= 0) pct = (curIdx / (steps.length - 1)) * 100;
+
+    let nodes = steps.map((s, idx) => {
+      const isDone = idx < curIdx;
+      const isCurrent = idx === curIdx;
+      const cls = isDone ? "done" : (isCurrent ? "current" : "");
+      return `
+        <div class="step-node ${cls}">
+          <div class="node-bubble">${isDone ? '✓' : idx + 1}</div>
+          <div class="node-label">${labels[idx]}</div>
+        </div>
+      `;
+    }).join("");
+
+    return `
+      <div class="stepper-container">
+        <div class="stepper-line"><div class="stepper-fill" style="width: ${pct}%;"></div></div>
+        ${nodes}
+      </div>
+    `;
+  }
+
+  // -------------------------------------------------------------
+  // 6. NGO VIEW LOGIC
+  // -------------------------------------------------------------
+  function renderNgoPanel() {
+    const feed = document.getElementById("ngoSurplusFeed");
+    const assigned = document.getElementById("ngoAssignedList");
+
+    const openPosts = dbDonations.filter(d => d.status === "posted");
+    const myPickups = dbDonations.filter(d => d.assignedNgoId === "NGO-01");
+
+    if (openPosts.length === 0) {
+      feed.innerHTML = `<div style="text-align:center; padding:40px; color:var(--text-secondary); border:2px dashed var(--border); border-radius:var(--radius-md);">✨ No open surplus food posts right now. Check back soon!</div>`;
+    } else {
+      feed.innerHTML = openPosts.map(d => {
+        const timer = getTimerInfo(d.expiresAt, d.freshnessMinutes);
+        return `
+          <div class="food-card status-posted">
+            <div class="card-top">
+              <div>
+                <div class="food-title">${escapeHtml(d.foodType)} &middot; ${d.quantity} Servings</div>
+                <div class="food-meta">
+                  <span class="meta-item">🏬 ${escapeHtml(d.donorName)}</span>
+                  <span class="meta-item">📍 ${escapeHtml(d.location)} (1.2 km)</span>
+                </div>
+              </div>
+              <span class="badge-pill badge-posted">⏱️ ${timer.text}</span>
+            </div>
+            ${d.notes ? `<p style="font-size:13px; color:var(--text-secondary); margin-bottom:12px;">Notes: ${escapeHtml(d.notes)}</p>` : ''}
+            <button class="btn-ui btn-accent btn-sm btn-run-fssai" data-id="${d.id}">
+              📋 Run FSSAI Audit & Accept Pickup
+            </button>
+          </div>
+        `;
+      }).join("");
+    }
+
+    if (myPickups.length === 0) {
+      assigned.innerHTML = `<div style="text-align:center; padding:40px; color:var(--text-secondary); border:2px dashed var(--border); border-radius:var(--radius-md);">📦 No active accepted pickups for Asha Care Foundation.</div>`;
+    } else {
+      assigned.innerHTML = myPickups.map(d => {
+        return `
+          <div class="food-card status-${d.status}">
+            <div class="food-title">${escapeHtml(d.foodType)} (${d.quantity} Servings)</div>
+            <div style="font-size:13px; color:var(--text-secondary); margin:4px 0;">📍 ${escapeHtml(d.location)} &middot; Donor: ${escapeHtml(d.donorName)}</div>
+            <div style="margin-top:10px; display:flex; gap:8px;">
+              ${d.status === 'accepted' || d.status === 'pickup_scheduled' ? `<button class="btn-ui btn-primary btn-sm btn-mark-pickup" data-id="${d.id}">🚚 Mark Picked Up</button>` : ''}
+              ${d.status === 'picked_up' ? `<button class="btn-ui btn-accent btn-sm btn-mark-delivered" data-id="${d.id}">✅ Confirm Delivery to Shelter</button>` : ''}
+              ${d.status === 'delivered' ? `<span class="badge-pill badge-delivered">✓ Delivered to Shelter</span>` : ''}
+            </div>
+          </div>
+        `;
+      }).join("");
+    }
+  }
+
+  document.addEventListener("click", (e) => {
+    if (e.target.classList.contains("btn-run-fssai")) {
+      auditPendingId = e.target.dataset.id;
+      openFssaiModal();
+    }
+    if (e.target.classList.contains("btn-mark-pickup")) {
+      const t = dbDonations.find(d => d.id === e.target.dataset.id);
+      if (t) {
+        t.status = "picked_up";
+        syncData();
+        toast("Marked as Picked Up from Venue!", "info");
+      }
+    }
+    if (e.target.classList.contains("btn-mark-delivered")) {
+      const t = dbDonations.find(d => d.id === e.target.dataset.id);
+      if (t) {
+        t.status = "delivered";
+        syncData();
+        toast("Food delivered to shelter beneficiaries!", "success");
+      }
+    }
+  });
+
+  // -------------------------------------------------------------
+  // 7. VOLUNTEER VIEW LOGIC
+  // -------------------------------------------------------------
+  function renderVolunteerPanel() {
+    const openJobs = document.getElementById("volOpenJobsList");
+    const myTasks = document.getElementById("volMyTasksList");
+
+    const needsTransport = dbDonations.filter(d => d.status === "accepted" && !d.assignedVolunteerId);
+    const activeTasks = dbDonations.filter(d => d.assignedVolunteerId === "VOL-01");
+
+    if (needsTransport.length === 0) {
+      openJobs.innerHTML = `<div style="text-align:center; padding:40px; color:var(--text-secondary); border:2px dashed var(--border); border-radius:var(--radius-md);">🚴 No open pickups currently requesting volunteer transport.</div>`;
+    } else {
+      openJobs.innerHTML = needsTransport.map(d => {
+        return `
+          <div class="food-card status-accepted">
+            <div class="food-title">${escapeHtml(d.foodType)} (${d.quantity} Servings)</div>
+            <div style="font-size:13px; color:var(--text-secondary); margin-top:4px;">📍 Venue: ${escapeHtml(d.location)} &rarr; Deliver to ${escapeHtml(d.assignedNgoName)}</div>
+            <button class="btn-ui btn-accent btn-sm btn-vol-claim" data-id="${d.id}" style="margin-top:10px;">
+              🛵 Accept Delivery Job
+            </button>
+          </div>
+        `;
+      }).join("");
+    }
+
+    if (activeTasks.length === 0) {
+      myTasks.innerHTML = `<div style="text-align:center; padding:40px; color:var(--text-secondary); border:2px dashed var(--border); border-radius:var(--radius-md);">🎯 You have no active delivery tasks assigned.</div>`;
+    } else {
+      myTasks.innerHTML = activeTasks.map(d => {
+        return `
+          <div class="food-card status-${d.status}">
+            <div class="food-title">${escapeHtml(d.foodType)}</div>
+            <div style="font-size:13px; color:var(--text-secondary);">Donor: ${escapeHtml(d.donorName)} &middot; Mobile: ${d.donorPhone}</div>
+            <div style="margin-top:10px;">
+              ${d.status === 'pickup_scheduled' || d.status === 'accepted' ? `<button class="btn-ui btn-primary btn-sm btn-mark-pickup" data-id="${d.id}">📦 Confirm Venue Pickup</button>` : ''}
+              ${d.status === 'picked_up' ? `<button class="btn-ui btn-accent btn-sm btn-mark-delivered" data-id="${d.id}">🏁 Confirm Shelter Delivery</button>` : ''}
+              ${d.status === 'delivered' ? `<span class="badge-pill badge-delivered">✓ Delivery Completed</span>` : ''}
+            </div>
+          </div>
+        `;
+      }).join("");
+    }
+  }
+
+  document.addEventListener("click", (e) => {
+    if (e.target.classList.contains("btn-vol-claim")) {
+      const t = dbDonations.find(d => d.id === e.target.dataset.id);
+      if (t) {
+        t.status = "pickup_scheduled";
+        t.assignedVolunteerId = "VOL-01";
+        t.assignedVolunteerName = "Ramesh Kumar";
+        syncData();
+        toast("Transport job claimed by Ramesh Kumar!", "success");
+      }
+    }
+  });
+
+  // -------------------------------------------------------------
+  // 8. ADMIN PANEL LOGIC
+  // -------------------------------------------------------------
+  function renderAdminPanel() {
+    const queue = document.getElementById("adminNgoApprovalList");
+    const tbody = document.getElementById("adminTableBody");
+
+    queue.innerHTML = dbNgos.map(n => {
+      return `
+        <div style="display:flex; align-items:center; justify-content:space-between; padding:12px 16px; border:1px solid var(--border); border-radius:var(--radius-xs); margin-bottom:8px; background:var(--surface-alt);">
+          <div>
+            <strong style="font-size:15px;">${escapeHtml(n.name)}</strong>
+            <div style="font-size:12px; color:var(--text-secondary);">Govt Reg: ${escapeHtml(n.regNo)} &middot; Area: ${escapeHtml(n.area)}</div>
+          </div>
+          <div>
+            ${n.verified ? `<span class="badge-pill badge-delivered">✓ Verified</span>` : `<button class="btn-ui btn-accent btn-sm btn-approve-ngo" data-id="${n.id}">Approve NGO</button>`}
+          </div>
+        </div>
+      `;
+    }).join("");
+
+    tbody.innerHTML = dbDonations.map(d => {
+      return `
+        <tr style="border-bottom: 1px solid var(--border);">
+          <td style="padding:10px; font-weight:700;">${d.id}</td>
+          <td style="padding:10px;">${escapeHtml(d.foodType)}</td>
+          <td style="padding:10px;">${d.quantity}</td>
+          <td style="padding:10px;">${escapeHtml(d.donorName)}</td>
+          <td style="padding:10px;">${escapeHtml(d.location)}</td>
+          <td style="padding:10px;"><span class="badge-pill badge-${d.status}">${d.status}</span></td>
+          <td style="padding:10px;">${escapeHtml(d.assignedNgoName || '—')}</td>
+          <td style="padding:10px;">
+            <button class="btn-ui btn-outline btn-sm btn-del-post" data-id="${d.id}">🗑️ Delete</button>
+          </td>
+        </tr>
+      `;
+    }).join("");
+  }
+
+  document.addEventListener("click", (e) => {
+    if (e.target.classList.contains("btn-approve-ngo")) {
+      const n = dbNgos.find(x => x.id === e.target.dataset.id);
+      if (n) {
+        n.verified = true;
+        syncData();
+        toast(`Approved NGO: ${n.name}`, "success");
+      }
+    }
+    if (e.target.classList.contains("btn-del-post")) {
+      dbDonations = dbDonations.filter(d => d.id !== e.target.dataset.id);
+      syncData();
+      toast("Post deleted from master registry.", "info");
+    }
+  });
+
+  document.getElementById("btnExportData").addEventListener("click", () => {
+    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify({ donations: dbDonations, ngos: dbNgos, volunteers: dbVolunteers }, null, 2));
+    const dl = document.createElement("a");
+    dl.href = dataStr;
+    dl.download = `food_rescue_export_${Date.now()}.json`;
+    dl.click();
+  });
+
+  document.getElementById("btnResetSeed").addEventListener("click", () => {
+    if (confirm("Reset dataset to original enterprise seed?")) {
+      dbDonations = SEED_DONATIONS;
+      dbNgos = SEED_NGOS;
+      dbVolunteers = SEED_VOLUNTEERS;
+      syncData();
+      toast("Reset to original seed data.", "info");
+    }
+  });
+
+  // -------------------------------------------------------------
+  // 9. IMPACT & MAP CANVAS
+  // -------------------------------------------------------------
+  function renderImpactPanel() {
+    const delivered = dbDonations.filter(d => d.status === "delivered");
+    const totalMeals = delivered.reduce((acc, d) => acc + (d.quantity || 0), 0);
+    const totalKg = Math.round(totalMeals * 0.4);
+    const verifiedCount = dbNgos.filter(n => n.verified).length;
+
+    document.getElementById("kpiMealsSaved").textContent = totalMeals.toLocaleString();
+    document.getElementById("kpiKgRescued").textContent = `${totalKg.toLocaleString()} kg`;
+    document.getElementById("kpiActiveNgos").textContent = verifiedCount;
+    document.getElementById("kpiVolunteers").textContent = dbVolunteers.length;
+
+    const lbList = document.getElementById("leaderboardList");
+    const leaders = [
+      { name: "Royal Grand Palace Hall", meals: 680 },
+      { name: "Novotel Corporate Convention", meals: 490 },
+      { name: "Spice Garden Caterers", meals: 310 },
+      { name: "Green Leaf Function Hall", meals: 240 }
+    ];
+
+    lbList.innerHTML = leaders.map((l, i) => `
+      <div style="display:flex; align-items:center; justify-content:space-between; padding:12px 16px; background:var(--surface-alt); border:1px solid var(--border); border-radius:var(--radius-xs);">
+        <div style="display:flex; align-items:center; gap:12px;">
+          <div style="width:28px; height:28px; border-radius:50%; background:var(--brand-primary-light); color:#FFF; font-weight:800; display:flex; align-items:center; justify-content:center; font-size:13px;">${i + 1}</div>
+          <strong style="font-size:13.5px;">${l.name}</strong>
+        </div>
+        <span style="font-weight:800; color:var(--brand-accent);">${l.meals} Meals</span>
+      </div>
+    `).join("");
+  }
+
+  function drawMapCanvas() {
+    const canvas = document.getElementById("mapCanvas");
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d");
+
+    canvas.width = canvas.parentElement.clientWidth;
+    canvas.height = canvas.parentElement.clientHeight;
+
+    const w = canvas.width;
+    const h = canvas.height;
+    const isDark = document.documentElement.getAttribute("data-theme") === "dark";
+
+    ctx.fillStyle = isDark ? "#111F15" : "#E2E8E0";
+    ctx.fillRect(0, 0, w, h);
+
+    // Grid lines
+    ctx.strokeStyle = isDark ? "#1A2E20" : "#D0DCD0";
+    ctx.lineWidth = 1;
+    for (let x = 0; x < w; x += 40) { ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, h); ctx.stroke(); }
+    for (let y = 0; y < h; y += 40) { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(w, y); ctx.stroke(); }
+
+    // Route paths
+    ctx.strokeStyle = "#10B981";
+    ctx.lineWidth = 3;
+    ctx.setLineDash([6, 6]);
+    ctx.beginPath();
+    ctx.moveTo(w * 0.35, h * 0.42);
+    ctx.lineTo(w * 0.58, h * 0.32);
+    ctx.lineTo(w * 0.45, h * 0.65);
+    ctx.stroke();
+    ctx.setLineDash([]);
+
+    // Nodes
+    dbDonations.forEach(d => {
+      const nx = (d.coords ? d.coords.x : 0.5) * w;
+      const ny = (d.coords ? d.coords.y : 0.5) * h;
+
+      ctx.beginPath();
+      ctx.arc(nx, ny, d.status === 'delivered' ? 8 : 12, 0, Math.PI * 2);
+      ctx.fillStyle = d.status === 'delivered' ? '#10B981' : (d.status === 'posted' ? '#DC2626' : '#2563EB');
+      ctx.fill();
+      ctx.lineWidth = 3;
+      ctx.strokeStyle = "#FFFFFF";
+      ctx.stroke();
+
+      ctx.fillStyle = isDark ? "#F0F7F2" : "#0C1A12";
+      ctx.font = "bold 11px 'Plus Jakarta Sans', sans-serif";
+      ctx.fillText(d.foodType.split(',')[0], nx + 14, ny + 4);
+    });
+  }
+
+  // -------------------------------------------------------------
+  // 10. MODAL DIALOG CONTROLS
+  // -------------------------------------------------------------
+  // Academic Modal
+  const modalAcademicInfo = document.getElementById("modalAcademicInfo");
+  document.getElementById("btnAcademicModalOpen").addEventListener("click", () => modalAcademicInfo.classList.add("active"));
+  document.getElementById("btnCloseAcademicModal").addEventListener("click", () => modalAcademicInfo.classList.remove("active"));
+  document.getElementById("btnPrintAcademicCert").addEventListener("click", () => window.print());
+
+  // Command Palette
+  const modalCommandPalette = document.getElementById("modalCommandPalette");
+  document.getElementById("btnCommandPaletteTrigger").addEventListener("click", () => modalCommandPalette.classList.add("active"));
+  
+  document.addEventListener("keydown", (e) => {
+    if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
+      e.preventDefault();
+      modalCommandPalette.classList.toggle("active");
+    }
+    if (e.key === 'Escape') {
+      document.querySelectorAll(".modal-overlay").forEach(m => m.classList.remove("active"));
+    }
+  });
+
+  const cmdInput = document.getElementById("cmdInput");
+  const cmdList = document.getElementById("cmdResultsList");
+  const commands = [
+    { label: "🎓 Academic Project Details & Certificate", action: () => modalAcademicInfo.classList.add("active") },
+    { label: "🏬 Switch to Donor Portal", action: () => selectTab("donor") },
+    { label: "🏛️ Switch to NGO Portal", action: () => selectTab("ngo") },
+    { label: "🚴 Switch to Volunteer Portal", action: () => selectTab("volunteer") },
+    { label: "🛡️ Switch to Admin Control", action: () => selectTab("admin") },
+    { label: "📊 Switch to Impact Analytics", action: () => selectTab("impact") },
+    { label: "⚡ AI Expiry Estimator", action: () => document.getElementById("modalAiEstimator").classList.add("active") },
+    { label: "📥 Export System Backup JSON", action: () => document.getElementById("btnExportData").click() }
+  ];
+
+  cmdInput.addEventListener("input", () => {
+    const q = cmdInput.value.toLowerCase().trim();
+    const filtered = commands.filter(c => c.label.toLowerCase().includes(q));
+    cmdList.innerHTML = filtered.map((c, i) => `
+      <div style="padding:10px; background:var(--surface-alt); border-radius:var(--radius-xs); cursor:pointer; font-weight:700; font-size:13.5px;" data-cmd-idx="${i}">
+        ${c.label}
+      </div>
+    `).join("");
+  });
+
+  cmdList.addEventListener("click", (e) => {
+    const row = e.target.closest("[data-cmd-idx]");
+    if (row) {
+      const idx = parseInt(row.getAttribute("data-cmd-idx"), 10);
+      commands[idx].action();
+      modalCommandPalette.classList.remove("active");
+    }
+  });
+
+  function selectTab(role) {
+    document.querySelector(`.tab-item[data-role="${role}"]`).click();
+  }
+
+  // AI Estimator Modal
+  const modalAiEstimator = document.getElementById("modalAiEstimator");
+  document.getElementById("btnOpenAiCalculator").addEventListener("click", () => modalAiEstimator.classList.add("active"));
+  document.getElementById("btnCloseAiModal").addEventListener("click", () => modalAiEstimator.classList.remove("active"));
+
+  document.getElementById("btnCalcAi").addEventListener("click", () => {
+    const category = document.getElementById("aiDishType").value;
+    const temp = parseInt(document.getElementById("aiTemp").value, 10);
+    const pack = document.getElementById("aiPackaging").value;
+
+    let baseMins = 180;
+    if (category === "gravy") baseMins = 120;
+    if (category === "dairy") baseMins = 90;
+    if (category === "salad") baseMins = 60;
+
+    if (temp > 32) baseMins = Math.round(baseMins * 0.75);
+    if (pack === "hot") baseMins = Math.round(baseMins * 1.25);
+
+    const hrs = Math.floor(baseMins / 60);
+    const mins = baseMins % 60;
+    
+    document.getElementById("aiResultBox").style.display = "block";
+    document.getElementById("aiResultVal").textContent = `${hrs > 0 ? hrs + ' Hours ' : ''}${mins} Mins`;
+    toast("FSSAI AI Freshness Calculation Complete!", "success");
+  });
+
+  // OTP Modal
+  const modalOtp = document.getElementById("modalOtp");
+  function openOtpModal() { modalOtp.classList.add("active"); }
+  document.getElementById("btnVerifyOtp").addEventListener("click", openOtpModal);
+  document.getElementById("btnOtpClose").addEventListener("click", () => modalOtp.classList.remove("active"));
+
+  document.getElementById("btnOtpSend").addEventListener("click", () => {
+    document.getElementById("otpSimBox").style.display = "block";
+    document.getElementById("otpInputRow").style.display = "block";
+    document.getElementById("btnOtpSend").style.display = "none";
+    document.getElementById("btnOtpConfirm").style.display = "inline-flex";
+  });
+
+  document.getElementById("btnOtpConfirm").addEventListener("click", () => {
+    const val = document.getElementById("otpEntered").value.trim();
+    if (val === "8492" || val.length === 4) {
+      isDonorVerified = true;
+      saveStore("frn_donor_verified_ent", true);
+      modalOtp.classList.remove("active");
+      toast("Phone verified via SMS OTP!", "success");
+    } else {
+      toast("Invalid OTP code. Try 8492.", "danger");
+    }
+  });
+
+  // FSSAI Audit Modal
+  const modalFssai = document.getElementById("modalFssai");
+  function openFssaiModal() { modalFssai.classList.add("active"); }
+  document.getElementById("btnFssaiClose").addEventListener("click", () => modalFssai.classList.remove("active"));
+
+  document.getElementById("btnFssaiApprove").addEventListener("click", () => {
+    if (auditPendingId) {
+      const target = dbDonations.find(d => d.id === auditPendingId);
+      if (target) {
+        target.status = "accepted";
+        target.assignedNgoId = "NGO-01";
+        target.assignedNgoName = "Asha Care Foundation";
+        syncData();
+        modalFssai.classList.remove("active");
+        toast("FSSAI Audit Passed! Donation accepted.", "success");
+      }
+    }
+  });
+
+  // Printable CSR Report
+  document.getElementById("btnPrintCertificate").addEventListener("click", () => window.print());
+  document.getElementById("btnGenCert").addEventListener("click", () => window.print());
+
+  // -------------------------------------------------------------
+  // 11. MASTER RENDER ENGINE & TIMERS
+  // -------------------------------------------------------------
+  function renderAllPanels() {
+    renderDonorPanel();
+    renderNgoPanel();
+    renderVolunteerPanel();
+    renderAdminPanel();
+    renderImpactPanel();
+  }
+
+  // 1-second live ticker tick
+  setInterval(() => {
+    renderDonorPanel();
+  }, 1000);
+
+  applyI18n();
+  renderAllPanels();
+  setTimeout(drawMapCanvas, 250);
+
+  window.addEventListener("resize", drawMapCanvas);
+
+})();
+</script>
+</body>
+</html>

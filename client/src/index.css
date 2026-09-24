@@ -1,0 +1,39 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    transition: background-color 0.2s ease, color 0.2s ease;
+  }
+
+  html.dark {
+    background-color: #0A1628 !important;
+    color: #F8FAFC !important;
+  }
+
+  html.dark body {
+    background-color: #0A1628 !important;
+    color: #F8FAFC !important;
+  }
+
+  /* Universal Dark Mode Input & Card Polish */
+  html.dark input,
+  html.dark select,
+  html.dark textarea {
+    background-color: #0A1628;
+    color: #F8FAFC;
+    border-color: #1C3B64;
+  }
+
+  html.dark input::placeholder,
+  html.dark textarea::placeholder {
+    color: #64748B;
+  }
+}
+
+body {
+  margin: 0;
+  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
