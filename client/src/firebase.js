@@ -9,20 +9,25 @@ import {
   onAuthStateChanged,
   updateProfile
 } from 'firebase/auth';
+import { getFirestore } from 'firebase/firestore';
+import { getStorage } from 'firebase/storage';
 
-// Firebase configuration from environment variables or fallback project credentials
+// Live Firebase Configuration for food-rescue-network-8d050
 const firebaseConfig = {
-  apiKey: import.meta.env.VITE_FIREBASE_API_KEY || "YOUR_API_KEY_HERE",
-  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || "YOUR_PROJECT_ID.firebaseapp.com",
-  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID || "YOUR_PROJECT_ID",
-  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET || "YOUR_PROJECT_ID.appspot.com",
-  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID || "YOUR_MESSAGING_SENDER_ID",
-  appId: import.meta.env.VITE_FIREBASE_APP_ID || "YOUR_APP_ID"
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY || "AIzaSyA1Ce720sDtHOHCClcSn_4XkRNIV-1BKI",
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || "food-rescue-network-8d050.firebaseapp.com",
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID || "food-rescue-network-8d050",
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET || "food-rescue-network-8d050.firebasestorage.app",
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID || "613636160066",
+  appId: import.meta.env.VITE_FIREBASE_APP_ID || "1:613636160066:web:bb48256739a3db66a00bdb",
+  measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID || "G-T3579DZELT"
 };
 
 // Initialize Firebase App
 const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
+export const db = getFirestore(app);
+export const storage = getStorage(app);
 export const googleProvider = new GoogleAuthProvider();
 
 // Google Popup Login Helper
