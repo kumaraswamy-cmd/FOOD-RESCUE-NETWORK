@@ -114,6 +114,48 @@ export default function AdminPage({ lang }) {
     }
   };
 
+  const handleDeleteDonation = async (donationId) => {
+    if (!window.confirm(`Are you sure you want to permanently delete donation post ${donationId}?`)) return;
+    try {
+      setDonations(prev => prev.filter(d => d.id !== donationId));
+      setFlaggedDonations(prev => prev.filter(d => d.id !== donationId));
+
+      const data = await apiFetch('/api/admin/delete-donation', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ donation_id: donationId, admin_password: 'frn@123' })
+      });
+
+      if (data && data.success) {
+        alert(data.message || `🗑️ Donation ${donationId} deleted successfully!`);
+        fetchData();
+      }
+    } catch(e) {
+      alert('Error deleting donation post.');
+    }
+  };
+
+  const handleDeleteNgo = async (ngoId) => {
+    if (!window.confirm(`Are you sure you want to remove NGO ${ngoId}?`)) return;
+    try {
+      setAllNgos(prev => prev.filter(n => n.id !== ngoId && n.darpan_id !== ngoId));
+      setPendingNgos(prev => prev.filter(n => n.id !== ngoId && n.darpan_id !== ngoId));
+
+      const data = await apiFetch('/api/admin/delete-ngo', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ngo_id: ngoId, admin_password: 'frn@123' })
+      });
+
+      if (data && data.success) {
+        alert(data.message || `🗑️ NGO ${ngoId} removed successfully!`);
+        fetchData();
+      }
+    } catch(e) {
+      alert('Error removing NGO.');
+    }
+  };
+
   // 🔐 ADMIN LOCK SCREEN IF UNAUTHENTICATED
   if (!authenticated) {
     return (
@@ -370,17 +412,25 @@ export default function AdminPage({ lang }) {
                           {n.verified && n.status === 'verified' ? '✓ Verified' : n.status === 'suspended' ? '⚠️ Suspended' : n.status === 'rejected' ? '❌ Rejected' : '⏳ Pending'}
                         </span>
                       </td>
-                      <td className="p-3 flex gap-2">
+                      <td className="p-3 flex gap-1.5 flex-wrap">
                         {n.status !== 'verified' && (
-                          <button onClick={() => handleVerifyNgo(n.id, 'approve')} className="px-2.5 py-1 bg-[#00A86B] text-white font-bold rounded">
-                            Verify
+                          <button onClick={() => handleVerifyNgo(n.id, 'approve')} className="px-2 py-1 bg-[#00A86B] hover:bg-[#00965E] text-white font-bold rounded text-xs shadow-sm">
+                            ✓ Verify
                           </button>
                         )}
                         {n.status === 'verified' && (
-                          <button onClick={() => handleVerifyNgo(n.id, 'suspend')} className="px-2.5 py-1 bg-amber-600 text-white font-bold rounded">
-                            Suspend
+                          <button onClick={() => handleVerifyNgo(n.id, 'suspend')} className="px-2 py-1 bg-amber-600 hover:bg-amber-700 text-white font-bold rounded text-xs shadow-sm">
+                            ⚠️ Suspend
                           </button>
                         )}
+                        {n.status !== 'rejected' && (
+                          <button onClick={() => handleVerifyNgo(n.id, 'reject')} className="px-2 py-1 bg-red-600 hover:bg-red-700 text-white font-bold rounded text-xs shadow-sm">
+                            ❌ Reject
+                          </button>
+                        )}
+                        <button onClick={() => handleDeleteNgo(n.id)} className="px-2 py-1 bg-slate-700 hover:bg-slate-800 text-white font-bold rounded text-xs shadow-sm">
+                          🗑️ Delete
+                        </button>
                       </td>
                     </tr>
                   ))}
@@ -410,10 +460,19 @@ export default function AdminPage({ lang }) {
               {flaggedDonations.map((fd) => (
                 <div key={fd.id} className="p-5 rounded-2xl bg-red-50/60 dark:bg-[#0A1628] border border-red-200 dark:border-navy-700 shadow-sm space-y-3">
                   <div className="flex justify-between items-start flex-wrap gap-2">
-                    <div>
-                      <h4 className="font-black text-base text-slate-900 dark:text-white">{fd.food_type} ({fd.quantity} Servings)</h4>
-                      <div className="text-xs text-slate-600 dark:text-slate-300 mt-1 font-medium">
-                        🏬 Donor: <strong>{fd.donor_name}</strong> ({fd.donor_phone}) &bull; Pickup: {fd.pickup_address}
+                    <div className="flex items-start gap-3">
+                      {fd.food_image_url ? (
+                        <img src={fd.food_image_url} alt={fd.food_type} className="w-14 h-14 object-cover rounded-xl border border-red-200 shadow-sm" />
+                      ) : (
+                        <div className="w-12 h-12 rounded-xl bg-red-100 dark:bg-red-950 text-red-700 flex items-center justify-center text-xl font-bold">
+                          🍲
+                        </div>
+                      )}
+                      <div>
+                        <h4 className="font-black text-base text-slate-900 dark:text-white">{fd.food_type} ({fd.quantity} Servings)</h4>
+                        <div className="text-xs text-slate-600 dark:text-slate-300 mt-1 font-medium">
+                          🏬 Donor: <strong>{fd.donor_name}</strong> ({fd.donor_phone}) &bull; Pickup: {fd.pickup_address}
+                        </div>
                       </div>
                     </div>
                     <span className="px-3 py-1 rounded-full bg-red-100 text-red-800 font-black text-xs">
@@ -425,7 +484,7 @@ export default function AdminPage({ lang }) {
                     Reason Flagged: {fd.flagged_reason || 'Freshness window under 30 minutes or bulk perishable item.'}
                   </div>
 
-                  <div className="flex gap-3 pt-1">
+                  <div className="flex gap-3 pt-1 flex-wrap">
                     <button 
                       onClick={() => handleReviewFlaggedDonation(fd.id, 'approve')} 
                       className="px-4 py-2 bg-[#00A86B] hover:bg-[#00965E] text-white text-xs font-black rounded-xl shadow-sm"
@@ -434,9 +493,15 @@ export default function AdminPage({ lang }) {
                     </button>
                     <button 
                       onClick={() => handleReviewFlaggedDonation(fd.id, 'reject')} 
+                      className="px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white text-xs font-black rounded-xl shadow-sm"
+                    >
+                      ❌ Reject Post
+                    </button>
+                    <button 
+                      onClick={() => handleDeleteDonation(fd.id)} 
                       className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white text-xs font-black rounded-xl shadow-sm"
                     >
-                      ❌ Reject Food Donation Post
+                      🗑️ Delete Post
                     </button>
                   </div>
                 </div>
@@ -456,6 +521,7 @@ export default function AdminPage({ lang }) {
             <table className="w-full text-left text-xs border-collapse">
               <thead>
                 <tr className="border-b-2 border-slate-200 dark:border-navy-700 text-slate-400 uppercase font-black">
+                  <th className="p-3">Photo</th>
                   <th className="p-3">ID</th>
                   <th className="p-3">Food Item</th>
                   <th className="p-3">Servings</th>
@@ -464,11 +530,19 @@ export default function AdminPage({ lang }) {
                   <th className="p-3">Status</th>
                   <th className="p-3">Assigned NGO</th>
                   <th className="p-3">Volunteer</th>
+                  <th className="p-3 text-center">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 dark:divide-navy-700/80 font-semibold text-slate-700 dark:text-slate-200">
                 {donations.map((d) => (
                   <tr key={d.id} className="hover:bg-slate-50 dark:hover:bg-[#1C3B64]/50">
+                    <td className="p-3">
+                      {d.food_image_url ? (
+                        <img src={d.food_image_url} alt={d.food_type} className="w-10 h-10 object-cover rounded-lg border border-slate-200 dark:border-navy-700" />
+                      ) : (
+                        <div className="w-10 h-10 rounded-lg bg-emerald-100 dark:bg-emerald-950 flex items-center justify-center text-base">🍲</div>
+                      )}
+                    </td>
                     <td className="p-3 font-mono font-bold text-slate-900 dark:text-white">{d.id}</td>
                     <td className="p-3 font-semibold text-slate-900 dark:text-white">{d.food_type}</td>
                     <td className="p-3 font-bold">{d.quantity}</td>
@@ -477,6 +551,15 @@ export default function AdminPage({ lang }) {
                     <td className="p-3"><StatusBadge status={d.status} /></td>
                     <td className="p-3 font-bold text-[#00A86B] dark:text-emerald-400">{d.assigned_ngo_name || '—'}</td>
                     <td className="p-3 text-purple-600 dark:text-purple-400 font-semibold">{d.assigned_volunteer_name || '—'}</td>
+                    <td className="p-3 text-center">
+                      <button 
+                        onClick={() => handleDeleteDonation(d.id)} 
+                        className="px-2.5 py-1.5 bg-red-600 hover:bg-red-700 text-white font-black text-xs rounded-xl shadow transition-all flex items-center justify-center gap-1 mx-auto"
+                      >
+                        <span>🗑️</span>
+                        <span>Delete</span>
+                      </button>
+                    </td>
                   </tr>
                 ))}
               </tbody>

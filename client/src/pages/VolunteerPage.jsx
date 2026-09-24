@@ -160,8 +160,15 @@ export default function VolunteerPage({ lang }) {
               <div className="space-y-4">
                 {openJobs.map((j) => (
                   <div key={j.id} className="p-4 rounded-xl bg-slate-50 dark:bg-[#0A1628] border border-slate-200/80 dark:border-navy-700 shadow-sm space-y-3">
-                    <div className="flex justify-between items-start">
-                      <h4 className="font-black text-sm text-slate-900 dark:text-white">{j.food_type} ({j.quantity} Servings)</h4>
+                    <div className="flex justify-between items-start gap-2">
+                      <div className="flex items-center gap-3">
+                        {j.food_image_url ? (
+                          <img src={j.food_image_url} alt={j.food_type} className="w-12 h-12 object-cover rounded-xl border border-slate-200 dark:border-navy-700 shadow-sm" />
+                        ) : (
+                          <div className="w-10 h-10 rounded-xl bg-purple-100 dark:bg-purple-950 text-purple-700 flex items-center justify-center text-lg font-bold">🛵</div>
+                        )}
+                        <h4 className="font-black text-sm text-slate-900 dark:text-white">{j.food_type} ({j.quantity} Servings)</h4>
+                      </div>
                       <StatusBadge status={j.status} />
                     </div>
 
@@ -217,8 +224,15 @@ export default function VolunteerPage({ lang }) {
               <div className="space-y-4">
                 {myTasks.map((task) => (
                   <div key={task.id} className="p-4 rounded-xl bg-slate-50 dark:bg-[#0A1628] border border-slate-200/80 dark:border-navy-700 shadow-sm space-y-3">
-                    <div className="flex justify-between items-start">
-                      <h4 className="font-black text-sm text-slate-900 dark:text-white">{task.food_type} ({task.quantity} Servings)</h4>
+                    <div className="flex justify-between items-start gap-2">
+                      <div className="flex items-center gap-3">
+                        {task.food_image_url ? (
+                          <img src={task.food_image_url} alt={task.food_type} className="w-12 h-12 object-cover rounded-xl border border-slate-200 dark:border-navy-700 shadow-sm" />
+                        ) : (
+                          <div className="w-10 h-10 rounded-xl bg-emerald-100 dark:bg-emerald-950 text-emerald-700 flex items-center justify-center text-lg font-bold">🎯</div>
+                        )}
+                        <h4 className="font-black text-sm text-slate-900 dark:text-white">{task.food_type} ({task.quantity} Servings)</h4>
+                      </div>
                       <StatusBadge status={task.status} />
                     </div>
 

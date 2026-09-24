@@ -3,7 +3,8 @@ import {
   collection, 
   doc, 
   setDoc, 
-  getDocs
+  getDocs,
+  deleteDoc
 } from 'firebase/firestore';
 
 const getApiBase = () => {
@@ -147,6 +148,7 @@ async function handleFirestoreOperation(url, options = {}) {
         pickup_lat: parseFloat(body.pickup_lat) || 17.7200,
         pickup_lng: parseFloat(body.pickup_lng) || 83.3100,
         pickup_address: body.pickup_address || 'Visakhapatnam, AP',
+        food_image_url: body.food_image_url || null,
         ngo_name: 'Asha Care Foundation',
         assigned_ngo_name: 'Asha Care Foundation',
         freshness_window_minutes: freshness,
@@ -315,9 +317,11 @@ async function handleFirestoreOperation(url, options = {}) {
 
     // 12. ADMIN ENDPOINTS
     if (pathname === '/api/admin/pending-ngos') {
-      const pending = ngos.filter(n => n.status === 'pending' || !n.verified);
-      const verified = ngos.filter(n => n.status === 'verified' && n.verified);
-      return { success: true, pending, verified, allNgos: ngos, ngos };
+      const pending = ngos.filter(n => n.status === 'pending');
+      const verified = ngos.filter(n => n.status === 'verified');
+      const rejected = ngos.filter(n => n.status === 'rejected');
+      const suspended = ngos.filter(n => n.status === 'suspended');
+      return { success: true, pending, verified, rejected, suspended, allNgos: ngos, ngos };
     }
 
     if (pathname === '/api/admin/flagged-donations') {
@@ -368,6 +372,30 @@ async function handleFirestoreOperation(url, options = {}) {
       };
     }
 
+    if (pathname === '/api/admin/delete-donation' || pathname === '/api/donations/delete') {
+      const donId = body.donation_id || body.id;
+      donations = donations.filter(d => d.id !== donId);
+      setStored('frn_donations', donations);
+
+      try {
+        await deleteDoc(doc(db, 'donations', donId));
+      } catch(e) {}
+
+      return { success: true, message: `🗑️ Donation post ${donId} deleted successfully!` };
+    }
+
+    if (pathname === '/api/admin/delete-ngo') {
+      const ngoId = body.ngo_id || body.id;
+      ngos = ngos.filter(n => n.id !== ngoId && n.darpan_id !== ngoId);
+      setStored('frn_ngos', ngos);
+
+      try {
+        await deleteDoc(doc(db, 'ngos', ngoId));
+      } catch(e) {}
+
+      return { success: true, message: `🗑️ NGO ${ngoId} deleted successfully!` };
+    }
+
     if (pathname === '/api/admin/review-flagged-donation') {
       const donId = body.donation_id;
       const action = body.action || 'approve';
@@ -396,13 +424,19 @@ async function handleFirestoreOperation(url, options = {}) {
     }
 
     if (pathname === '/api/admin/stats') {
+      const activeNgosCount = ngos.filter(n => n.verified && n.status === 'verified').length;
+      const totalMeals = donations.reduce((sum, d) => sum + (parseInt(d.quantity) || 0), 0);
+      const kg = Math.round(totalMeals * 0.4);
       return {
         success: true,
         stats: {
           totalDonations: donations.length,
           totalNgos: ngos.length,
+          activeNgos: activeNgosCount || 12,
           totalVolunteers: 18,
-          totalMealsSaved: donations.reduce((sum, d) => sum + (d.quantity || 0), 0)
+          totalMealsSaved: totalMeals || 1248,
+          kgRescued: kg || 320,
+          successRate: 98
         }
       };
     }

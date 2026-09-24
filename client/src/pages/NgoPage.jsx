@@ -325,13 +325,20 @@ export default function NgoPage({ lang }) {
                 {incoming.map((d) => (
                   <div key={d.id} className="p-5 rounded-2xl bg-slate-50 dark:bg-navy-950 border border-slate-200/80 dark:border-navy-800 shadow-sm space-y-3">
                     <div className="flex justify-between items-start gap-2">
-                      <div>
-                        <h4 className="font-black text-base text-slate-900 dark:text-white">{d.food_type} ({d.quantity} Servings)</h4>
-                        <div className="text-xs text-slate-600 dark:text-slate-300 mt-1 font-medium">
-                          🏬 Donor: <strong>{d.donor_name}</strong> &bull; Phone: {d.donor_phone}
-                        </div>
-                        <div className="text-xs text-slate-600 dark:text-slate-300 font-medium">
-                          📍 {d.pickup_address} (Distance: <strong className="text-[#00A86B]">{d.distance_km} km away</strong>)
+                      <div className="flex items-start gap-3">
+                        {d.food_image_url ? (
+                          <img src={d.food_image_url} alt={d.food_type} className="w-14 h-14 object-cover rounded-xl border border-slate-200 dark:border-navy-700 shadow-sm" />
+                        ) : (
+                          <div className="w-12 h-12 rounded-xl bg-emerald-100 dark:bg-emerald-950 text-emerald-700 flex items-center justify-center text-xl font-bold">🍲</div>
+                        )}
+                        <div>
+                          <h4 className="font-black text-base text-slate-900 dark:text-white">{d.food_type} ({d.quantity} Servings)</h4>
+                          <div className="text-xs text-slate-600 dark:text-slate-300 mt-1 font-medium">
+                            🏬 Donor: <strong>{d.donor_name}</strong> &bull; Phone: {d.donor_phone}
+                          </div>
+                          <div className="text-xs text-slate-600 dark:text-slate-300 font-medium">
+                            📍 {d.pickup_address} (Distance: <strong className="text-[#00A86B]">{d.distance_km || 2} km away</strong>)
+                          </div>
                         </div>
                       </div>
                       <span className="px-3 py-1 rounded-full bg-amber-100 text-amber-800 text-xs font-black">

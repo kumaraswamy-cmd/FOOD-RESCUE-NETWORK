@@ -27,6 +27,21 @@ export default function DonorPage({ lang }) {
   const [pickupLat, setPickupLat] = useState(17.7123);
   const [pickupLng, setPickupLng] = useState(83.3150);
   const [notes, setNotes] = useState('');
+  const [foodPhoto, setFoodPhoto] = useState('');
+
+  const handleImageUpload = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    if (file.size > 5 * 1024 * 1024) {
+      alert('File size too large. Please select an image under 5MB.');
+      return;
+    }
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setFoodPhoto(reader.result);
+    };
+    reader.readAsDataURL(file);
+  };
 
   const fetchDonations = async () => {
     try {
@@ -101,6 +116,7 @@ export default function DonorPage({ lang }) {
           pickup_lng: pickupLng,
           pickup_address: pickupAddress,
           freshness_window_minutes: freshnessMinutes,
+          food_image_url: foodPhoto,
           notes
         })
       });
@@ -113,6 +129,7 @@ export default function DonorPage({ lang }) {
         }
         setFoodType('');
         setNotes('');
+        setFoodPhoto('');
         setShowPostModal(false);
         fetchDonations();
       } else {
@@ -257,9 +274,13 @@ export default function DonorPage({ lang }) {
                   <td className="p-4 font-mono font-bold text-slate-400">{index + 1}</td>
                   <td className="p-4">
                     <div className="flex items-center gap-3">
-                      <div className="w-9 h-9 rounded-xl bg-emerald-50 dark:bg-[#0A1628] text-emerald-700 dark:text-emerald-400 flex items-center justify-center text-lg font-bold border border-emerald-100 dark:border-navy-700">
-                        🍲
-                      </div>
+                      {d.food_image_url ? (
+                        <img src={d.food_image_url} alt={d.food_type} className="w-10 h-10 object-cover rounded-xl border border-slate-200 dark:border-navy-700 shadow-sm" />
+                      ) : (
+                        <div className="w-9 h-9 rounded-xl bg-emerald-50 dark:bg-[#0A1628] text-emerald-700 dark:text-emerald-400 flex items-center justify-center text-lg font-bold border border-emerald-100 dark:border-navy-700">
+                          🍲
+                        </div>
+                      )}
                       <div>
                         <div className="font-extrabold text-slate-900 dark:text-white text-sm">{d.food_type}</div>
                         <div className="text-[11px] text-slate-400">Cooked Food</div>
@@ -438,7 +459,34 @@ export default function DonorPage({ lang }) {
                     <option value={60} className="dark:bg-[#0D1E36]">1 Hour (Urgent Dispatch)</option>
                     <option value={120} className="dark:bg-[#0D1E36]">2 Hours (Standard)</option>
                     <option value={180} className="dark:bg-[#0D1E36]">3 Hours (Good State)</option>
+                    <option value={240} className="dark:bg-[#0D1E36]">4 Hours (Maximum Freshness Limit)</option>
                   </select>
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-slate-600 dark:text-slate-300 uppercase mb-1">
+                  📸 Upload Food Photo (Optional)
+                </label>
+                <div className="flex items-center gap-3">
+                  <input 
+                    type="file" 
+                    accept="image/*" 
+                    onChange={handleImageUpload} 
+                    className="block w-full text-xs text-slate-500 dark:text-slate-400 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-[#00A86B]/10 file:text-[#00A86B] dark:file:bg-emerald-950 dark:file:text-emerald-400 hover:file:bg-[#00A86B]/20 cursor-pointer" 
+                  />
+                  {foodPhoto && (
+                    <div className="relative flex-shrink-0">
+                      <img src={foodPhoto} alt="Preview" className="w-12 h-12 object-cover rounded-xl border border-emerald-500 shadow-sm" />
+                      <button 
+                        type="button" 
+                        onClick={() => setFoodPhoto('')} 
+                        className="absolute -top-1 -right-1 bg-red-600 text-white rounded-full w-4 h-4 flex items-center justify-center text-[10px] font-bold shadow"
+                      >
+                        ✕
+                      </button>
+                    </div>
+                  )}
                 </div>
               </div>
 
