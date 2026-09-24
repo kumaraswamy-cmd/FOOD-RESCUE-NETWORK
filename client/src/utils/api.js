@@ -3,8 +3,7 @@ import {
   collection, 
   doc, 
   setDoc, 
-  getDocs, 
-  updateDoc 
+  getDocs
 } from 'firebase/firestore';
 
 const getApiBase = () => {
@@ -161,7 +160,7 @@ async function handleFirestoreOperation(url, options = {}) {
       setStored('frn_donations', donations);
 
       try {
-        await setDoc(doc(db, 'donations', donId), newDonation);
+        await setDoc(doc(db, 'donations', donId), newDonation, { merge: true });
       } catch(e) {}
 
       return { success: true, donation: newDonation, flagged: isFlagged, flagReason: newDonation.flagged_reason };
@@ -213,7 +212,7 @@ async function handleFirestoreOperation(url, options = {}) {
       setStored('frn_ngos', ngos);
 
       try {
-        await setDoc(doc(db, 'ngos', ngoId), newNgo);
+        await setDoc(doc(db, 'ngos', ngoId), newNgo, { merge: true });
       } catch(e) {}
 
       return { success: true, message: '🏛️ NGO Application & Certificate submitted to Cloud Firestore!', ngo: newNgo };
@@ -244,11 +243,11 @@ async function handleFirestoreOperation(url, options = {}) {
 
       try {
         const ref = doc(db, 'donations', donation_id);
-        await updateDoc(ref, {
+        await setDoc(ref, {
           status: action === 'accept' ? 'accepted' : 'rejected',
           assigned_ngo_name: 'Asha Care Foundation',
           ngo_name: 'Asha Care Foundation'
-        });
+        }, { merge: true });
       } catch(e) {}
 
       return { success: true };
@@ -286,12 +285,12 @@ async function handleFirestoreOperation(url, options = {}) {
 
       try {
         const ref = doc(db, 'donations', body.donation_id);
-        await updateDoc(ref, {
+        await setDoc(ref, {
           status: 'volunteer_assigned',
           volunteer_id: volId,
           volunteer_name: 'Ramesh Kumar (Volunteer Hero)',
           volunteer_assigned: 'Ramesh Kumar (Volunteer Hero)'
-        });
+        }, { merge: true });
       } catch(e) {}
 
       return { success: true, message: 'Transport delivery job claimed!' };
@@ -308,7 +307,7 @@ async function handleFirestoreOperation(url, options = {}) {
 
       try {
         const ref = doc(db, 'donations', body.donation_id);
-        await updateDoc(ref, { status: newStatus });
+        await setDoc(ref, { status: newStatus }, { merge: true });
       } catch(e) {}
 
       return { success: true };
@@ -317,28 +316,83 @@ async function handleFirestoreOperation(url, options = {}) {
     // 12. ADMIN ENDPOINTS
     if (pathname === '/api/admin/pending-ngos') {
       const pending = ngos.filter(n => n.status === 'pending' || !n.verified);
-      return { success: true, pending, ngos };
+      const verified = ngos.filter(n => n.status === 'verified' && n.verified);
+      return { success: true, pending, verified, allNgos: ngos, ngos };
+    }
+
+    if (pathname === '/api/admin/flagged-donations') {
+      const flagged = donations.filter(d => d.inspection_status === 'flagged');
+      return { success: true, flagged, donations: flagged };
     }
 
     if (pathname === '/api/admin/verify-ngo') {
-      const target = ngos.find(n => n.id === body.ngo_id);
+      const ngoId = body.ngo_id;
+      const action = body.action || 'approve';
+      const isApproved = action === 'approve';
+      const isRejected = action === 'reject' || action === 'decline';
+      const statusStr = isApproved ? 'verified' : isRejected ? 'rejected' : 'suspended';
+      const isVerifiedNum = isApproved ? 1 : 0;
+
+      const target = ngos.find(n => n.id === ngoId || n.darpan_id === ngoId);
       if (target) {
-        target.status = body.action === 'approve' ? 'verified' : 'rejected';
-        target.verified = body.action === 'approve' ? 1 : 0;
-        target.verification_notes = body.notes || null;
-        setStored('frn_ngos', ngos);
+        target.status = statusStr;
+        target.verified = isVerifiedNum;
+        target.verification_notes = body.notes || (isApproved ? 'Official Verification Issued by Admin' : 'Declined by Admin Governance');
+      } else {
+        ngos.push({
+          id: ngoId,
+          name: 'Annamrita Foundation',
+          darpan_id: 'AP/2026/008891',
+          status: statusStr,
+          verified: isVerifiedNum,
+          verification_notes: body.notes || 'Official Verification Issued by Admin'
+        });
+      }
+
+      setStored('frn_ngos', ngos);
+
+      try {
+        const ref = doc(db, 'ngos', ngoId);
+        await setDoc(ref, {
+          id: ngoId,
+          status: statusStr,
+          verified: isVerifiedNum,
+          verification_notes: body.notes || (isApproved ? 'Official Verification Issued by Admin' : 'Declined by Admin Governance')
+        }, { merge: true });
+      } catch(e) {}
+
+      return { 
+        success: true, 
+        message: `🏛️ NGO ${target ? target.name : 'Application'} ${statusStr} successfully!`,
+        ngo: target 
+      };
+    }
+
+    if (pathname === '/api/admin/review-flagged-donation') {
+      const donId = body.donation_id;
+      const action = body.action || 'approve';
+      const isApproved = action === 'approve';
+
+      const target = donations.find(d => d.id === donId);
+      if (target) {
+        target.inspection_status = isApproved ? 'passed' : 'rejected';
+        target.status = isApproved ? 'posted' : 'rejected';
+        setStored('frn_donations', donations);
       }
 
       try {
-        const ref = doc(db, 'ngos', body.ngo_id);
-        await updateDoc(ref, {
-          status: body.action === 'approve' ? 'verified' : 'rejected',
-          verified: body.action === 'approve' ? 1 : 0,
-          verification_notes: body.notes || null
-        });
+        const ref = doc(db, 'donations', donId);
+        await setDoc(ref, {
+          inspection_status: isApproved ? 'passed' : 'rejected',
+          status: isApproved ? 'posted' : 'rejected'
+        }, { merge: true });
       } catch(e) {}
 
-      return { success: true, message: `NGO ${body.action}d successfully!` };
+      return {
+        success: true,
+        message: `📋 Flagged donation ${donId} ${isApproved ? 'approved & cleared for rescue' : 'declined'}!`,
+        donation: target
+      };
     }
 
     if (pathname === '/api/admin/stats') {

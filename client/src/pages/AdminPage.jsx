@@ -73,13 +73,17 @@ export default function AdminPage({ lang }) {
 
   const handleVerifyNgo = async (ngoId, action) => {
     try {
+      // Instant UI update
+      setPendingNgos(prev => prev.filter(n => n.id !== ngoId && n.darpan_id !== ngoId));
+
       const data = await apiFetch('/api/admin/verify-ngo', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ ngo_id: ngoId, action, notes: reviewNotes, admin_password: 'frn@123' })
       });
+
       if (data && data.success) {
-        alert(data.message || `NGO ${action}d successfully!`);
+        alert(data.message || `🏛️ NGO application ${action}d successfully!`);
         setReviewNotes('');
         fetchData();
       } else {
@@ -92,13 +96,17 @@ export default function AdminPage({ lang }) {
 
   const handleReviewFlaggedDonation = async (donationId, action) => {
     try {
+      // Instant UI update
+      setFlaggedDonations(prev => prev.filter(d => d.id !== donationId));
+
       const data = await apiFetch('/api/admin/review-flagged-donation', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ donation_id: donationId, action, admin_password: 'frn@123' })
       });
+
       if (data && data.success) {
-        alert(data.message || `Flagged donation ${action}d successfully!`);
+        alert(data.message || `📋 Flagged donation ${action}d successfully!`);
         fetchData();
       }
     } catch(e) {
