@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { i18nDict } from '../i18n';
 
-export default function Layout({ children, lang, setLang, theme, toggleTheme }) {
+export default function Layout({ children, lang, setLang, theme, toggleTheme, user, setUser }) {
   const location = useLocation();
   const t = i18nDict[lang] || i18nDict.en;
 
@@ -20,6 +20,10 @@ export default function Layout({ children, lang, setLang, theme, toggleTheme }) 
   ];
 
   const isActive = (path) => location.pathname === path;
+
+  const userInitials = user?.name 
+    ? user.name.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase() 
+    : 'U';
 
   return (
     <div className="min-h-screen bg-[#F4F7FA] dark:bg-[#0A1628] text-slate-800 dark:text-slate-100 flex font-sans antialiased transition-colors duration-200">
@@ -160,16 +164,30 @@ export default function Layout({ children, lang, setLang, theme, toggleTheme }) 
               {theme === 'dark' ? '☀️' : '🌙'}
             </button>
 
-            {/* User Profile Chip */}
-            <Link to="/profile" className="flex items-center gap-3 pl-3 border-l border-slate-200 dark:border-navy-700 group cursor-pointer">
-              <div className="w-9 h-9 rounded-full bg-[#0D1E36] dark:bg-[#00A86B] text-white flex items-center justify-center font-black text-xs shadow-sm group-hover:scale-105 transition-transform">
-                KT
-              </div>
-              <div className="hidden md:block text-left">
-                <div className="font-extrabold text-xs text-slate-900 dark:text-white leading-tight group-hover:text-[#00A86B] transition-colors">Kumar Thale</div>
-                <div className="text-[10px] font-bold text-[#00A86B] dark:text-emerald-400">Verified Donor</div>
-              </div>
-            </Link>
+            {/* Dynamic User Profile Chip */}
+            {user ? (
+              <Link to="/profile" className="flex items-center gap-3 pl-3 border-l border-slate-200 dark:border-navy-700 group cursor-pointer">
+                {user.photoURL ? (
+                  <img src={user.photoURL} alt={user.name} className="w-9 h-9 rounded-full object-cover border border-[#00A86B] shadow-sm group-hover:scale-105 transition-transform" />
+                ) : (
+                  <div className="w-9 h-9 rounded-full bg-[#0D1E36] dark:bg-[#00A86B] text-white flex items-center justify-center font-black text-xs shadow-sm group-hover:scale-105 transition-transform">
+                    {userInitials}
+                  </div>
+                )}
+                <div className="hidden md:block text-left">
+                  <div className="font-extrabold text-xs text-slate-900 dark:text-white leading-tight group-hover:text-[#00A86B] transition-colors max-w-[120px] truncate">{user.name}</div>
+                  <div className="text-[10px] font-bold text-[#00A86B] dark:text-emerald-400 capitalize">{user.role || 'Verified User'}</div>
+                </div>
+              </Link>
+            ) : (
+              <Link 
+                to="/login" 
+                className="px-3.5 py-2 bg-[#00A86B] hover:bg-[#00965E] text-white font-extrabold text-xs rounded-xl shadow-md transition-all flex items-center gap-1.5 ml-2"
+              >
+                <span>🔑</span>
+                <span>Sign In</span>
+              </Link>
+            )}
           </div>
         </header>
 

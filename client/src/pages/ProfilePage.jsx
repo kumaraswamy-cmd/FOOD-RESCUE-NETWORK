@@ -1,14 +1,16 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { logoutFirebase } from '../firebase';
 import AuthModal from '../components/AuthModal';
 
 export default function ProfilePage({ user, setUser, lang }) {
+  const navigate = useNavigate();
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
-  const [name, setName] = useState(user?.name || 'Kumar Thale');
-  const [phone, setPhone] = useState(user?.phone || '9848022338');
-  const [org, setOrg] = useState(user?.org || 'Royal Convention & Catering');
-  const [address, setAddress] = useState(user?.address || 'Beach Road, Visakhapatnam, AP');
+  const [name, setName] = useState(user?.name || '');
+  const [phone, setPhone] = useState(user?.phone || '');
+  const [org, setOrg] = useState(user?.org || '');
+  const [address, setAddress] = useState(user?.address || '');
 
   const handleSaveProfile = (e) => {
     e.preventDefault();
@@ -28,6 +30,29 @@ export default function ProfilePage({ user, setUser, lang }) {
     setUser(null);
     alert('👋 Logged out successfully.');
   };
+
+  if (!user) {
+    return (
+      <div className="max-w-md mx-auto my-12 p-8 bg-white dark:bg-[#0D1E36] rounded-3xl shadow-xl border border-slate-200 dark:border-navy-700 text-center space-y-5 text-slate-900 dark:text-white">
+        <div className="w-16 h-16 bg-[#00A86B]/20 text-[#00A86B] rounded-2xl flex items-center justify-center mx-auto text-3xl font-black">
+          👤
+        </div>
+        <div>
+          <h2 className="text-2xl font-black">Sign In to Your Account</h2>
+          <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 font-medium">
+            Access your personalized surplus food rescue history, NGO registrations, & volunteer dispatches synced to Cloud Firestore.
+          </p>
+        </div>
+        <button 
+          onClick={() => navigate('/login')}
+          className="w-full py-3.5 bg-[#00A86B] hover:bg-[#00965E] text-white font-extrabold rounded-xl shadow-md transition-all text-xs flex items-center justify-center gap-2 cursor-pointer"
+        >
+          <span>🔑</span>
+          <span>Sign In / Register Account</span>
+        </button>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6 max-w-7xl mx-auto px-2 sm:px-4 py-4">

@@ -6,8 +6,11 @@ import { openLiveNavigation } from '../utils/navigation';
 import { i18nDict } from '../i18n';
 import { apiFetch } from '../utils/api';
 
-export default function NgoPage({ lang }) {
+import { useNavigate } from 'react-router-dom';
+
+export default function NgoPage({ lang, user }) {
   const t = i18nDict[lang] || i18nDict.en;
+  const navigate = useNavigate();
 
   const [ngo, setNgo] = useState({ 
     id: 'NGO-001', 
@@ -20,6 +23,15 @@ export default function NgoPage({ lang }) {
     lng: 83.3100,
     service_radius_km: 10 
   });
+
+  const handleOpenRegModal = () => {
+    if (!user) {
+      alert('🔐 Sign In Required: Please sign in to your account to submit NGO registration details & legal certificates.');
+      navigate('/login');
+      return;
+    }
+    setShowRegModal(true);
+  };
 
   const [ngosList, setNgosList] = useState([
     { 
@@ -226,7 +238,7 @@ export default function NgoPage({ lang }) {
           </select>
 
           <button 
-            onClick={() => setShowRegModal(true)} 
+            onClick={handleOpenRegModal} 
             className="whitespace-nowrap px-4 py-2.5 bg-[#00A86B] hover:bg-[#00965E] text-white text-xs font-black rounded-xl shadow transition-all flex-shrink-0"
           >
             📝 Register New NGO

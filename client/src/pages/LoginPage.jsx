@@ -36,14 +36,14 @@ export default function LoginPage({ user, setUser, lang }) {
         // Graceful demo login fallback if popup is blocked by browser settings
         const demoUser = {
           id: `GOOG-${Date.now().toString().slice(-6)}`,
-          name: 'Kumar Thale (Google User)',
-          email: 'kumar.thale@gmail.com',
+          name: email ? email.split('@')[0] : 'Google Verified User',
+          email: email || 'user@example.com',
           photoURL: 'https://lh3.googleusercontent.com/a/default-user',
           role: selectedRole
         };
         setUser(demoUser);
-        alert(`Welcome, ${demoUser.name}! Signed in via Google.`);
-        navigate('/donor');
+        alert(`Welcome, ${demoUser.name}! Signed in successfully.`);
+        navigate(selectedRole === 'ngo' ? '/ngo' : selectedRole === 'volunteer' ? '/volunteer' : selectedRole === 'admin' ? '/admin' : '/donor');
       }
     }
   };
@@ -66,17 +66,17 @@ export default function LoginPage({ user, setUser, lang }) {
         };
         setUser(loggedUser);
         alert(`Welcome, ${loggedUser.name}!`);
-        navigate('/donor');
+        navigate(selectedRole === 'ngo' ? '/ngo' : selectedRole === 'volunteer' ? '/volunteer' : selectedRole === 'admin' ? '/admin' : '/donor');
       } else {
         const demoUser = {
           id: `USER-${Date.now()}`,
-          name: email.split('@')[0] || 'Kumar Thale',
+          name: email.split('@')[0] || 'User',
           email,
           role: selectedRole
         };
         setUser(demoUser);
         alert(`Signed in as ${demoUser.name}`);
-        navigate('/donor');
+        navigate(selectedRole === 'ngo' ? '/ngo' : selectedRole === 'volunteer' ? '/volunteer' : selectedRole === 'admin' ? '/admin' : '/donor');
       }
     } else {
       const { user: firebaseUser, error } = await signUpWithEmail(email, password, displayName);
@@ -91,17 +91,17 @@ export default function LoginPage({ user, setUser, lang }) {
         };
         setUser(loggedUser);
         alert(`🚀 Account created! Welcome, ${loggedUser.name}!`);
-        navigate('/donor');
+        navigate(selectedRole === 'ngo' ? '/ngo' : selectedRole === 'volunteer' ? '/volunteer' : selectedRole === 'admin' ? '/admin' : '/donor');
       } else {
         const demoUser = {
           id: `USER-${Date.now()}`,
-          name: displayName || email.split('@')[0] || 'Kumar Thale',
+          name: displayName || email.split('@')[0] || 'User',
           email,
           role: selectedRole
         };
         setUser(demoUser);
         alert(`Account created for ${demoUser.name}`);
-        navigate('/donor');
+        navigate(selectedRole === 'ngo' ? '/ngo' : selectedRole === 'volunteer' ? '/volunteer' : selectedRole === 'admin' ? '/admin' : '/donor');
       }
     }
   };

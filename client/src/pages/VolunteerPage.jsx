@@ -5,10 +5,28 @@ import { openLiveNavigation } from '../utils/navigation';
 import { i18nDict } from '../i18n';
 import { apiFetch } from '../utils/api';
 
-export default function VolunteerPage({ lang }) {
-  const t = i18nDict[lang] || i18nDict.en;
+import { useNavigate } from 'react-router-dom';
 
-  const [volunteer, setVolunteer] = useState({ id: 'VOL-001', name: 'Ramesh Kumar', phone: '9876543210' });
+export default function VolunteerPage({ lang, user }) {
+  const t = i18nDict[lang] || i18nDict.en;
+  const navigate = useNavigate();
+
+  const [volunteer, setVolunteer] = useState(() => ({
+    id: user?.id || 'VOL-001',
+    name: user?.name || 'Ramesh Kumar',
+    phone: user?.phone || '9876543210'
+  }));
+
+  useEffect(() => {
+    if (user) {
+      setVolunteer({
+        id: user.id,
+        name: user.name || 'Volunteer Hero',
+        phone: user.phone || '9876543210'
+      });
+    }
+  }, [user]);
+
   const [openJobs, setOpenJobs] = useState([
     {
       id: 'DON-1002',
@@ -60,6 +78,11 @@ export default function VolunteerPage({ lang }) {
   }, [volunteer.id]);
 
   const handleClaimJob = async (donationId) => {
+    if (!user) {
+      alert('🔐 Sign In Required: Please sign in to your volunteer account to claim transport delivery jobs.');
+      navigate('/login');
+      return;
+    }
     try {
       const data = await apiFetch('/api/volunteers/claim-job', {
         method: 'POST',

@@ -16,15 +16,12 @@ export default function App() {
   const [lang, setLang] = useState(() => localStorage.getItem('frn_lang_full') || 'en');
   const [theme, setTheme] = useState(() => localStorage.getItem('frn_theme_full') || 'light');
   const [user, setUser] = useState(() => {
-    const saved = localStorage.getItem('frn_user');
-    return saved ? JSON.parse(saved) : {
-      id: 'DONOR-001',
-      name: 'Kumar Thale',
-      email: 'kumar.thale@foodrescue.org',
-      phone: '9848022338',
-      role: 'donor',
-      org: 'Royal Convention & Catering'
-    };
+    try {
+      const saved = localStorage.getItem('frn_user');
+      return saved ? JSON.parse(saved) : null;
+    } catch(e) {
+      return null;
+    }
   });
 
   useEffect(() => {
@@ -54,7 +51,7 @@ export default function App() {
         if (firebaseUser) {
           setUser(prev => ({
             id: firebaseUser.uid,
-            name: firebaseUser.displayName || prev?.name || 'Firebase User',
+            name: firebaseUser.displayName || firebaseUser.email?.split('@')[0] || 'User',
             email: firebaseUser.email,
             photoURL: firebaseUser.photoURL,
             role: prev?.role || 'donor'
@@ -70,7 +67,7 @@ export default function App() {
   };
 
   return (
-    <Layout lang={lang} setLang={setLang} theme={theme} toggleTheme={toggleTheme} user={user}>
+    <Layout lang={lang} setLang={setLang} theme={theme} toggleTheme={toggleTheme} user={user} setUser={setUser}>
       <Routes>
         <Route path="/" element={<Landing lang={lang} />} />
         <Route path="/donor" element={<DonorPage lang={lang} user={user} />} />

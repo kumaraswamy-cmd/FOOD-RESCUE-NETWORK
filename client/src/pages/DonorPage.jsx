@@ -7,12 +7,33 @@ import { openLiveNavigation } from '../utils/navigation';
 import { i18nDict } from '../i18n';
 import { apiFetch } from '../utils/api';
 
-export default function DonorPage({ lang }) {
-  const t = i18nDict[lang] || i18nDict.en;
+import { useNavigate } from 'react-router-dom';
 
-  const [donor, setDonor] = useState({ id: 'DONOR-001', name: 'Kumar Thale', phone: '9848022338', otp_verified: 1 });
+export default function DonorPage({ lang, user }) {
+  const t = i18nDict[lang] || i18nDict.en;
+  const navigate = useNavigate();
+
+  const [donor, setDonor] = useState(() => ({
+    id: user?.id || 'GUEST-DONOR',
+    name: user?.name || 'Guest Donor',
+    email: user?.email || '',
+    phone: user?.phone || '9848022338',
+    otp_verified: user ? 1 : 0
+  }));
   const [showOtp, setShowOtp] = useState(false);
   const [showPostModal, setShowPostModal] = useState(false);
+
+  useEffect(() => {
+    if (user) {
+      setDonor({
+        id: user.id,
+        name: user.name || 'User Donor',
+        email: user.email || '',
+        phone: user.phone || '9848022338',
+        otp_verified: 1
+      });
+    }
+  }, [user]);
 
   const [donations, setDonations] = useState([]);
   const [ngos, setNgos] = useState([]);
@@ -28,6 +49,15 @@ export default function DonorPage({ lang }) {
   const [pickupLng, setPickupLng] = useState(83.3150);
   const [notes, setNotes] = useState('');
   const [foodPhoto, setFoodPhoto] = useState('');
+
+  const handleOpenPostModal = () => {
+    if (!user) {
+      alert('🔐 Sign In Required: Please sign in to your account so your surplus food rescue posts are saved & synced to your account in Cloud Firestore.');
+      navigate('/login');
+      return;
+    }
+    setShowPostModal(true);
+  };
 
   const handleImageUpload = (e) => {
     const file = e.target.files[0];
@@ -158,7 +188,7 @@ export default function DonorPage({ lang }) {
             DONOR DASHBOARD
           </div>
           <h1 className="text-3xl sm:text-4xl font-black text-slate-900 dark:text-white tracking-tight">
-            Welcome back, Kumar!
+            Welcome back, {user ? user.name : 'Guest'}!
           </h1>
           <p className="text-sm text-slate-600 dark:text-slate-300 max-w-2xl leading-relaxed font-medium">
             Thank you for making a difference. Together, we can reduce food waste and help more communities.
@@ -244,7 +274,7 @@ export default function DonorPage({ lang }) {
               View All
             </button>
             <button 
-              onClick={() => setShowPostModal(true)} 
+              onClick={handleOpenPostModal} 
               className="px-4 py-2.5 bg-[#00A86B] hover:bg-[#00965E] text-white font-extrabold text-xs rounded-xl shadow-md transition-all flex items-center gap-2"
             >
               <span>+</span>
@@ -381,7 +411,7 @@ export default function DonorPage({ lang }) {
         </div>
 
         <button 
-          onClick={() => setShowPostModal(true)} 
+          onClick={handleOpenPostModal} 
           className="px-5 py-3 bg-[#00A86B] hover:bg-[#00965E] text-white font-extrabold text-xs rounded-xl shadow-md transition-all flex items-center gap-2"
         >
           <span>Make Another Donation</span>
