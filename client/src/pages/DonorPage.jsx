@@ -3,6 +3,7 @@ import StatusBadge from '../components/StatusBadge';
 import StepperProgress from '../components/StepperProgress';
 import OtpModal from '../components/OtpModal';
 import MapView from '../components/MapView';
+import { openLiveNavigation } from '../utils/navigation';
 import { i18nDict } from '../i18n';
 
 export default function DonorPage({ lang }) {
@@ -52,15 +53,30 @@ export default function DonorPage({ lang }) {
   const handleAutoFillLocation = () => {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
-        (pos) => {
-          setPickupLat(pos.coords.latitude);
-          setPickupLng(pos.coords.longitude);
-          setPickupAddress(`Visakhapatnam (Lat: ${pos.coords.latitude.toFixed(4)}, Lng: ${pos.coords.longitude.toFixed(4)})`);
-          alert('📍 Location auto-filled via browser Geolocation API!');
+        async (pos) => {
+          const lat = pos.coords.latitude;
+          const lng = pos.coords.longitude;
+          setPickupLat(lat);
+          setPickupLng(lng);
+
+          try {
+            const geoRes = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`);
+            const geoData = await geoRes.json();
+            if (geoData && geoData.display_name) {
+              setPickupAddress(geoData.display_name);
+            } else {
+              setPickupAddress(`Visakhapatnam GPS (${lat.toFixed(4)}, ${lng.toFixed(4)})`);
+            }
+          } catch(e) {
+            setPickupAddress(`Visakhapatnam GPS (${lat.toFixed(4)}, ${lng.toFixed(4)})`);
+          }
+
+          alert('📍 High-accuracy GPS location captured!');
         },
         () => {
           alert('Could not access Geolocation. Using Visakhapatnam default coordinates.');
-        }
+        },
+        { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
       );
     }
   };
@@ -108,18 +124,16 @@ export default function DonorPage({ lang }) {
   };
 
   const displayDonations = donations.length > 0 ? donations : [
-    { id: '1', food_type: 'Vegetable Biryani', quantity: 50, pickup_address: 'Visakhapatnam, Andhra Pradesh', assigned_ngo_name: 'Asha Care Foundation', created_at: new Date().toISOString(), status: 'delivered' },
-    { id: '2', food_type: 'Paneer Curry & Naan', quantity: 30, pickup_address: 'Srikakulam, Andhra Pradesh', assigned_ngo_name: 'Akshaya Shelter Trust', created_at: new Date().toISOString(), status: 'volunteer_assigned' },
-    { id: '3', food_type: 'Fresh Produce Fruits (Bananas)', quantity: 40, pickup_address: 'Vizianagaram, Andhra Pradesh', assigned_ngo_name: 'Mother Theresa Orphanage', created_at: new Date().toISOString(), status: 'posted' },
-    { id: '4', food_type: 'Rice & Sambar', quantity: 60, pickup_address: 'Visakhapatnam, Andhra Pradesh', assigned_ngo_name: 'Asha Care Foundation', created_at: new Date().toISOString(), status: 'delivered' },
-    { id: '5', food_type: 'Mixed Buffet Meals', quantity: 25, pickup_address: 'Visakhapatnam, Andhra Pradesh', assigned_ngo_name: 'Akshaya Shelter Trust', created_at: new Date().toISOString(), status: 'delivered' }
+    { id: '1', food_type: 'Vegetable Biryani', quantity: 50, pickup_address: 'Visakhapatnam, Andhra Pradesh', pickup_lat: 17.7123, pickup_lng: 83.3150, assigned_ngo_name: 'Asha Care Foundation', created_at: new Date().toISOString(), status: 'delivered' },
+    { id: '2', food_type: 'Paneer Curry & Naan', quantity: 30, pickup_address: 'Srikakulam, Andhra Pradesh', pickup_lat: 17.7250, pickup_lng: 83.3012, assigned_ngo_name: 'Akshaya Shelter Trust', created_at: new Date().toISOString(), status: 'volunteer_assigned' },
+    { id: '3', food_type: 'Fresh Produce Fruits (Bananas)', quantity: 40, pickup_address: 'Vizianagaram, Andhra Pradesh', pickup_lat: 17.7050, pickup_lng: 83.2900, assigned_ngo_name: 'Mother Theresa Orphanage', created_at: new Date().toISOString(), status: 'posted' },
+    { id: '4', food_type: 'Rice & Sambar', quantity: 60, pickup_address: 'Visakhapatnam, Andhra Pradesh', pickup_lat: 17.7198, pickup_lng: 83.3180, assigned_ngo_name: 'Asha Care Foundation', created_at: new Date().toISOString(), status: 'delivered' },
+    { id: '5', food_type: 'Mixed Buffet Meals', quantity: 25, pickup_address: 'Visakhapatnam, Andhra Pradesh', pickup_lat: 17.7150, pickup_lng: 83.3120, assigned_ngo_name: 'Akshaya Shelter Trust', created_at: new Date().toISOString(), status: 'delivered' }
   ];
 
   return (
     <div className="space-y-8">
-      {/* ------------------------------------------------------------- */}
-      {/* 1. WELCOME HERO HEADER & BANNER                              */}
-      {/* ------------------------------------------------------------- */}
+      {/* WELCOME HERO HEADER */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
         <div className="lg:col-span-8 space-y-2">
           <div className="text-xs font-black tracking-widest text-[#00A86B] uppercase">
@@ -150,9 +164,7 @@ export default function DonorPage({ lang }) {
         </div>
       </div>
 
-      {/* ------------------------------------------------------------- */}
-      {/* 2. KPI CARDS ROW                                             */}
-      {/* ------------------------------------------------------------- */}
+      {/* KPI CARDS ROW */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
         <div className="bg-white dark:bg-[#0D1E36] p-5 rounded-2xl border border-slate-200/80 dark:border-navy-700/80 shadow-sm flex items-center gap-4">
           <div className="w-12 h-12 rounded-2xl bg-brandGreen-100 dark:bg-emerald-950/60 text-[#00A86B] flex items-center justify-center text-xl font-bold">
@@ -189,7 +201,7 @@ export default function DonorPage({ lang }) {
 
         <div className="bg-white dark:bg-[#0D1E36] p-5 rounded-2xl border border-slate-200/80 dark:border-navy-700/80 shadow-sm flex items-center gap-4">
           <div className="w-12 h-12 rounded-2xl bg-sky-100 dark:bg-blue-950/60 text-sky-600 dark:text-blue-400 flex items-center justify-center text-xl font-bold">
-            秤
+            ⚖️
           </div>
           <div>
             <div className="text-xs font-bold text-slate-500 dark:text-slate-400">Food Waste Reduced</div>
@@ -199,9 +211,7 @@ export default function DonorPage({ lang }) {
         </div>
       </div>
 
-      {/* ------------------------------------------------------------- */}
-      {/* 3. RECENT DONATIONS TABLE SECTION                             */}
-      {/* ------------------------------------------------------------- */}
+      {/* RECENT DONATIONS TABLE SECTION */}
       <div className="bg-white dark:bg-[#0D1E36] rounded-2xl border border-slate-200/80 dark:border-navy-700/80 shadow-sm overflow-hidden">
         <div className="p-6 border-b border-slate-100 dark:border-navy-700/80 flex items-center justify-between flex-wrap gap-4">
           <div>
@@ -237,7 +247,7 @@ export default function DonorPage({ lang }) {
                 <th className="p-4">NGO Partner</th>
                 <th className="p-4">Date & Time</th>
                 <th className="p-4">Status</th>
-                <th className="p-4 text-center">Actions</th>
+                <th className="p-4 text-center">Actions / GPS</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 dark:divide-navy-700/80 font-semibold text-slate-700 dark:text-slate-200">
@@ -279,8 +289,17 @@ export default function DonorPage({ lang }) {
                     <StatusBadge status={d.status} />
                   </td>
                   <td className="p-4 text-center">
-                    <button className="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-navy-700 text-slate-400 hover:text-slate-700 dark:hover:text-white font-bold text-base">
-                      ⋮
+                    <button 
+                      onClick={() => openLiveNavigation({
+                        lat: d.pickup_lat || 17.7123,
+                        lng: d.pickup_lng || 83.3150,
+                        title: d.food_type
+                      })}
+                      className="px-2.5 py-1 bg-[#00A86B] hover:bg-[#00965E] text-white font-extrabold text-[11px] rounded-lg shadow flex items-center justify-center gap-1 mx-auto"
+                      title="Open Turn-by-Turn GPS Map Navigation"
+                    >
+                      <span>🗺️</span>
+                      <span>GPS</span>
                     </button>
                   </td>
                 </tr>
@@ -290,9 +309,7 @@ export default function DonorPage({ lang }) {
         </div>
       </div>
 
-      {/* ------------------------------------------------------------- */}
-      {/* 4. MAP & ACTIVE PIPELINE SECTION                             */}
-      {/* ------------------------------------------------------------- */}
+      {/* MAP & ACTIVE PIPELINE SECTION */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         <div className="lg:col-span-7 bg-white dark:bg-[#0D1E36] rounded-2xl p-6 border border-slate-200/80 dark:border-navy-700/80 shadow-sm">
           <h4 className="text-sm font-extrabold uppercase text-slate-500 dark:text-slate-400 mb-3 flex items-center justify-between">
@@ -327,9 +344,7 @@ export default function DonorPage({ lang }) {
         </div>
       </div>
 
-      {/* ------------------------------------------------------------- */}
-      {/* 5. BOTTOM CTA BANNER                                         */}
-      {/* ------------------------------------------------------------- */}
+      {/* BOTTOM CTA BANNER */}
       <div className="bg-[#E0F7ED] dark:bg-[#0D1E36] p-6 sm:p-8 rounded-2xl border border-emerald-200 dark:border-navy-700 flex items-center justify-between flex-wrap gap-4 shadow-sm">
         <div className="flex items-center gap-4">
           <div className="w-12 h-12 rounded-2xl bg-[#00A86B] text-white flex items-center justify-center text-2xl font-bold shadow-sm">
@@ -352,9 +367,7 @@ export default function DonorPage({ lang }) {
         </button>
       </div>
 
-      {/* ------------------------------------------------------------- */}
-      {/* 6. NEW DONATION POST MODAL                                   */}
-      {/* ------------------------------------------------------------- */}
+      {/* NEW DONATION POST MODAL */}
       {showPostModal && (
         <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
           <div className="bg-white dark:bg-[#0D1E36] rounded-2xl p-6 max-w-xl w-full space-y-4 shadow-2xl border border-slate-200 dark:border-navy-700 max-h-[90vh] overflow-y-auto text-slate-900 dark:text-white">
@@ -434,9 +447,9 @@ export default function DonorPage({ lang }) {
                   <button 
                     type="button" 
                     onClick={handleAutoFillLocation} 
-                    className="text-xs font-bold text-[#00A86B] dark:text-emerald-400 hover:underline"
+                    className="text-xs font-black text-[#00A86B] dark:text-emerald-400 hover:underline flex items-center gap-1"
                   >
-                    📍 Use Browser Geolocation
+                    <span>📍 Detect High-Accuracy Live GPS</span>
                   </button>
                 </div>
                 <input 
@@ -446,6 +459,9 @@ export default function DonorPage({ lang }) {
                   className="w-full p-3 border border-slate-200 dark:border-navy-700 bg-white dark:bg-[#0A1628] rounded-xl text-xs font-semibold text-slate-900 dark:text-white" 
                   required 
                 />
+                <div className="text-[10px] font-mono text-slate-400 mt-1">
+                  Captured GPS: {pickupLat.toFixed(5)}, {pickupLng.toFixed(5)}
+                </div>
               </div>
 
               <div>

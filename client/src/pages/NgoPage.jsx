@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import StatusBadge from '../components/StatusBadge';
 import FssaiModal from '../components/FssaiModal';
+import MapView from '../components/MapView';
+import { openLiveNavigation } from '../utils/navigation';
 import { i18nDict } from '../i18n';
 
 export default function NgoPage({ lang }) {
@@ -13,6 +15,8 @@ export default function NgoPage({ lang }) {
     darpan_id: 'AP/2024/001928',
     verified: 1, 
     status: 'verified',
+    lat: 17.7200,
+    lng: 83.3100,
     service_radius_km: 10 
   });
 
@@ -41,7 +45,6 @@ export default function NgoPage({ lang }) {
       const data = await res.json();
       if (data.ngos) {
         setNgosList(data.ngos);
-        // Sync active NGO state with fresh server data if available
         const currentInDb = data.ngos.find(n => n.id === ngo.id);
         if (currentInDb) setNgo(currentInDb);
       }
@@ -157,10 +160,12 @@ export default function NgoPage({ lang }) {
     } catch(e) {}
   };
 
+  const allNgoDonations = [...incoming, ...pickups];
+
   return (
     <div className="space-y-6">
       {/* Intro Header */}
-      <div className="bg-gradient-to-r from-navy-900 via-navy-800 to-navy-900 text-white rounded-2xl p-6 sm:p-8 shadow-md flex justify-between items-center flex-wrap gap-4 border border-navy-700">
+      <div className="bg-gradient-to-r from-navy-950 via-navy-900 to-navy-950 text-white rounded-2xl p-6 sm:p-8 shadow-md flex justify-between items-center flex-wrap gap-4 border border-navy-700">
         <div>
           <h2 className="text-2xl sm:text-3xl font-black tracking-tight">{t.ngoTitle}</h2>
           <p className="text-slate-300 text-sm mt-1 max-w-2xl font-medium">{t.ngoSub}</p>
@@ -197,7 +202,7 @@ export default function NgoPage({ lang }) {
         </div>
       </div>
 
-      {/* STATUS WARNING BANNERS (Pending vs Rejected vs Suspended vs Verified) */}
+      {/* STATUS WARNING BANNERS */}
       {ngo.status === 'rejected' && (
         <div className="p-5 rounded-2xl bg-red-50 border-2 border-red-300 text-red-950 font-bold text-sm space-y-2 shadow-sm">
           <div className="flex items-center gap-2 text-base text-red-900 font-black">
@@ -208,20 +213,6 @@ export default function NgoPage({ lang }) {
           </p>
           <div className="text-xs bg-white/80 p-3 rounded-xl border border-red-200 font-mono text-red-900">
             <strong>Admin Audit Reason:</strong> {ngo.verification_notes || 'Registration documents or Darpan ID failed official cross-check.'}
-          </div>
-        </div>
-      )}
-
-      {ngo.status === 'suspended' && (
-        <div className="p-5 rounded-2xl bg-amber-50 border-2 border-amber-300 text-amber-950 font-bold text-sm space-y-2 shadow-sm">
-          <div className="flex items-center gap-2 text-base text-amber-900 font-black">
-            <span>⚠️ NGO Account Suspended</span>
-          </div>
-          <p className="text-xs text-amber-800 font-medium">
-            Your organisation authorization has been suspended by the Admin Governance Portal pending audit review.
-          </p>
-          <div className="text-xs bg-white/80 p-3 rounded-xl border border-amber-200 font-mono text-amber-900">
-            <strong>Suspension Notes:</strong> {ngo.verification_notes || 'Suspended due to verification compliance query.'}
           </div>
         </div>
       )}
@@ -245,13 +236,9 @@ export default function NgoPage({ lang }) {
           <div className="text-xl font-black text-slate-900 dark:text-white flex items-center gap-2.5 mt-0.5">
             <span>{ngo.name}</span>
             <span className={`px-3 py-1 rounded-full text-xs font-black ${
-              ngo.verified && ngo.status === 'verified' ? 'bg-[#E0F7ED] text-[#00875A]' :
-              ngo.status === 'rejected' ? 'bg-red-100 text-red-800' :
-              ngo.status === 'suspended' ? 'bg-amber-100 text-amber-800' : 'bg-amber-100 text-amber-800'
+              ngo.verified && ngo.status === 'verified' ? 'bg-[#E0F7ED] text-[#00875A]' : 'bg-amber-100 text-amber-800'
             }`}>
-              {ngo.verified && ngo.status === 'verified' ? '✓ Official Verified NGO' :
-               ngo.status === 'rejected' ? '❌ Rejected by Admin' :
-               ngo.status === 'suspended' ? '⚠️ Account Suspended' : '⏳ Pending Admin Verification'}
+              {ngo.verified && ngo.status === 'verified' ? '✓ Official Verified NGO' : '⏳ Pending Admin Verification'}
             </span>
           </div>
         </div>
@@ -261,6 +248,19 @@ export default function NgoPage({ lang }) {
           <div>Legal Reg: <strong className="font-mono">{ngo.legal_reg_no || 'REG-AP-1029'}</strong></div>
           <div>Service Radius: <strong>{ngo.service_radius_km} km</strong></div>
         </div>
+      </div>
+
+      {/* Interactive Map Preview for NGO */}
+      <div className="bg-white dark:bg-navy-900 rounded-2xl p-6 border border-slate-200/80 dark:border-navy-800 shadow-sm space-y-3">
+        <div className="flex justify-between items-center flex-wrap gap-2">
+          <h3 className="text-sm font-black uppercase text-slate-500 dark:text-slate-400 flex items-center gap-2">
+            <span>🗺️ Incoming Surplus Rescue Radar & Location Map</span>
+          </h3>
+          <span className="text-xs font-bold text-[#00A86B] dark:text-emerald-400">
+            OpenStreetMap Radius: {ngo.service_radius_km} km
+          </span>
+        </div>
+        <MapView donations={allNgoDonations} ngos={ngosList} center={[ngo.lat || 17.7200, ngo.lng || 83.3100]} />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
@@ -277,17 +277,11 @@ export default function NgoPage({ lang }) {
             </div>
 
             {(!ngo.verified || ngo.status !== 'verified') ? (
-              <div className={`text-center py-12 border-2 border-dashed rounded-xl space-y-2 p-6 ${
-                ngo.status === 'rejected' ? 'bg-red-50/50 border-red-200 text-red-800' : 'bg-amber-50/50 border-amber-200 text-amber-800'
-              }`}>
-                <div className="text-4xl">{ngo.status === 'rejected' ? '❌' : '🛡️'}</div>
-                <div className="font-black text-base">
-                  {ngo.status === 'rejected' ? 'Proximity Matching Disabled (Application Rejected)' : 'Proximity Radar Locked'}
-                </div>
+              <div className="text-center py-12 bg-amber-50/50 border-2 border-dashed border-amber-200 text-amber-800 rounded-xl space-y-2 p-6">
+                <div className="text-4xl">🛡️</div>
+                <div className="font-black text-base">Proximity Radar Locked</div>
                 <div className="text-xs max-w-md mx-auto font-medium">
-                  {ngo.status === 'rejected' 
-                    ? `Admin declined verification. Reason: ${ngo.verification_notes || 'Registration documents incomplete.'}` 
-                    : 'Application & certificate are reaching Admin for Darpan ID verification. Incoming matches will appear here once Admin approves.'}
+                  Application & certificate are reaching Admin for Darpan ID verification. Incoming matches will appear here once Admin approves.
                 </div>
               </div>
             ) : incoming.length === 0 ? (
@@ -313,12 +307,28 @@ export default function NgoPage({ lang }) {
                       </span>
                     </div>
 
-                    <button 
-                      onClick={() => handleOpenAudit(d)}
-                      className="w-full py-3 px-4 bg-[#00A86B] hover:bg-[#00965E] text-white font-black rounded-xl text-xs transition-colors shadow-sm"
-                    >
-                      📋 Run FSSAI Safety Audit & Accept Pickup
-                    </button>
+                    <div className="flex gap-2">
+                      <button 
+                        onClick={() => openLiveNavigation({
+                          lat: d.pickup_lat,
+                          lng: d.pickup_lng,
+                          destLat: ngo.lat,
+                          destLng: ngo.lng,
+                          title: d.food_type
+                        })}
+                        className="py-2.5 px-3 bg-blue-600 hover:bg-blue-700 text-white font-extrabold text-xs rounded-xl transition-colors shadow flex items-center gap-1.5"
+                      >
+                        <span>🗺️</span>
+                        <span>Open GPS Navigation</span>
+                      </button>
+
+                      <button 
+                        onClick={() => handleOpenAudit(d)}
+                        className="flex-1 py-2.5 px-4 bg-[#00A86B] hover:bg-[#00965E] text-white font-black rounded-xl text-xs transition-colors shadow-sm"
+                      >
+                        📋 Run FSSAI Safety Audit & Accept Pickup
+                      </button>
+                    </div>
                   </div>
                 ))}
               </div>
@@ -357,10 +367,21 @@ export default function NgoPage({ lang }) {
                     )}
 
                     <div className="pt-2 flex gap-2">
+                      <button 
+                        onClick={() => openLiveNavigation({
+                          lat: p.pickup_lat,
+                          lng: p.pickup_lng,
+                          title: p.food_type
+                        })}
+                        className="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-lg shadow-sm"
+                      >
+                        🗺️ Nav
+                      </button>
+
                       {p.status === 'accepted' && (
                         <button 
                           onClick={() => handleUpdateStatus(p.id, 'picked_up')} 
-                          className="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-lg shadow-sm"
+                          className="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-lg shadow-sm flex-1"
                         >
                           🚚 Mark Picked Up
                         </button>
@@ -368,7 +389,7 @@ export default function NgoPage({ lang }) {
                       {p.status === 'picked_up' && (
                         <button 
                           onClick={() => handleUpdateStatus(p.id, 'delivered')} 
-                          className="px-3 py-1.5 bg-[#00A86B] hover:bg-[#00965E] text-white text-xs font-bold rounded-lg shadow-sm"
+                          className="px-3 py-1.5 bg-[#00A86B] hover:bg-[#00965E] text-white text-xs font-bold rounded-lg shadow-sm flex-1"
                         >
                           ✅ Confirm Delivery to Shelter
                         </button>
