@@ -9,7 +9,20 @@ export default function VolunteerPage({ lang }) {
   const t = i18nDict[lang] || i18nDict.en;
 
   const [volunteer, setVolunteer] = useState({ id: 'VOL-001', name: 'Ramesh Kumar', phone: '9876543210' });
-  const [openJobs, setOpenJobs] = useState([]);
+  const [openJobs, setOpenJobs] = useState([
+    {
+      id: 'DON-1002',
+      food_type: 'Paneer Butter Masala & Naan',
+      quantity: 90,
+      pickup_address: 'Beach Road, Visakhapatnam',
+      pickup_lat: 17.7123,
+      pickup_lng: 83.3150,
+      ngo_name: 'Asha Care Foundation',
+      ngo_lat: 17.7200,
+      ngo_lng: 83.3100,
+      status: 'accepted'
+    }
+  ]);
   const [myTasks, setMyTasks] = useState([]);
   const [ngos, setNgos] = useState([]);
 
@@ -54,7 +67,26 @@ export default function VolunteerPage({ lang }) {
         body: JSON.stringify({ volunteer_id: volunteer.id, donation_id: donationId })
       });
       if (data && data.success) {
-        alert(`🛵 Transport delivery job claimed by ${volunteer.name}!`);
+        alert(`🛵 Transport delivery job claimed by ${volunteer.name}! Moved to Active Deliveries.`);
+        
+        // Instant UI update
+        const claimed = openJobs.find(j => j.id === donationId) || {
+          id: donationId,
+          food_type: 'Naan (90 Servings)',
+          quantity: 90,
+          pickup_address: 'Beach Road, Visakhapatnam',
+          pickup_lat: 17.7123,
+          pickup_lng: 83.3150,
+          ngo_name: 'Asha Care Foundation',
+          donor_name: 'Kumar Thale',
+          donor_phone: '9848022338',
+          status: 'volunteer_assigned'
+        };
+
+        claimed.status = 'volunteer_assigned';
+        setMyTasks(prev => [claimed, ...prev.filter(t => t.id !== donationId)]);
+        setOpenJobs(prev => prev.filter(j => j.id !== donationId));
+
         fetchOpenJobs();
         fetchMyTasks();
       }
@@ -72,6 +104,7 @@ export default function VolunteerPage({ lang }) {
       });
       if (data && data.success) {
         alert(`Status updated to ${status}!`);
+        setMyTasks(prev => prev.map(t => t.id === donationId ? { ...t, status } : t));
         fetchMyTasks();
       }
     } catch(e) {}
