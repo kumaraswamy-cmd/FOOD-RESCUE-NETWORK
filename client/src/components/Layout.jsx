@@ -16,6 +16,7 @@ export default function Layout({ children, lang, setLang, theme, toggleTheme }) 
     { path: '/volunteer', label: t.tabVolunteer || 'Volunteers', icon: '🚴' },
     { path: '/admin', label: t.tabAdmin || 'Admin Governance', icon: '🛡️' },
     { path: '/impact', label: t.tabImpact || 'Impact & Analytics', icon: '📊' },
+    { path: '/profile', label: 'Account Profile', icon: '👤' },
   ];
 
   const isActive = (path) => location.pathname === path;
@@ -160,15 +161,15 @@ export default function Layout({ children, lang, setLang, theme, toggleTheme }) 
             </button>
 
             {/* User Profile Chip */}
-            <div className="flex items-center gap-3 pl-3 border-l border-slate-200 dark:border-navy-700">
-              <div className="w-9 h-9 rounded-full bg-[#0D1E36] dark:bg-[#00A86B] text-white flex items-center justify-center font-black text-xs shadow-sm">
+            <Link to="/profile" className="flex items-center gap-3 pl-3 border-l border-slate-200 dark:border-navy-700 group cursor-pointer">
+              <div className="w-9 h-9 rounded-full bg-[#0D1E36] dark:bg-[#00A86B] text-white flex items-center justify-center font-black text-xs shadow-sm group-hover:scale-105 transition-transform">
                 KT
               </div>
               <div className="hidden md:block text-left">
-                <div className="font-extrabold text-xs text-slate-900 dark:text-white leading-tight">Kumar Thale</div>
+                <div className="font-extrabold text-xs text-slate-900 dark:text-white leading-tight group-hover:text-[#00A86B] transition-colors">Kumar Thale</div>
                 <div className="text-[10px] font-bold text-[#00A86B] dark:text-emerald-400">Verified Donor</div>
               </div>
-            </div>
+            </Link>
           </div>
         </header>
 
