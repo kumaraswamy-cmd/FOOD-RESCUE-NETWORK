@@ -14,7 +14,7 @@ import { getStorage } from 'firebase/storage';
 
 // Live Firebase Configuration for food-rescue-network-8d050
 const firebaseConfig = {
-  apiKey: import.meta.env.VITE_FIREBASE_API_KEY || "AIzaSyA1Ce720sDtHOHCClcSn_4XkRNIV-1BKI",
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY || "AIzaSyA1Ce720sDtHOHCCclcSn_4XkRNIV-1BKI",
   authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || "food-rescue-network-8d050.firebaseapp.com",
   projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID || "food-rescue-network-8d050",
   storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET || "food-rescue-network-8d050.firebasestorage.app",
