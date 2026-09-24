@@ -49,7 +49,7 @@ export default function OtpModal({ isOpen, onClose, onVerified, defaultPhone = '
   };
 
   return (
-    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+    <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-[9999] flex items-center justify-center p-4">
       <div className="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl">
         <h3 className="text-xl font-extrabold text-emerald-950 mb-2">📱 Phone Number & OTP Verification</h3>
         <p className="text-sm text-gray-600 mb-4">

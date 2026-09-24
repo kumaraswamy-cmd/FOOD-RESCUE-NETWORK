@@ -405,7 +405,7 @@ export default function NgoPage({ lang }) {
 
       {/* NEW NGO REGISTRATION MODAL */}
       {showRegModal && (
-        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-[9999] bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
           <div className="bg-white dark:bg-navy-900 rounded-2xl p-6 max-w-lg w-full space-y-4 shadow-2xl border border-slate-200 dark:border-navy-800 max-h-[90vh] overflow-y-auto">
             <div className="flex justify-between items-center border-b border-slate-100 dark:border-navy-800 pb-3">
               <h3 className="font-black text-lg text-slate-900 dark:text-white">

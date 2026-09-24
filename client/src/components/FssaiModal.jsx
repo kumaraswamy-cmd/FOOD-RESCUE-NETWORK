@@ -11,7 +11,7 @@ export default function FssaiModal({ isOpen, onClose, onConfirm, donationTitle }
   const allChecked = c1 && c2 && c3 && c4;
 
   return (
-    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+    <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-[9999] flex items-center justify-center p-4">
       <div className="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl animate-in fade-in zoom-in duration-200">
         <h3 className="text-xl font-extrabold text-emerald-950 mb-2">📋 FSSAI Food Safety Audit</h3>
         <p className="text-sm text-gray-600 mb-4">

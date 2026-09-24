@@ -32,6 +32,19 @@
   }
 }
 
+/* Fix Leaflet Map Z-Index Bleeding over Modal Dialogs */
+.leaflet-container {
+  z-index: 1 !important;
+  position: relative !important;
+}
+.leaflet-pane {
+  z-index: 2 !important;
+}
+.leaflet-top,
+.leaflet-bottom {
+  z-index: 5 !important;
+}
+
 body {
   margin: 0;
   font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
