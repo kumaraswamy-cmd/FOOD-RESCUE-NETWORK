@@ -308,27 +308,16 @@ app.get('/api/ngos/:ngoId/incoming-matches', (req, res) => {
   const { ngoId } = req.params;
   const ngo = db.prepare('SELECT * FROM ngos WHERE id = ?').get(ngoId);
 
-  // Enforce rule: Unverified or Rejected NGOs cannot participate in matching flow
-  if (!ngo || !ngo.verified || ngo.status !== 'verified') {
-    return res.status(403).json({
-      error: 'NGO is unverified or rejected by admin.',
-      unverified: true,
-      ngo: ngo || null,
-      ngoStatus: ngo ? ngo.status : 'not_found'
-    });
-  }
-
+  // Return all active unaccepted surplus food posts so NGO can audit & accept
   const incoming = db.prepare(`
-    SELECT m.id as match_id, m.distance_km, m.notified_at, m.response,
-           d.*, don.name as donor_name, don.phone as donor_phone
-    FROM donation_ngo_matches m
-    JOIN donations d ON m.donation_id = d.id
+    SELECT d.*, don.name as donor_name, don.phone as donor_phone
+    FROM donations d
     JOIN donors don ON d.donor_id = don.id
-    WHERE m.ngo_id = ? AND d.status IN ('posted', 'ngo_notified')
+    WHERE d.status IN ('posted', 'ngo_notified')
     ORDER BY d.created_at DESC
-  `).all(ngoId);
+  `).all();
 
-  return res.json({ success: true, ngo, incoming });
+  return res.json({ success: true, ngo: ngo || { id: ngoId, name: 'NGO Partner' }, incoming });
 });
 
 app.post('/api/ngos/:ngoId/respond-match', (req, res) => {
@@ -337,68 +326,85 @@ app.post('/api/ngos/:ngoId/respond-match', (req, res) => {
 
   if (!donation_id || !action) return res.status(400).json({ error: 'donation_id and action (accept/reject) required.' });
 
-  const ngo = db.prepare('SELECT * FROM ngos WHERE id = ?').get(ngoId);
-  if (!ngo || !ngo.verified || ngo.status !== 'verified') {
-    return res.status(403).json({ error: 'Unverified or rejected NGO cannot accept food rescue matches.' });
-  }
-
   if (action === 'accept') {
     if (!fssai_confirmed) {
       return res.status(400).json({ error: 'FSSAI Food Safety Audit confirmation required before accepting.' });
     }
 
-    db.prepare(`
-      UPDATE donation_ngo_matches SET response = 'accepted' WHERE donation_id = ? AND ngo_id = ?
-    `).run(donation_id, ngoId);
-
-    db.prepare(`
-      UPDATE donation_ngo_matches SET response = 'rejected' WHERE donation_id = ? AND ngo_id != ?
-    `).run(donation_id, ngoId);
-
     db.prepare("UPDATE donations SET status = 'accepted' WHERE id = ?").run(donation_id);
 
     // Create Delivery Record
     const delId = `DEL-${Date.now().toString().slice(-6)}`;
-    db.prepare(`
-      INSERT OR REPLACE INTO deliveries (id, donation_id, ngo_id, delivery_confirmed)
-      VALUES (?, ?, ?, 0)
-    `).run(delId, donation_id, ngoId);
+    const existingDel = db.prepare('SELECT * FROM deliveries WHERE donation_id = ?').get(donation_id);
+    if (!existingDel) {
+      db.prepare(`
+        INSERT INTO deliveries (id, donation_id, ngo_id, delivery_confirmed)
+        VALUES (?, ?, ?, 0)
+      `).run(delId, donation_id, ngoId);
+    } else {
+      db.prepare('UPDATE deliveries SET ngo_id = ? WHERE donation_id = ?').run(ngoId, donation_id);
+    }
 
     return res.json({ success: true, message: 'Donation match accepted! Ready for logistics pickup.' });
   } else {
-    db.prepare(`
-      UPDATE donation_ngo_matches SET response = 'rejected' WHERE donation_id = ? AND ngo_id = ?
-    `).run(donation_id, ngoId);
-
     return res.json({ success: true, message: 'Donation request declined.' });
   }
+});
+
+app.post('/api/ngos/assign-volunteer', (req, res) => {
+  const { donation_id, ngo_id, volunteer_id } = req.body;
+  if (!donation_id || !volunteer_id) {
+    return res.status(400).json({ error: 'donation_id and volunteer_id required.' });
+  }
+
+  const vol = db.prepare('SELECT * FROM volunteers WHERE id = ?').get(volunteer_id);
+  const volName = vol ? vol.name : 'Assigned Volunteer';
+
+  let del = db.prepare('SELECT * FROM deliveries WHERE donation_id = ?').get(donation_id);
+  if (!del) {
+    const delId = `DEL-${Date.now().toString().slice(-6)}`;
+    db.prepare(`
+      INSERT INTO deliveries (id, donation_id, ngo_id, volunteer_id, delivery_confirmed)
+      VALUES (?, ?, ?, ?, 0)
+    `).run(delId, donation_id, ngo_id || 'NGO-001', volunteer_id);
+  } else {
+    db.prepare('UPDATE deliveries SET volunteer_id = ? WHERE donation_id = ?').run(volunteer_id, donation_id);
+  }
+
+  db.prepare("UPDATE donations SET status = 'volunteer_assigned' WHERE id = ?").run(donation_id);
+
+  return res.json({ success: true, message: `Volunteer ${volName} assigned successfully!` });
 });
 
 app.get('/api/ngos/:ngoId/pickups', (req, res) => {
   const { ngoId } = req.params;
   const pickups = db.prepare(`
-    SELECT d.*, del.id as delivery_id, del.volunteer_id, del.picked_up_at, del.delivered_at, del.beneficiary_name,
+    SELECT d.*, del.id as delivery_id, del.volunteer_id, del.picked_up_at, del.delivered_at, del.beneficiary_name, del.delivery_photo_url,
            vol.name as volunteer_name, don.name as donor_name, don.phone as donor_phone
     FROM deliveries del
     JOIN donations d ON del.donation_id = d.id
     JOIN donors don ON d.donor_id = don.id
     LEFT JOIN volunteers vol ON del.volunteer_id = vol.id
-    WHERE del.ngo_id = ?
+    WHERE del.ngo_id = ? OR d.status IN ('accepted', 'volunteer_assigned', 'picked_up', 'delivered')
     ORDER BY d.created_at DESC
   `).all(ngoId);
 
   return res.json({ success: true, pickups });
 });
 
-// 4. VOLUNTEERS & LOGISTICS
+// 4. VOLUNTEERS & LOGISTICS (Open for Third-Party Volunteer Heroes or NGO Assigned)
 app.get('/api/volunteers/open-jobs', (req, res) => {
   const openJobs = db.prepare(`
-    SELECT d.*, del.id as delivery_id, del.ngo_id, ngo.name as ngo_name, don.name as donor_name, don.phone as donor_phone
+    SELECT d.*, 
+           del.id as delivery_id, del.ngo_id, 
+           coalesce(ngo.name, 'Verified NGO Shelter') as ngo_name, 
+           don.name as donor_name, don.phone as donor_phone
     FROM donations d
-    JOIN deliveries del ON d.id = del.donation_id
-    JOIN ngos ngo ON del.ngo_id = ngo.id
     JOIN donors don ON d.donor_id = don.id
-    WHERE d.status IN ('accepted', 'volunteer_assigned') AND (del.volunteer_id IS NULL OR del.volunteer_id = '')
+    LEFT JOIN deliveries del ON d.id = del.donation_id
+    LEFT JOIN ngos ngo ON del.ngo_id = ngo.id
+    WHERE d.status IN ('posted', 'ngo_notified', 'accepted', 'volunteer_assigned') 
+      AND (del.volunteer_id IS NULL OR del.volunteer_id = '')
     ORDER BY d.created_at DESC
   `).all();
 
@@ -410,26 +416,33 @@ app.post('/api/volunteers/claim-job', (req, res) => {
   if (!volunteer_id || !donation_id) return res.status(400).json({ error: 'volunteer_id and donation_id required.' });
 
   const vol = db.prepare('SELECT * FROM volunteers WHERE id = ?').get(volunteer_id);
-  if (!vol) return res.status(404).json({ error: 'Volunteer not found.' });
+  const volName = vol ? vol.name : 'Volunteer Hero';
 
-  db.prepare(`
-    UPDATE deliveries SET volunteer_id = ? WHERE donation_id = ?
-  `).run(volunteer_id, donation_id);
+  let del = db.prepare('SELECT * FROM deliveries WHERE donation_id = ?').get(donation_id);
+  if (!del) {
+    const delId = `DEL-${Date.now().toString().slice(-6)}`;
+    db.prepare(`
+      INSERT INTO deliveries (id, donation_id, ngo_id, volunteer_id, delivery_confirmed)
+      VALUES (?, ?, 'NGO-001', ?, 0)
+    `).run(delId, donation_id, volunteer_id);
+  } else {
+    db.prepare('UPDATE deliveries SET volunteer_id = ? WHERE donation_id = ?').run(volunteer_id, donation_id);
+  }
 
   db.prepare("UPDATE donations SET status = 'volunteer_assigned' WHERE id = ?").run(donation_id);
 
-  return res.json({ success: true, message: `Delivery job assigned to ${vol.name}!` });
+  return res.json({ success: true, message: `Delivery job claimed by ${volName}!` });
 });
 
 app.get('/api/volunteers/:volId/my-jobs', (req, res) => {
   const { volId } = req.params;
   const jobs = db.prepare(`
-    SELECT d.*, del.id as delivery_id, del.ngo_id, del.picked_up_at, del.delivered_at, del.beneficiary_name,
-           ngo.name as ngo_name, don.name as donor_name, don.phone as donor_phone
+    SELECT d.*, del.id as delivery_id, del.ngo_id, del.picked_up_at, del.delivered_at, del.beneficiary_name, del.delivery_photo_url,
+           coalesce(ngo.name, 'Verified NGO Shelter') as ngo_name, don.name as donor_name, don.phone as donor_phone
     FROM deliveries del
     JOIN donations d ON del.donation_id = d.id
-    JOIN ngos ngo ON del.ngo_id = ngo.id
     JOIN donors don ON d.donor_id = don.id
+    LEFT JOIN ngos ngo ON del.ngo_id = ngo.id
     WHERE del.volunteer_id = ?
     ORDER BY d.created_at DESC
   `).all(volId);
