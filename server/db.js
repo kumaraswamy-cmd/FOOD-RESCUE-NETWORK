@@ -129,6 +129,10 @@ function initSchema() {
 
   safeAddColumn('donations', "inspection_status TEXT DEFAULT 'passed'");
   safeAddColumn('donations', "flagged_reason TEXT");
+  safeAddColumn('donations', "pickup_otp TEXT");
+  safeAddColumn('donations', "food_image_url TEXT");
+  safeAddColumn('donations', "delivery_photo_url TEXT");
+  safeAddColumn('deliveries', "delivery_photo_url TEXT");
 }
 
 initSchema();

@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import StatusBadge from '../components/StatusBadge';
 import FssaiModal from '../components/FssaiModal';
+import PickupVerifyModal from '../components/PickupVerifyModal';
+import DeliveryProofModal from '../components/DeliveryProofModal';
 import MapView from '../components/MapView';
 import { openLiveNavigation } from '../utils/navigation';
 import { i18nDict } from '../i18n';
@@ -25,7 +27,9 @@ import {
   Truck, 
   X, 
   Send,
-  Plus
+  Plus,
+  KeyRound,
+  Camera
 } from 'lucide-react';
 
 import { useNavigate } from 'react-router-dom';
@@ -206,6 +210,67 @@ export default function NgoPage({ lang, user }) {
       }
     } catch(e) {
       alert('Error accepting donation match.');
+    }
+  };
+
+  const [showPickupOtpModal, setShowPickupOtpModal] = useState(false);
+  const [selectedPickupDonation, setSelectedPickupDonation] = useState(null);
+
+  const [showDeliveryProofModal, setShowDeliveryProofModal] = useState(false);
+  const [selectedDeliveryDonation, setSelectedDeliveryDonation] = useState(null);
+
+  const handleOpenPickupOtp = (p) => {
+    setSelectedPickupDonation(p);
+    setShowPickupOtpModal(true);
+  };
+
+  const handleVerifyPickupOtp = async (enteredOtp) => {
+    if (!selectedPickupDonation) return;
+    try {
+      const data = await apiFetch('/api/deliveries/update-status', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ donation_id: selectedPickupDonation.id, status: 'picked_up', entered_otp: enteredOtp })
+      });
+      if (data && data.success) {
+        alert(data.message || '✓ Pickup OTP verified! Status updated to Picked Up.');
+        setShowPickupOtpModal(false);
+        fetchPickups();
+      } else {
+        alert(data ? data.error : 'Incorrect OTP code.');
+      }
+    } catch(e) {
+      alert('Error verifying OTP code.');
+    }
+  };
+
+  const handleOpenDeliveryProof = (p) => {
+    setSelectedDeliveryDonation(p);
+    setShowDeliveryProofModal(true);
+  };
+
+  const handleConfirmDeliveryPhoto = async (photoData) => {
+    if (!selectedDeliveryDonation) return;
+    try {
+      const data = await apiFetch('/api/deliveries/update-status', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          donation_id: selectedDeliveryDonation.id,
+          status: 'delivered',
+          delivery_photo_url: photoData.delivery_photo_url,
+          beneficiary_name: photoData.beneficiary_name
+        })
+      });
+      if (data && data.success) {
+        alert(data.message || '✓ Delivery confirmed and photo attached!');
+        setShowDeliveryProofModal(false);
+        fetchPickups();
+      } else {
+        alert(data ? data.error : 'Failed to confirm delivery.');
+      }
+    } catch(e) {
+      alert('Error confirming delivery.');
     }
   };
 
@@ -479,21 +544,27 @@ export default function NgoPage({ lang, user }) {
 
                       {p.status === 'accepted' && (
                         <button 
-                          onClick={() => handleUpdateStatus(p.id, 'picked_up')} 
-                          className="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-lg shadow-sm flex-1 flex items-center justify-center gap-1"
+                          onClick={() => handleOpenPickupOtp(p)} 
+                          className="px-3 py-1.5 bg-amber-500 hover:bg-amber-600 text-white text-xs font-bold rounded-lg shadow-sm flex-1 flex items-center justify-center gap-1.5"
                         >
-                          <Truck className="w-3.5 h-3.5" />
-                          <span>Mark Picked Up</span>
+                          <KeyRound className="w-3.5 h-3.5" />
+                          <span>Enter Pickup OTP (from Donor)</span>
                         </button>
                       )}
                       {p.status === 'picked_up' && (
                         <button 
-                          onClick={() => handleUpdateStatus(p.id, 'delivered')} 
-                          className="px-3 py-1.5 bg-[#00A86B] hover:bg-[#00965E] text-white text-xs font-bold rounded-lg shadow-sm flex-1 flex items-center justify-center gap-1"
+                          onClick={() => handleOpenDeliveryProof(p)} 
+                          className="px-3 py-1.5 bg-[#00A86B] hover:bg-[#00965E] text-white text-xs font-bold rounded-lg shadow-sm flex-1 flex items-center justify-center gap-1.5"
                         >
-                          <CheckCircle2 className="w-3.5 h-3.5" />
-                          <span>Confirm Delivery to Shelter</span>
+                          <Camera className="w-3.5 h-3.5" />
+                          <span>Upload Delivery Photo & Confirm</span>
                         </button>
+                      )}
+                      {p.status === 'delivered' && (
+                        <div className="flex-1 text-[#00A86B] dark:text-emerald-400 text-xs font-black flex items-center gap-1">
+                          <CheckCircle2 className="w-4 h-4" />
+                          <span>Delivery Confirmed</span>
+                        </div>
                       )}
                     </div>
                   </div>
@@ -639,6 +710,20 @@ export default function NgoPage({ lang, user }) {
         onClose={() => setShowFssai(false)} 
         onConfirm={handleConfirmAccept} 
         donationTitle={selectedDonation ? selectedDonation.food_type : ''} 
+      />
+
+      <PickupVerifyModal
+        isOpen={showPickupOtpModal}
+        onClose={() => setShowPickupOtpModal(false)}
+        onVerify={handleVerifyPickupOtp}
+        donation={selectedPickupDonation}
+      />
+
+      <DeliveryProofModal
+        isOpen={showDeliveryProofModal}
+        onClose={() => setShowDeliveryProofModal(false)}
+        onConfirm={handleConfirmDeliveryPhoto}
+        donation={selectedDeliveryDonation}
       />
     </div>
   );

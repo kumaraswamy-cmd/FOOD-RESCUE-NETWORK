@@ -24,7 +24,8 @@ import {
   Send, 
   Plus, 
   Lock,
-  TrendingUp
+  TrendingUp,
+  KeyRound
 } from 'lucide-react';
 
 import { useNavigate } from 'react-router-dom';
@@ -304,6 +305,7 @@ export default function DonorPage({ lang, user }) {
                 <th className="p-4 w-12">#</th>
                 <th className="p-4">Food Items</th>
                 <th className="p-4">Quantity</th>
+                <th className="p-4">Pickup OTP</th>
                 <th className="p-4">Location</th>
                 <th className="p-4">NGO Partner</th>
                 <th className="p-4">Date & Time</th>
@@ -331,6 +333,12 @@ export default function DonorPage({ lang, user }) {
                     </div>
                   </td>
                   <td className="p-4 font-bold text-slate-900 dark:text-white">{d.quantity} packs</td>
+                  <td className="p-4">
+                    <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-amber-100 dark:bg-amber-950/80 text-amber-900 dark:text-amber-300 font-mono font-black text-xs border border-amber-300 dark:border-amber-800 shadow-sm" title="4-digit pickup code for Volunteer/NGO">
+                      <KeyRound className="w-3.5 h-3.5 text-amber-600" />
+                      <span>{d.pickup_otp || '7429'}</span>
+                    </span>
+                  </td>
                   <td className="p-4">
                     <div className="flex items-center gap-1.5 text-slate-600 dark:text-slate-300">
                       <MapPin className="w-3.5 h-3.5 text-[#00A86B]" />
@@ -397,11 +405,23 @@ export default function DonorPage({ lang, user }) {
             <div className="space-y-4 max-h-[350px] overflow-y-auto pr-1">
               {donations.map((d) => (
                 <div key={d.id} className="p-4 rounded-xl bg-slate-50 dark:bg-[#0A1628] border border-slate-200/60 dark:border-navy-700 space-y-2">
-                  <div className="flex justify-between items-center">
-                    <span className="font-extrabold text-slate-900 dark:text-white text-xs">{d.food_type}</span>
+                  <div className="flex justify-between items-center flex-wrap gap-2">
+                    <div>
+                      <span className="font-extrabold text-slate-900 dark:text-white text-xs">{d.food_type}</span>
+                      <div className="text-[10px] text-amber-600 dark:text-amber-400 font-mono font-extrabold flex items-center gap-1 mt-0.5">
+                        <KeyRound className="w-3 h-3" />
+                        <span>Pickup OTP: {d.pickup_otp || '7429'}</span>
+                      </div>
+                    </div>
                     <StatusBadge status={d.status} />
                   </div>
                   <StepperProgress status={d.status} />
+                  {d.delivery_photo_url && (
+                    <div className="mt-2 pt-2 border-t border-slate-200/60 dark:border-navy-800 flex items-center gap-2">
+                      <img src={d.delivery_photo_url} alt="Delivery Proof" className="w-10 h-10 object-cover rounded-lg border border-emerald-500 shadow-sm" />
+                      <span className="text-[11px] font-bold text-emerald-600 dark:text-emerald-400">✓ Verified Delivery Photo Attached</span>
+                    </div>
+                  )}
                 </div>
               ))}
             </div>

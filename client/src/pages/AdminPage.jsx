@@ -23,7 +23,9 @@ import {
   Check,
   Ban,
   Clock,
-  Utensils
+  Utensils,
+  KeyRound,
+  Camera
 } from 'lucide-react';
 
 export default function AdminPage({ lang }) {
@@ -594,12 +596,13 @@ export default function AdminPage({ lang }) {
                   <th className="p-3">Photo</th>
                   <th className="p-3">ID</th>
                   <th className="p-3">Food Item</th>
+                  <th className="p-3">Pickup OTP</th>
                   <th className="p-3">Servings</th>
                   <th className="p-3">Donor Venue</th>
                   <th className="p-3">Location</th>
                   <th className="p-3">Status</th>
                   <th className="p-3">Assigned NGO</th>
-                  <th className="p-3">Volunteer</th>
+                  <th className="p-3">Delivery Proof</th>
                   <th className="p-3 text-center">Actions</th>
                 </tr>
               </thead>
@@ -617,12 +620,27 @@ export default function AdminPage({ lang }) {
                     </td>
                     <td className="p-3 font-mono font-bold text-slate-900 dark:text-white">{d.id}</td>
                     <td className="p-3 font-semibold text-slate-900 dark:text-white">{d.food_type}</td>
+                    <td className="p-3">
+                      <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-amber-100 dark:bg-amber-950/80 border border-amber-300 dark:border-amber-800 text-amber-900 dark:text-amber-300 font-mono font-black text-xs">
+                        <KeyRound className="w-3 h-3 text-amber-600" />
+                        <span>{d.pickup_otp || '7429'}</span>
+                      </span>
+                    </td>
                     <td className="p-3 font-bold">{d.quantity}</td>
                     <td className="p-3">{d.donor_name}</td>
                     <td className="p-3">{d.pickup_address}</td>
                     <td className="p-3"><StatusBadge status={d.status} /></td>
                     <td className="p-3 font-bold text-[#00A86B] dark:text-emerald-400">{d.assigned_ngo_name || '—'}</td>
-                    <td className="p-3 text-purple-600 dark:text-purple-400 font-semibold">{d.assigned_volunteer_name || '—'}</td>
+                    <td className="p-3 font-semibold">
+                      {d.delivery_photo_url ? (
+                        <a href={d.delivery_photo_url} target="_blank" rel="noreferrer" className="flex items-center gap-1.5 text-emerald-600 dark:text-emerald-400 hover:underline">
+                          <img src={d.delivery_photo_url} alt="Proof" className="w-8 h-8 rounded-lg object-cover border border-emerald-500 shadow-sm" />
+                          <span className="text-[11px] font-bold">View Photo</span>
+                        </a>
+                      ) : (
+                        <span className="text-slate-400 text-[11px]">Pending Photo</span>
+                      )}
+                    </td>
                     <td className="p-3 text-center">
                       <button 
                         onClick={() => handleDeleteDonation(d.id)} 
