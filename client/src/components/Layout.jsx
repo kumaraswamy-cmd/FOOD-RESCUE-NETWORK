@@ -78,29 +78,16 @@ export default function Layout({ children, lang, setLang, theme, toggleTheme, us
         ${mobileMenuOpen ? 'translate-x-0' : '-translate-x-full'}
       `}>
         {/* Logo & Header */}
-        <div className="p-6 border-b border-navy-700/50 flex flex-col items-start gap-3">
+        <div className="p-5 border-b border-navy-700/50 flex flex-col items-start gap-2">
           <Link to="/" className="flex items-center gap-3 group">
             <img 
               src="/logo.png" 
               alt="Food Rescue Network Logo" 
-              className="h-12 w-auto object-contain bg-white/10 p-1.5 rounded-xl group-hover:scale-105 transition-transform"
-              onError={(e) => {
-                e.target.onerror = null;
-                e.target.style.display = 'none';
-              }}
+              className="h-12 w-auto object-contain rounded-xl group-hover:scale-105 transition-transform"
             />
-            <div>
-              <div className="font-black text-lg tracking-tight text-white flex items-center gap-1">
-                <span>Food</span>
-                <span className="text-[#00A86B]">Rescue</span>
-              </div>
-              <div className="text-[10px] font-mono tracking-widest text-slate-300 uppercase font-semibold">
-                N E T W O R K
-              </div>
-            </div>
           </Link>
-          <div className="text-[11px] text-emerald-400 font-medium italic opacity-90">
-            Good Food. Brighter Tomorrows.
+          <div className="text-[10px] font-mono font-bold tracking-widest text-emerald-400 uppercase opacity-90">
+            RESCUE FOOD &bull; REDUCE WASTE &bull; REACH LIVES
           </div>
         </div>
 
