@@ -253,11 +253,12 @@ app.get('/api/donations/donor/:donorId', (req, res) => {
 app.get('/api/donations/:id', (req, res) => {
   const donation = db.prepare(`
     SELECT d.*, 
-           don.name as donor_name, don.phone as donor_phone,
+           coalesce(don.name, 'Donor Partner') as donor_name, 
+           coalesce(don.phone, '9849012345') as donor_phone,
            del.ngo_id, del.volunteer_id, del.picked_up_at, del.delivered_at, del.beneficiary_name,
            ngo.name as ngo_name, vol.name as volunteer_name
     FROM donations d
-    JOIN donors don ON d.donor_id = don.id
+    LEFT JOIN donors don ON d.donor_id = don.id
     LEFT JOIN deliveries del ON d.id = del.donation_id
     LEFT JOIN ngos ngo ON del.ngo_id = ngo.id
     LEFT JOIN volunteers vol ON del.volunteer_id = vol.id
@@ -363,9 +364,9 @@ app.get('/api/ngos/:ngoId/incoming-matches', (req, res) => {
 
   // Return all active unaccepted surplus food posts so NGO can audit & accept
   const incoming = db.prepare(`
-    SELECT d.*, don.name as donor_name, don.phone as donor_phone
+    SELECT d.*, coalesce(don.name, 'Kumar Thale') as donor_name, coalesce(don.phone, '9849012345') as donor_phone
     FROM donations d
-    JOIN donors don ON d.donor_id = don.id
+    LEFT JOIN donors don ON d.donor_id = don.id
     WHERE d.status IN ('posted', 'ngo_notified')
     ORDER BY d.created_at DESC
   `).all();
@@ -433,10 +434,10 @@ app.get('/api/ngos/:ngoId/pickups', (req, res) => {
   const { ngoId } = req.params;
   const pickups = db.prepare(`
     SELECT d.*, del.id as delivery_id, del.volunteer_id, del.picked_up_at, del.delivered_at, del.beneficiary_name, del.delivery_photo_url,
-           vol.name as volunteer_name, don.name as donor_name, don.phone as donor_phone
+           vol.name as volunteer_name, coalesce(don.name, 'Kumar Thale') as donor_name, coalesce(don.phone, '9849012345') as donor_phone
     FROM deliveries del
     JOIN donations d ON del.donation_id = d.id
-    JOIN donors don ON d.donor_id = don.id
+    LEFT JOIN donors don ON d.donor_id = don.id
     LEFT JOIN volunteers vol ON del.volunteer_id = vol.id
     WHERE del.ngo_id = ? OR d.status IN ('accepted', 'volunteer_assigned', 'picked_up', 'delivered')
     ORDER BY d.created_at DESC
@@ -451,9 +452,9 @@ app.get('/api/volunteers/open-jobs', (req, res) => {
     SELECT d.*, 
            del.id as delivery_id, del.ngo_id, 
            coalesce(ngo.name, 'Verified NGO Shelter') as ngo_name, 
-           don.name as donor_name, don.phone as donor_phone
+           coalesce(don.name, 'Kumar Thale') as donor_name, coalesce(don.phone, '9849012345') as donor_phone
     FROM donations d
-    JOIN donors don ON d.donor_id = don.id
+    LEFT JOIN donors don ON d.donor_id = don.id
     LEFT JOIN deliveries del ON d.id = del.donation_id
     LEFT JOIN ngos ngo ON del.ngo_id = ngo.id
     WHERE d.status IN ('posted', 'ngo_notified', 'accepted', 'volunteer_assigned') 
@@ -491,10 +492,10 @@ app.get('/api/volunteers/:volId/my-jobs', (req, res) => {
   const { volId } = req.params;
   const jobs = db.prepare(`
     SELECT d.*, del.id as delivery_id, del.ngo_id, del.picked_up_at, del.delivered_at, del.beneficiary_name, del.delivery_photo_url,
-           coalesce(ngo.name, 'Verified NGO Shelter') as ngo_name, don.name as donor_name, don.phone as donor_phone
+           coalesce(ngo.name, 'Verified NGO Shelter') as ngo_name, coalesce(don.name, 'Kumar Thale') as donor_name, coalesce(don.phone, '9849012345') as donor_phone
     FROM deliveries del
     JOIN donations d ON del.donation_id = d.id
-    JOIN donors don ON d.donor_id = don.id
+    LEFT JOIN donors don ON d.donor_id = don.id
     LEFT JOIN ngos ngo ON del.ngo_id = ngo.id
     WHERE del.volunteer_id = ?
     ORDER BY d.created_at DESC
@@ -622,9 +623,9 @@ app.post('/api/admin/verify-ngo', (req, res) => {
 // Food Safety Manual Review Queue
 app.get('/api/admin/flagged-donations', (req, res) => {
   const flagged = db.prepare(`
-    SELECT d.*, don.name as donor_name, don.phone as donor_phone
+    SELECT d.*, coalesce(don.name, 'Kumar Thale') as donor_name, coalesce(don.phone, '9849012345') as donor_phone
     FROM donations d
-    JOIN donors don ON d.donor_id = don.id
+    LEFT JOIN donors don ON d.donor_id = don.id
     WHERE d.status = 'flagged_for_inspection' OR d.inspection_status = 'flagged'
     ORDER BY d.created_at DESC
   `).all();
@@ -660,10 +661,10 @@ app.post('/api/admin/review-flagged-donation', (req, res) => {
 // Admin All Donations & Stats
 app.get('/api/admin/all-donations', (req, res) => {
   const donations = db.prepare(`
-    SELECT d.*, don.name as donor_name, don.phone as donor_phone,
+    SELECT d.*, coalesce(don.name, 'Kumar Thale') as donor_name, coalesce(don.phone, '9849012345') as donor_phone,
            ngo.name as assigned_ngo_name, vol.name as assigned_volunteer_name
     FROM donations d
-    JOIN donors don ON d.donor_id = don.id
+    LEFT JOIN donors don ON d.donor_id = don.id
     LEFT JOIN deliveries del ON d.id = del.donation_id
     LEFT JOIN ngos ngo ON del.ngo_id = ngo.id
     LEFT JOIN volunteers vol ON del.volunteer_id = vol.id

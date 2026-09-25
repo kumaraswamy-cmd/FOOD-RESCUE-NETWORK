@@ -131,17 +131,37 @@ async function handleFirestoreOperation(url, options = {}) {
   let donations = getStored('frn_donations', DEFAULT_DONATIONS);
 
   try {
+    // 0. AUTH / OTP ENDPOINTS
+    if (pathname === '/api/auth/send-otp' && method === 'POST') {
+      const generatedCode = Math.floor(100000 + Math.random() * 900000).toString();
+      return { success: true, message: `Security 6-Digit OTP sent!`, otp: generatedCode };
+    }
+
+    if (pathname === '/api/auth/verify-otp' && method === 'POST') {
+      const userId = `USER-${Date.now().toString().slice(-6)}`;
+      const verifiedUser = {
+        id: userId,
+        name: body.name || body.email?.split('@')[0] || 'Verified User',
+        email: body.email || 'user@frn.org',
+        phone: body.phone || '9876543210',
+        role: body.role || 'donor',
+        verified: true
+      };
+      return { success: true, message: 'Identity verified successfully!', user: verifiedUser };
+    }
+
     // 1. POST /api/donations
     if (pathname === '/api/donations' && method === 'POST') {
       const freshness = parseInt(body.freshness_window_minutes) || 120;
       const isFlagged = freshness <= 20;
       const donId = `DON-${Date.now().toString().slice(-5)}`;
+      const pickupOtp = Math.floor(1000 + Math.random() * 9000).toString();
 
       const newDonation = {
         id: donId,
         donor_id: body.donor_id || 'DONOR-001',
         donor_name: body.donor_name || 'Kumar Thale',
-        donor_phone: '9849012345',
+        donor_phone: body.donor_phone || '9849012345',
         food_type: body.food_type,
         quantity: body.quantity,
         packaging: body.packaging || 'Sealed Package',
@@ -155,6 +175,7 @@ async function handleFirestoreOperation(url, options = {}) {
         status: isFlagged ? 'flagged' : 'posted',
         inspection_status: isFlagged ? 'flagged' : 'passed',
         flagged_reason: isFlagged ? 'Short Expiry Window (< 20 mins) requires rapid safety audit' : null,
+        pickup_otp: pickupOtp,
         created_at: new Date().toISOString()
       };
 
@@ -168,8 +189,41 @@ async function handleFirestoreOperation(url, options = {}) {
       return { success: true, donation: newDonation, flagged: isFlagged, flagReason: newDonation.flagged_reason };
     }
 
-    // 2. GET /api/donations/donor/:donorId or /api/admin/all-donations
-    if (pathname.startsWith('/api/donations') || pathname === '/api/admin/all-donations') {
+    // 2. PUT /api/donations/:id (EDIT / MODIFY DONATION)
+    if ((pathname.startsWith('/api/donations/') || pathname.startsWith('/api/admin/donations/')) && method === 'PUT') {
+      const donId = pathname.split('/').pop();
+      const target = donations.find(d => String(d.id) === String(donId));
+      if (target) {
+        if (body.food_type) target.food_type = body.food_type;
+        if (body.quantity) target.quantity = body.quantity;
+        if (body.packaging) target.packaging = body.packaging;
+        if (body.pickup_address) target.pickup_address = body.pickup_address;
+        if (body.freshness_window_minutes) target.freshness_window_minutes = body.freshness_window_minutes;
+        setStored('frn_donations', donations);
+
+        try {
+          await setDoc(doc(db, 'donations', donId), target, { merge: true });
+        } catch(e) {}
+      }
+      return { success: true, message: 'Food donation post modified successfully!', donation: target };
+    }
+
+    // 3. DELETE /api/donations/:id or POST /api/admin/delete-donation
+    if (((pathname.startsWith('/api/donations/') || pathname.startsWith('/api/admin/donations/')) && method === 'DELETE') || 
+        ((pathname === '/api/admin/delete-donation' || pathname === '/api/donations/delete') && method === 'POST')) {
+      const donId = body.donation_id || body.id || pathname.split('/').pop();
+      donations = donations.filter(d => String(d.id) !== String(donId));
+      setStored('frn_donations', donations);
+
+      try {
+        await deleteDoc(doc(db, 'donations', donId));
+      } catch(e) {}
+
+      return { success: true, message: `🗑️ Donation post ${donId} deleted successfully!` };
+    }
+
+    // 4. GET /api/donations/donor/:donorId or /api/admin/all-donations (ONLY ON GET METHOD!)
+    if ((pathname.startsWith('/api/donations') || pathname === '/api/admin/all-donations') && method === 'GET') {
       try {
         const snap = await getDocs(collection(db, 'donations'));
         let fsDonations = [];
@@ -179,7 +233,7 @@ async function handleFirestoreOperation(url, options = {}) {
       return { success: true, donations };
     }
 
-    // 3. GET /api/ngos
+    // 5. GET /api/ngos
     if (pathname === '/api/ngos' && method === 'GET') {
       try {
         const snap = await getDocs(collection(db, 'ngos'));
@@ -190,7 +244,7 @@ async function handleFirestoreOperation(url, options = {}) {
       return { success: true, ngos };
     }
 
-    // 4. POST /api/ngos/register
+    // 6. POST /api/ngos/register
     if (pathname === '/api/ngos/register' && method === 'POST') {
       const ngoId = `NGO-${Date.now().toString().slice(-5)}`;
       const newNgo = {
@@ -220,22 +274,45 @@ async function handleFirestoreOperation(url, options = {}) {
       return { success: true, message: '🏛️ NGO Application & Certificate submitted to Cloud Firestore!', ngo: newNgo };
     }
 
-    // 5. GET /api/ngos/:ngoId/incoming-matches
+    // 7. POST /api/ngos/assign-volunteer
+    if (pathname === '/api/ngos/assign-volunteer' && method === 'POST') {
+      const { donation_id, volunteer_id } = body;
+      const target = donations.find(d => String(d.id) === String(donation_id));
+      if (target) {
+        target.status = 'volunteer_assigned';
+        target.volunteer_id = volunteer_id;
+        target.volunteer_name = 'Ramesh Kumar (Volunteer Hero)';
+        target.volunteer_assigned = 'Ramesh Kumar (Volunteer Hero)';
+        setStored('frn_donations', donations);
+
+        try {
+          await setDoc(doc(db, 'donations', donation_id), {
+            status: 'volunteer_assigned',
+            volunteer_id: volunteer_id,
+            volunteer_name: 'Ramesh Kumar (Volunteer Hero)',
+            volunteer_assigned: 'Ramesh Kumar (Volunteer Hero)'
+          }, { merge: true });
+        } catch(e) {}
+      }
+      return { success: true, message: 'Volunteer assigned successfully!' };
+    }
+
+    // 8. GET /api/ngos/:ngoId/incoming-matches
     if (pathname.includes('/incoming-matches')) {
       const incoming = donations.filter(d => d.status === 'posted' || d.status === 'ngo_notified');
       return { success: true, incoming };
     }
 
-    // 6. GET /api/ngos/:ngoId/pickups
+    // 9. GET /api/ngos/:ngoId/pickups
     if (pathname.includes('/pickups')) {
       const pickups = donations.filter(d => d.status === 'accepted' || d.status === 'volunteer_assigned' || d.status === 'picked_up' || d.status === 'delivered');
       return { success: true, pickups };
     }
 
-    // 7. POST /api/ngos/:ngoId/respond-match
+    // 10. POST /api/ngos/:ngoId/respond-match
     if (pathname.includes('/respond-match') && method === 'POST') {
       const { donation_id, action } = body;
-      const target = donations.find(d => d.id === donation_id);
+      const target = donations.find(d => String(d.id) === String(donation_id));
       if (target) {
         target.status = action === 'accept' ? 'accepted' : 'rejected';
         target.assigned_ngo_name = 'Asha Care Foundation';
@@ -255,67 +332,74 @@ async function handleFirestoreOperation(url, options = {}) {
       return { success: true };
     }
 
-    // 8. GET /api/volunteers/open-jobs
+    // 11. GET /api/volunteers/open-jobs
     if (pathname === '/api/volunteers/open-jobs') {
-      const openJobs = donations.filter(d => (d.status === 'accepted' || d.status === 'posted') && (!d.volunteer_id || d.volunteer_id === ''));
+      const openJobs = donations.filter(d => (d.status === 'accepted' || d.status === 'posted' || d.status === 'ngo_notified') && (!d.volunteer_id || d.volunteer_id === ''));
       return { success: true, jobs: openJobs, openJobs };
     }
 
-    // 9. GET /api/volunteers/:volId/my-jobs
+    // 12. GET /api/volunteers/:volId/my-jobs
     if (pathname.includes('/my-jobs')) {
       const volId = pathname.split('/')[3] || 'VOL-001';
       const myJobs = donations.filter(d => 
         d.volunteer_id === volId || 
         d.volunteer_id === 'VOL-001' || 
         d.status === 'volunteer_assigned' || 
-        d.status === 'picked_up'
+        d.status === 'picked_up' ||
+        d.status === 'delivered'
       );
       return { success: true, jobs: myJobs };
     }
 
-    // 10. POST /api/volunteers/claim-job
+    // 13. POST /api/volunteers/claim-job
     if (pathname === '/api/volunteers/claim-job' && method === 'POST') {
       const volId = body.volunteer_id || 'VOL-001';
-      const target = donations.find(d => d.id === body.donation_id);
+      const target = donations.find(d => String(d.id) === String(body.donation_id));
       if (target) {
         target.status = 'volunteer_assigned';
         target.volunteer_id = volId;
         target.volunteer_name = 'Ramesh Kumar (Volunteer Hero)';
         target.volunteer_assigned = 'Ramesh Kumar (Volunteer Hero)';
         setStored('frn_donations', donations);
-      }
 
-      try {
-        const ref = doc(db, 'donations', body.donation_id);
-        await setDoc(ref, {
-          status: 'volunteer_assigned',
-          volunteer_id: volId,
-          volunteer_name: 'Ramesh Kumar (Volunteer Hero)',
-          volunteer_assigned: 'Ramesh Kumar (Volunteer Hero)'
-        }, { merge: true });
-      } catch(e) {}
+        try {
+          const ref = doc(db, 'donations', body.donation_id);
+          await setDoc(ref, {
+            status: 'volunteer_assigned',
+            volunteer_id: volId,
+            volunteer_name: 'Ramesh Kumar (Volunteer Hero)',
+            volunteer_assigned: 'Ramesh Kumar (Volunteer Hero)'
+          }, { merge: true });
+        } catch(e) {}
+      }
 
       return { success: true, message: 'Transport delivery job claimed!' };
     }
 
-    // 11. POST /api/deliveries/update-status
+    // 14. POST /api/deliveries/update-status
     if (pathname === '/api/deliveries/update-status' && method === 'POST') {
       const newStatus = body.status || 'delivered';
-      const target = donations.find(d => d.id === body.donation_id);
+      const target = donations.find(d => String(d.id) === String(body.donation_id));
       if (target) {
         target.status = newStatus;
+        if (body.delivery_photo_url) target.delivery_photo_url = body.delivery_photo_url;
+        if (body.beneficiary_name) target.beneficiary_name = body.beneficiary_name;
         setStored('frn_donations', donations);
+
+        try {
+          const ref = doc(db, 'donations', body.donation_id);
+          await setDoc(ref, { 
+            status: newStatus, 
+            delivery_photo_url: body.delivery_photo_url || null,
+            beneficiary_name: body.beneficiary_name || null
+          }, { merge: true });
+        } catch(e) {}
       }
 
-      try {
-        const ref = doc(db, 'donations', body.donation_id);
-        await setDoc(ref, { status: newStatus }, { merge: true });
-      } catch(e) {}
-
-      return { success: true };
+      return { success: true, message: `Status updated to ${newStatus}` };
     }
 
-    // 12. ADMIN ENDPOINTS
+    // 15. ADMIN ENDPOINTS
     if (pathname === '/api/admin/pending-ngos') {
       const pending = ngos.filter(n => n.status === 'pending');
       const verified = ngos.filter(n => n.status === 'verified');
@@ -372,20 +456,8 @@ async function handleFirestoreOperation(url, options = {}) {
       };
     }
 
-    if (pathname === '/api/admin/delete-donation' || pathname === '/api/donations/delete') {
-      const donId = body.donation_id || body.id;
-      donations = donations.filter(d => d.id !== donId);
-      setStored('frn_donations', donations);
-
-      try {
-        await deleteDoc(doc(db, 'donations', donId));
-      } catch(e) {}
-
-      return { success: true, message: `🗑️ Donation post ${donId} deleted successfully!` };
-    }
-
-    if (pathname === '/api/admin/delete-ngo') {
-      const ngoId = body.ngo_id || body.id;
+    if ((pathname.startsWith('/api/ngos/') && method === 'DELETE') || (pathname === '/api/admin/delete-ngo' && method === 'POST')) {
+      const ngoId = body.ngo_id || body.id || pathname.split('/').pop();
       ngos = ngos.filter(n => n.id !== ngoId && n.darpan_id !== ngoId);
       setStored('frn_ngos', ngos);
 
@@ -396,12 +468,16 @@ async function handleFirestoreOperation(url, options = {}) {
       return { success: true, message: `🗑️ NGO ${ngoId} deleted successfully!` };
     }
 
+    if (pathname.startsWith('/api/volunteers/') && method === 'DELETE') {
+      return { success: true, message: 'Volunteer record deleted.' };
+    }
+
     if (pathname === '/api/admin/review-flagged-donation') {
       const donId = body.donation_id;
       const action = body.action || 'approve';
       const isApproved = action === 'approve';
 
-      const target = donations.find(d => d.id === donId);
+      const target = donations.find(d => String(d.id) === String(donId));
       if (target) {
         target.inspection_status = isApproved ? 'passed' : 'rejected';
         target.status = isApproved ? 'posted' : 'rejected';
