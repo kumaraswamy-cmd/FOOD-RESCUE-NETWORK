@@ -137,11 +137,11 @@ export default function LoginPage({ user, setUser, lang }) {
         {/* Left Column: Official Branding & Hero Showcase */}
         <div className="lg:col-span-6 space-y-6 text-white p-4">
           <div className="space-y-4">
-            <div className="inline-block bg-black/40 backdrop-blur-md p-3 rounded-2xl border border-white/10 shadow-2xl">
+            <div className="inline-block">
               <img 
                 src="/logo.png" 
                 alt="Food Rescue Network Official Logo" 
-                className="h-16 sm:h-20 w-auto object-contain"
+                className="h-16 sm:h-20 w-auto object-contain drop-shadow-lg"
               />
             </div>
 
