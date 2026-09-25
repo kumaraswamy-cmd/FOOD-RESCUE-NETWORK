@@ -12,19 +12,10 @@ import LoginPage from './pages/LoginPage';
 import { auth } from './firebase';
 import { onAuthStateChanged } from 'firebase/auth';
 
-function ProtectedRoute({ user, allowedRoles, children }) {
+function ProtectedRoute({ user, children }) {
   if (!user) {
     return <Navigate to="/login" replace />;
   }
-
-  if (allowedRoles && !allowedRoles.includes(user.role)) {
-    const primaryRoute = 
-      user.role === 'admin' ? '/admin' :
-      user.role === 'ngo' ? '/ngo' :
-      user.role === 'volunteer' ? '/volunteer' : '/donor';
-    return <Navigate to={primaryRoute} replace />;
-  }
-
   return children;
 }
 
@@ -65,6 +56,20 @@ export default function App() {
   }, [user]);
 
   useEffect(() => {
+    if (!user) return;
+    const pathRoleMap = {
+      '/donor': 'donor',
+      '/ngo': 'ngo',
+      '/volunteer': 'volunteer',
+      '/admin': 'admin'
+    };
+    const targetRole = pathRoleMap[location.pathname];
+    if (targetRole && user.role !== targetRole) {
+      setUser(prev => ({ ...prev, role: targetRole }));
+    }
+  }, [location.pathname, user]);
+
+  useEffect(() => {
     try {
       const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
         if (firebaseUser) {
@@ -93,7 +98,7 @@ export default function App() {
         <Route 
           path="/" 
           element={
-            <ProtectedRoute user={user} allowedRoles={['donor', 'ngo', 'volunteer', 'admin']}>
+            <ProtectedRoute user={user}>
               <Landing lang={lang} user={user} />
             </ProtectedRoute>
           } 
@@ -102,7 +107,7 @@ export default function App() {
         <Route 
           path="/donor" 
           element={
-            <ProtectedRoute user={user} allowedRoles={['donor']}>
+            <ProtectedRoute user={user}>
               <DonorPage lang={lang} user={user} />
             </ProtectedRoute>
           } 
@@ -111,7 +116,7 @@ export default function App() {
         <Route 
           path="/ngo" 
           element={
-            <ProtectedRoute user={user} allowedRoles={['ngo']}>
+            <ProtectedRoute user={user}>
               <NgoPage lang={lang} user={user} />
             </ProtectedRoute>
           } 
@@ -120,7 +125,7 @@ export default function App() {
         <Route 
           path="/volunteer" 
           element={
-            <ProtectedRoute user={user} allowedRoles={['volunteer']}>
+            <ProtectedRoute user={user}>
               <VolunteerPage lang={lang} user={user} />
             </ProtectedRoute>
           } 
@@ -129,7 +134,7 @@ export default function App() {
         <Route 
           path="/admin" 
           element={
-            <ProtectedRoute user={user} allowedRoles={['admin']}>
+            <ProtectedRoute user={user}>
               <AdminPage lang={lang} user={user} />
             </ProtectedRoute>
           } 
@@ -138,7 +143,7 @@ export default function App() {
         <Route 
           path="/impact" 
           element={
-            <ProtectedRoute user={user} allowedRoles={['donor', 'ngo', 'volunteer', 'admin']}>
+            <ProtectedRoute user={user}>
               <ImpactPage lang={lang} />
             </ProtectedRoute>
           } 
@@ -147,7 +152,7 @@ export default function App() {
         <Route 
           path="/profile" 
           element={
-            <ProtectedRoute user={user} allowedRoles={['donor', 'ngo', 'volunteer', 'admin']}>
+            <ProtectedRoute user={user}>
               <ProfilePage user={user} setUser={setUser} lang={lang} />
             </ProtectedRoute>
           } 
@@ -155,22 +160,7 @@ export default function App() {
 
         <Route 
           path="*" 
-          element={
-            <Navigate 
-              to={
-                !user 
-                  ? '/login' 
-                  : user.role === 'admin' 
-                    ? '/admin' 
-                    : user.role === 'ngo' 
-                      ? '/ngo' 
-                      : user.role === 'volunteer' 
-                        ? '/volunteer' 
-                        : '/donor'
-              } 
-              replace 
-            />
-          } 
+          element={<Navigate to={!user ? "/login" : "/"} replace />} 
         />
       </Routes>
     </Layout>

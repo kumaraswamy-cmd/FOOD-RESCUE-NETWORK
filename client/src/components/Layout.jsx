@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { 
   Home, 
   Building2, 
@@ -17,12 +17,14 @@ import {
   Leaf, 
   Server,
   ChevronDown,
-  Bell
+  Bell,
+  Sparkles
 } from 'lucide-react';
 import { i18nDict } from '../i18n';
 
 export default function Layout({ children, lang, setLang, theme, toggleTheme, user, setUser }) {
   const location = useLocation();
+  const navigate = useNavigate();
   const t = i18nDict[lang] || i18nDict.en;
 
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -49,24 +51,40 @@ export default function Layout({ children, lang, setLang, theme, toggleTheme, us
     );
   }
 
-  const allNavItems = [
-    { path: '/', label: t.tabHome || 'Home', icon: Home, roles: ['donor', 'ngo', 'volunteer'] },
-    { path: '/donor', label: t.tabDonor || 'Donor Dashboard', icon: Building2, roles: ['donor'] },
-    { path: '/ngo', label: t.tabNgo || 'NGO Partners', icon: HeartHandshake, roles: ['ngo'] },
-    { path: '/volunteer', label: t.tabVolunteer || 'Volunteers', icon: Truck, roles: ['volunteer'] },
-    { path: '/admin', label: t.tabAdmin || 'Admin Governance', icon: ShieldCheck, roles: ['admin'] },
-    { path: '/impact', label: t.tabImpact || 'Impact & Analytics', icon: BarChart3, roles: ['donor', 'ngo', 'volunteer', 'admin'] },
-    { path: '/profile', label: 'Account Profile', icon: User, roles: ['donor', 'ngo', 'volunteer', 'admin'] },
+  // All 4 Stakeholder Portals unlocked simultaneously for presentation demo mode
+  const navItems = [
+    { path: '/', label: t.tabHome || 'Home Dashboard', icon: Home },
+    { path: '/donor', label: t.tabDonor || 'Donor Dashboard', icon: Building2 },
+    { path: '/ngo', label: t.tabNgo || 'NGO Partners', icon: HeartHandshake },
+    { path: '/volunteer', label: t.tabVolunteer || 'Volunteers', icon: Truck },
+    { path: '/admin', label: t.tabAdmin || 'Admin Governance', icon: ShieldCheck },
+    { path: '/impact', label: t.tabImpact || 'Impact & Analytics', icon: BarChart3 },
+    { path: '/profile', label: 'Account Profile', icon: User },
   ];
 
   const currentRole = user?.role || 'donor';
-  const navItems = allNavItems.filter(item => item.roles.includes(currentRole));
-
   const isActive = (path) => location.pathname === path;
 
   const userInitials = user?.name 
     ? user.name.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase() 
     : 'U';
+
+  const roleList = [
+    { id: 'donor', label: 'Donor', path: '/donor', icon: Building2 },
+    { id: 'ngo', label: 'NGO', path: '/ngo', icon: HeartHandshake },
+    { id: 'volunteer', label: 'Volunteer', path: '/volunteer', icon: Truck },
+    { id: 'admin', label: 'Admin', path: '/admin', icon: ShieldCheck }
+  ];
+
+  const handleRoleSwitch = (roleId, path) => {
+    if (setUser) {
+      setUser(prev => ({
+        ...(prev || { id: 'FRN-HERO', name: 'Demo Presenter' }),
+        role: roleId
+      }));
+    }
+    navigate(path);
+  };
 
   return (
     <div className="min-h-screen bg-[#F4F7FA] dark:bg-[#0A1628] text-slate-800 dark:text-slate-100 flex font-sans antialiased transition-colors duration-200">
@@ -83,18 +101,20 @@ export default function Layout({ children, lang, setLang, theme, toggleTheme, us
             <img 
               src="/logo.png" 
               alt="Food Rescue Network Logo" 
-              className="h-12 w-auto object-contain rounded-xl group-hover:scale-105 transition-transform"
+              className="h-12 w-auto object-contain rounded-xl group-hover:scale-105 transition-transform drop-shadow-md"
             />
           </Link>
-          <div className="text-[10px] font-mono font-bold tracking-widest text-emerald-400 uppercase opacity-90">
-            RESCUE FOOD &bull; REDUCE WASTE &bull; REACH LIVES
+          <div className="text-[10px] font-mono font-bold tracking-widest text-emerald-400 uppercase opacity-90 flex items-center gap-1">
+            <Sparkles size={12} className="text-emerald-400" />
+            <span>DEMO MODE &bull; ALL PORTALS UNLOCKED</span>
           </div>
         </div>
 
         {/* Navigation Items */}
-        <nav className="flex-1 px-4 py-6 space-y-1.5 overflow-y-auto">
-          <div className="text-[10px] font-extrabold uppercase tracking-wider text-slate-400 px-3 mb-2">
-            Main Navigation
+        <nav className="flex-1 px-4 py-4 space-y-1 overflow-y-auto">
+          <div className="text-[10px] font-extrabold uppercase tracking-wider text-slate-400 px-3 mb-2 flex items-center justify-between">
+            <span>Main Navigation</span>
+            <span className="text-[9px] bg-[#00A86B]/20 text-emerald-300 px-1.5 py-0.5 rounded font-mono">LIVE DEMO</span>
           </div>
           {navItems.map((item) => {
             const active = isActive(item.path);
@@ -105,7 +125,7 @@ export default function Layout({ children, lang, setLang, theme, toggleTheme, us
                 to={item.path}
                 onClick={() => setMobileMenuOpen(false)}
                 className={`
-                  flex items-center gap-3 px-3.5 py-3 rounded-xl text-xs font-extrabold transition-all duration-150
+                  flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-extrabold transition-all duration-150
                   ${active 
                     ? 'bg-[#1C3B64] text-white shadow-md border-l-4 border-[#00A86B]' 
                     : 'text-slate-300 hover:bg-navy-800 hover:text-white'
@@ -156,8 +176,8 @@ export default function Layout({ children, lang, setLang, theme, toggleTheme, us
         {/* Floating Apple-Inspired Translucent Liquid Glass Header */}
         <div className="sticky top-2.5 z-30 px-3 sm:px-6 pt-1 pb-1.5">
           <header className={`
-            liquid-glass-header rounded-2xl px-4 sm:px-6 py-3 flex items-center justify-between gap-4 transition-all duration-300
-            ${isScrolled ? 'scrolled shadow-xl py-2.5' : ''}
+            liquid-glass-header rounded-2xl px-4 sm:px-6 py-2.5 flex items-center justify-between gap-4 transition-all duration-300
+            ${isScrolled ? 'scrolled shadow-xl py-2' : ''}
           `}>
             <div className="flex items-center gap-3">
               <button 
@@ -167,6 +187,34 @@ export default function Layout({ children, lang, setLang, theme, toggleTheme, us
               >
                 {mobileMenuOpen ? <X size={18} strokeWidth={2} /> : <Menu size={18} strokeWidth={2} />}
               </button>
+
+              {/* Instant One-Click Role Switcher Bar for Live Presentation */}
+              <div className="hidden sm:flex items-center gap-1 liquid-glass-capsule rounded-full p-1 border border-white/20 dark:border-navy-700">
+                <span className="text-[10px] font-black uppercase text-[#00A86B] dark:text-emerald-400 px-2 tracking-wider flex items-center gap-1">
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#00A86B] animate-pulse"></span>
+                  <span>Demo Switcher:</span>
+                </span>
+                {roleList.map((r) => {
+                  const isSelected = currentRole === r.id;
+                  const IconComp = r.icon;
+                  return (
+                    <button
+                      key={r.id}
+                      onClick={() => handleRoleSwitch(r.id, r.path)}
+                      className={`
+                        px-2.5 py-1 rounded-full text-xs font-black transition-all flex items-center gap-1.5
+                        ${isSelected 
+                          ? 'bg-[#00A86B] text-white shadow-md scale-105' 
+                          : 'text-slate-700 dark:text-slate-200 hover:text-slate-900 dark:hover:text-white hover:bg-white/20'
+                        }
+                      `}
+                    >
+                      <IconComp size={13} />
+                      <span>{r.label}</span>
+                    </button>
+                  );
+                })}
+              </div>
             </div>
 
             {/* Right Glass Controls */}
@@ -245,4 +293,3 @@ export default function Layout({ children, lang, setLang, theme, toggleTheme, us
     </div>
   );
 }
-
