@@ -93,8 +93,8 @@ export default function App() {
         <Route 
           path="/" 
           element={
-            <ProtectedRoute user={user} allowedRoles={['donor', 'ngo', 'volunteer']}>
-              <Landing lang={lang} />
+            <ProtectedRoute user={user} allowedRoles={['donor', 'ngo', 'volunteer', 'admin']}>
+              <Landing lang={lang} user={user} />
             </ProtectedRoute>
           } 
         />
