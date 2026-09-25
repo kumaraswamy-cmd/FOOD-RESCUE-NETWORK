@@ -226,7 +226,7 @@ app.post('/api/donations', (req, res) => {
 
 app.get('/api/donations/donor/:donorId', (req, res) => {
   const { donorId } = req.params;
-  const donations = db.prepare(`
+  let donations = db.prepare(`
     SELECT d.*, 
            (SELECT name FROM ngos WHERE id = del.ngo_id) as assigned_ngo_name,
            (SELECT name FROM volunteers WHERE id = del.volunteer_id) as assigned_volunteer_name
@@ -235,6 +235,17 @@ app.get('/api/donations/donor/:donorId', (req, res) => {
     WHERE d.donor_id = ?
     ORDER BY d.created_at DESC
   `).all(donorId);
+
+  if (!donations || donations.length === 0) {
+    donations = db.prepare(`
+      SELECT d.*, 
+             (SELECT name FROM ngos WHERE id = del.ngo_id) as assigned_ngo_name,
+             (SELECT name FROM volunteers WHERE id = del.volunteer_id) as assigned_volunteer_name
+      FROM donations d
+      LEFT JOIN deliveries del ON d.id = del.donation_id
+      ORDER BY d.created_at DESC
+    `).all();
+  }
 
   return res.json({ success: true, donations });
 });
@@ -263,6 +274,48 @@ app.get('/api/donations/:id', (req, res) => {
   `).all(req.params.id);
 
   return res.json({ success: true, donation, matches });
+});
+
+// EDIT / MODIFY DONATION
+app.put('/api/donations/:id', (req, res) => {
+  const { id } = req.params;
+  const { food_type, quantity, packaging, pickup_address, freshness_window_minutes } = req.body;
+
+  const existing = db.prepare('SELECT * FROM donations WHERE id = ?').get(id);
+  if (!existing) return res.status(404).json({ error: 'Donation post not found.' });
+
+  db.prepare(`
+    UPDATE donations 
+    SET food_type = coalesce(?, food_type),
+        quantity = coalesce(?, quantity),
+        packaging = coalesce(?, packaging),
+        pickup_address = coalesce(?, pickup_address),
+        freshness_window_minutes = coalesce(?, freshness_window_minutes)
+    WHERE id = ?
+  `).run(
+    food_type || null, 
+    quantity ? parseInt(quantity, 10) : null, 
+    packaging || null, 
+    pickup_address || null, 
+    freshness_window_minutes ? parseInt(freshness_window_minutes, 10) : null, 
+    id
+  );
+
+  const updated = db.prepare('SELECT * FROM donations WHERE id = ?').get(id);
+  return res.json({ success: true, message: 'Food donation post modified successfully!', donation: updated });
+});
+
+// DELETE DONATION
+app.delete('/api/donations/:id', (req, res) => {
+  const { id } = req.params;
+  try {
+    db.prepare('DELETE FROM deliveries WHERE donation_id = ?').run(id);
+    db.prepare('DELETE FROM donation_ngo_matches WHERE donation_id = ?').run(id);
+    db.prepare('DELETE FROM donations WHERE id = ?').run(id);
+    return res.json({ success: true, message: 'Food donation post deleted successfully!' });
+  } catch(e) {
+    return res.status(500).json({ error: 'Failed to delete donation record.' });
+  }
 });
 
 // 3. NGOS & RECIPIENT ORGANISATION VERIFICATION
@@ -643,6 +696,74 @@ app.get('/api/admin/stats', (req, res) => {
       successRate
     }
   });
+});
+
+app.delete('/api/admin/donations/:id', (req, res) => {
+  const { id } = req.params;
+  try {
+    db.prepare('DELETE FROM deliveries WHERE donation_id = ?').run(id);
+    db.prepare('DELETE FROM donation_ngo_matches WHERE donation_id = ?').run(id);
+    db.prepare('DELETE FROM donations WHERE id = ?').run(id);
+    return res.json({ success: true, message: 'Donation record deleted by Admin.' });
+  } catch(e) {
+    return res.status(500).json({ error: 'Failed to delete donation record.' });
+  }
+});
+
+app.post('/api/admin/delete-donation', (req, res) => {
+  const { donation_id } = req.body;
+  const id = donation_id || req.body.id;
+  if (!id) return res.status(400).json({ error: 'donation_id is required.' });
+
+  try {
+    db.prepare('DELETE FROM deliveries WHERE donation_id = ?').run(id);
+    db.prepare('DELETE FROM donation_ngo_matches WHERE donation_id = ?').run(id);
+    db.prepare('DELETE FROM donations WHERE id = ?').run(id);
+    return res.json({ success: true, message: `Donation ${id} deleted successfully!` });
+  } catch(e) {
+    return res.status(500).json({ error: 'Failed to delete donation record.' });
+  }
+});
+
+app.post('/api/admin/delete-ngo', (req, res) => {
+  const { ngo_id } = req.body;
+  const id = ngo_id || req.body.id;
+  if (!id) return res.status(400).json({ error: 'ngo_id is required.' });
+
+  try {
+    db.prepare('DELETE FROM ngos WHERE id = ? OR darpan_id = ?').run(id, id);
+    return res.json({ success: true, message: `NGO ${id} deleted successfully!` });
+  } catch(e) {
+    return res.status(500).json({ error: 'Failed to delete NGO.' });
+  }
+});
+
+app.put('/api/admin/donations/:id/status', (req, res) => {
+  const { id } = req.params;
+  const { status } = req.body;
+  if (!status) return res.status(400).json({ error: 'Status is required.' });
+  db.prepare('UPDATE donations SET status = ? WHERE id = ?').run(status, id);
+  return res.json({ success: true, message: `Donation status updated to ${status}` });
+});
+
+app.delete('/api/ngos/:id', (req, res) => {
+  const { id } = req.params;
+  try {
+    db.prepare('DELETE FROM ngos WHERE id = ?').run(id);
+    return res.json({ success: true, message: 'NGO record deleted.' });
+  } catch(e) {
+    return res.status(500).json({ error: 'Failed to delete NGO.' });
+  }
+});
+
+app.delete('/api/volunteers/:id', (req, res) => {
+  const { id } = req.params;
+  try {
+    db.prepare('DELETE FROM volunteers WHERE id = ?').run(id);
+    return res.json({ success: true, message: 'Volunteer record deleted.' });
+  } catch(e) {
+    return res.status(500).json({ error: 'Failed to delete volunteer.' });
+  }
 });
 
 if (require.main === module) {
