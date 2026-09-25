@@ -31,9 +31,7 @@ import {
 export default function AdminPage({ lang }) {
   const t = i18nDict[lang] || i18nDict.en;
 
-  const [authenticated, setAuthenticated] = useState(() => {
-    return localStorage.getItem('frn_admin_auth') === 'true';
-  });
+  const [authenticated, setAuthenticated] = useState(true);
   const [passwordInput, setPasswordInput] = useState('');
   const [authError, setAuthError] = useState('');
 

@@ -51,11 +51,6 @@ export default function NgoPage({ lang, user }) {
   });
 
   const handleOpenRegModal = () => {
-    if (!user) {
-      alert('Sign In Required: Please sign in to your account to submit NGO registration details & legal certificates.');
-      navigate('/login');
-      return;
-    }
     setShowRegModal(true);
   };
 
@@ -441,15 +436,7 @@ export default function NgoPage({ lang, user }) {
               </span>
             </div>
 
-            {(!ngo.verified || ngo.status !== 'verified') ? (
-              <div className="text-center py-12 bg-amber-50/50 border-2 border-dashed border-amber-200 text-amber-800 rounded-xl space-y-2 p-6">
-                <ShieldAlert className="w-10 h-10 mx-auto text-amber-600" />
-                <div className="font-black text-base">Proximity Radar Locked</div>
-                <div className="text-xs max-w-md mx-auto font-medium">
-                  Application & certificate are reaching Admin for Darpan ID verification. Incoming matches will appear here once Admin approves.
-                </div>
-              </div>
-            ) : incoming.length === 0 ? (
+            {incoming.length === 0 ? (
               <div className="text-center py-12 text-slate-400 border-2 border-dashed border-slate-200 rounded-xl font-semibold text-xs flex flex-col items-center justify-center gap-2">
                 <Sparkles className="w-6 h-6 text-slate-400" />
                 <span>No incoming surplus food matches right now. Check back soon!</span>

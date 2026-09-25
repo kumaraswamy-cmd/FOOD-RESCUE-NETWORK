@@ -98,11 +98,6 @@ export default function VolunteerPage({ lang, user }) {
   }, [volunteer.id]);
 
   const handleClaimJob = async (donationId) => {
-    if (!user) {
-      alert('Sign In Required: Please sign in to your volunteer account to claim transport delivery jobs.');
-      navigate('/login');
-      return;
-    }
     try {
       const data = await apiFetch('/api/volunteers/claim-job', {
         method: 'POST',

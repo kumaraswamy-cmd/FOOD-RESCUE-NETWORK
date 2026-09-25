@@ -135,11 +135,6 @@ export default function DonorPage({ lang, user }) {
   };
 
   const handleOpenPostModal = () => {
-    if (!user) {
-      alert('Sign In Required: Please sign in to your account so your surplus food rescue posts are saved & synced to your account in Cloud Firestore.');
-      navigate('/login');
-      return;
-    }
     setShowPostModal(true);
   };
 
@@ -211,10 +206,6 @@ export default function DonorPage({ lang, user }) {
 
   const handleSubmitPost = async (e) => {
     e.preventDefault();
-    if (!donor.otp_verified) {
-      setShowOtp(true);
-      return;
-    }
 
     setLoading(true);
     try {
@@ -236,6 +227,9 @@ export default function DonorPage({ lang, user }) {
       });
 
       if (data && data.success) {
+        if (data.donation) {
+          setDonations(prev => [data.donation, ...prev.filter(d => d.id !== data.donation.id)]);
+        }
         if (data.flagged) {
           alert(`${data.message || 'Inspection Flagged'}\nReason: ${data.flagReason}`);
         } else {
@@ -255,13 +249,7 @@ export default function DonorPage({ lang, user }) {
     setLoading(false);
   };
 
-  const displayDonations = donations.length > 0 ? donations : [
-    { id: '1', food_type: 'Vegetable Biryani', quantity: 50, pickup_address: 'Visakhapatnam, Andhra Pradesh', pickup_lat: 17.7123, pickup_lng: 83.3150, assigned_ngo_name: 'Asha Care Foundation', created_at: new Date().toISOString(), status: 'delivered' },
-    { id: '2', food_type: 'Paneer Curry & Naan', quantity: 30, pickup_address: 'Srikakulam, Andhra Pradesh', pickup_lat: 17.7250, pickup_lng: 83.3012, assigned_ngo_name: 'Akshaya Shelter Trust', created_at: new Date().toISOString(), status: 'volunteer_assigned' },
-    { id: '3', food_type: 'Fresh Produce Fruits (Bananas)', quantity: 40, pickup_address: 'Vizianagaram, Andhra Pradesh', pickup_lat: 17.7050, pickup_lng: 83.2900, assigned_ngo_name: 'Mother Theresa Orphanage', created_at: new Date().toISOString(), status: 'posted' },
-    { id: '4', food_type: 'Rice & Sambar', quantity: 60, pickup_address: 'Visakhapatnam, Andhra Pradesh', pickup_lat: 17.7198, pickup_lng: 83.3180, assigned_ngo_name: 'Asha Care Foundation', created_at: new Date().toISOString(), status: 'delivered' },
-    { id: '5', food_type: 'Mixed Buffet Meals', quantity: 25, pickup_address: 'Visakhapatnam, Andhra Pradesh', pickup_lat: 17.7150, pickup_lng: 83.3120, assigned_ngo_name: 'Akshaya Shelter Trust', created_at: new Date().toISOString(), status: 'delivered' }
-  ];
+  const displayDonations = donations;
 
   return (
     <div className="space-y-8">

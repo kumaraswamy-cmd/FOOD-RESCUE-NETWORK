@@ -299,7 +299,7 @@ async function handleFirestoreOperation(url, options = {}) {
 
     // 8. GET /api/ngos/:ngoId/incoming-matches
     if (pathname.includes('/incoming-matches')) {
-      const incoming = donations.filter(d => d.status === 'posted' || d.status === 'ngo_notified');
+      const incoming = donations.filter(d => d.status === 'posted' || d.status === 'ngo_notified' || d.status === 'accepted' || d.status === 'flagged');
       return { success: true, incoming };
     }
 
@@ -334,19 +334,17 @@ async function handleFirestoreOperation(url, options = {}) {
 
     // 11. GET /api/volunteers/open-jobs
     if (pathname === '/api/volunteers/open-jobs') {
-      const openJobs = donations.filter(d => (d.status === 'accepted' || d.status === 'posted' || d.status === 'ngo_notified') && (!d.volunteer_id || d.volunteer_id === ''));
+      const openJobs = donations.filter(d => d.status === 'accepted' || d.status === 'posted' || d.status === 'ngo_notified' || d.status === 'volunteer_assigned');
       return { success: true, jobs: openJobs, openJobs };
     }
 
     // 12. GET /api/volunteers/:volId/my-jobs
     if (pathname.includes('/my-jobs')) {
-      const volId = pathname.split('/')[3] || 'VOL-001';
       const myJobs = donations.filter(d => 
-        d.volunteer_id === volId || 
-        d.volunteer_id === 'VOL-001' || 
         d.status === 'volunteer_assigned' || 
         d.status === 'picked_up' ||
-        d.status === 'delivered'
+        d.status === 'delivered' ||
+        d.status === 'accepted'
       );
       return { success: true, jobs: myJobs };
     }

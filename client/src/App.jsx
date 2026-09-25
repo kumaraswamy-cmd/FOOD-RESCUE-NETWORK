@@ -12,10 +12,7 @@ import LoginPage from './pages/LoginPage';
 import { auth } from './firebase';
 import { onAuthStateChanged } from 'firebase/auth';
 
-function ProtectedRoute({ user, children }) {
-  if (!user) {
-    return <Navigate to="/login" replace />;
-  }
+function ProtectedRoute({ children }) {
   return children;
 }
 
@@ -28,9 +25,9 @@ export default function App() {
   const [user, setUser] = useState(() => {
     try {
       const saved = localStorage.getItem('frn_user');
-      return saved ? JSON.parse(saved) : null;
+      return saved ? JSON.parse(saved) : { id: 'DEMO-USER-001', name: 'Kumar Thale (Demo)', email: 'kumar@foodrescue.org', phone: '9849012345', role: 'donor', verified: true };
     } catch(e) {
-      return null;
+      return { id: 'DEMO-USER-001', name: 'Kumar Thale (Demo)', email: 'kumar@foodrescue.org', phone: '9849012345', role: 'donor', verified: true };
     }
   });
 
@@ -50,13 +47,10 @@ export default function App() {
   useEffect(() => {
     if (user) {
       localStorage.setItem('frn_user', JSON.stringify(user));
-    } else {
-      localStorage.removeItem('frn_user');
     }
   }, [user]);
 
   useEffect(() => {
-    if (!user) return;
     const pathRoleMap = {
       '/donor': 'donor',
       '/ngo': 'ngo',
@@ -64,10 +58,10 @@ export default function App() {
       '/admin': 'admin'
     };
     const targetRole = pathRoleMap[location.pathname];
-    if (targetRole && user.role !== targetRole) {
+    if (targetRole && user?.role !== targetRole) {
       setUser(prev => ({ ...prev, role: targetRole }));
     }
-  }, [location.pathname, user]);
+  }, [location.pathname]);
 
   useEffect(() => {
     try {
@@ -95,73 +89,15 @@ export default function App() {
       <Routes>
         <Route path="/login" element={<LoginPage user={user} setUser={setUser} lang={lang} />} />
         
-        <Route 
-          path="/" 
-          element={
-            <ProtectedRoute user={user}>
-              <Landing lang={lang} user={user} />
-            </ProtectedRoute>
-          } 
-        />
-
-        <Route 
-          path="/donor" 
-          element={
-            <ProtectedRoute user={user}>
-              <DonorPage lang={lang} user={user} />
-            </ProtectedRoute>
-          } 
-        />
-
-        <Route 
-          path="/ngo" 
-          element={
-            <ProtectedRoute user={user}>
-              <NgoPage lang={lang} user={user} />
-            </ProtectedRoute>
-          } 
-        />
-
-        <Route 
-          path="/volunteer" 
-          element={
-            <ProtectedRoute user={user}>
-              <VolunteerPage lang={lang} user={user} />
-            </ProtectedRoute>
-          } 
-        />
-
-        <Route 
-          path="/admin" 
-          element={
-            <ProtectedRoute user={user}>
-              <AdminPage lang={lang} user={user} />
-            </ProtectedRoute>
-          } 
-        />
-
-        <Route 
-          path="/impact" 
-          element={
-            <ProtectedRoute user={user}>
-              <ImpactPage lang={lang} />
-            </ProtectedRoute>
-          } 
-        />
-
-        <Route 
-          path="/profile" 
-          element={
-            <ProtectedRoute user={user}>
-              <ProfilePage user={user} setUser={setUser} lang={lang} />
-            </ProtectedRoute>
-          } 
-        />
-
-        <Route 
-          path="*" 
-          element={<Navigate to={!user ? "/login" : "/"} replace />} 
-        />
+        <Route path="/" element={<Landing lang={lang} user={user} />} />
+        <Route path="/donor" element={<DonorPage lang={lang} user={user} />} />
+        <Route path="/ngo" element={<NgoPage lang={lang} user={user} />} />
+        <Route path="/volunteer" element={<VolunteerPage lang={lang} user={user} />} />
+        <Route path="/admin" element={<AdminPage lang={lang} user={user} />} />
+        <Route path="/impact" element={<ImpactPage lang={lang} />} />
+        <Route path="/profile" element={<ProfilePage user={user} setUser={setUser} lang={lang} />} />
+        
+        <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </Layout>
   );
