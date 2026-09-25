@@ -1,6 +1,15 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { i18nDict } from '../i18n';
+import IconBox from '../components/IconBox';
+import { 
+  Building2, 
+  HeartHandshake, 
+  Truck, 
+  ShieldCheck, 
+  Leaf, 
+  ArrowRight 
+} from 'lucide-react';
 
 export default function Landing({ lang }) {
   const navigate = useNavigate();
@@ -11,7 +20,8 @@ export default function Landing({ lang }) {
       id: 'donor',
       title: t.roleDonor,
       sub: t.roleDonorSub,
-      icon: '🏬',
+      icon: Building2,
+      variant: 'emerald',
       badge: 'Post Food & Track',
       path: '/donor'
     },
@@ -19,7 +29,8 @@ export default function Landing({ lang }) {
       id: 'ngo',
       title: t.roleNgo,
       sub: t.roleNgoSub,
-      icon: '🏛️',
+      icon: HeartHandshake,
+      variant: 'blue',
       badge: 'FSSAI Audit & Accept',
       path: '/ngo'
     },
@@ -27,7 +38,8 @@ export default function Landing({ lang }) {
       id: 'volunteer',
       title: t.roleVolunteer,
       sub: t.roleVolunteerSub,
-      icon: '🚴',
+      icon: Truck,
+      variant: 'purple',
       badge: 'Transport & Delivery',
       path: '/volunteer'
     },
@@ -35,7 +47,8 @@ export default function Landing({ lang }) {
       id: 'admin',
       title: t.roleAdmin,
       sub: t.roleAdminSub,
-      icon: '🛡️',
+      icon: ShieldCheck,
+      variant: 'navy',
       badge: 'Verify NGOs & Governance',
       path: '/admin'
     }
@@ -46,7 +59,7 @@ export default function Landing({ lang }) {
       {/* Hero Header */}
       <div className="text-center max-w-3xl mx-auto space-y-4">
         <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#E0F7ED] dark:bg-emerald-950/80 text-[#00A86B] dark:text-emerald-400 border border-emerald-200/50 dark:border-emerald-800 text-xs font-black uppercase tracking-wider">
-          <span>🌿</span>
+          <Leaf className="w-3.5 h-3.5" />
           <span>Enterprise Surplus Food Redistribution</span>
         </div>
         
@@ -68,8 +81,8 @@ export default function Landing({ lang }) {
             className="cursor-pointer rounded-2xl p-6 bg-white dark:bg-[#0D1E36] text-slate-900 dark:text-white border border-slate-200/80 dark:border-navy-700/80 hover:border-[#00A86B] dark:hover:border-[#00A86B] shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all flex flex-col justify-between group"
           >
             <div>
-              <div className="w-14 h-14 rounded-2xl bg-slate-100 dark:bg-[#0A1628] text-3xl flex items-center justify-center mb-4 group-hover:bg-[#E0F7ED] dark:group-hover:bg-emerald-950/80 transition-colors border border-slate-200/50 dark:border-navy-700">
-                {r.icon}
+              <div className="mb-4">
+                <IconBox icon={r.icon} variant={r.variant} size="lg" />
               </div>
               <span className="inline-block text-[10px] font-black uppercase tracking-wider px-2.5 py-1 rounded-full bg-slate-100 dark:bg-[#0A1628] text-[#00A86B] dark:text-emerald-400 mb-2 border border-slate-200/40 dark:border-navy-700">
                 {r.badge}
@@ -80,7 +93,7 @@ export default function Landing({ lang }) {
 
             <button className="mt-6 w-full py-3 px-4 rounded-xl bg-[#0D1E36] dark:bg-[#0A1628] text-white hover:bg-[#00A86B] dark:hover:bg-[#00A86B] border border-transparent dark:border-navy-700 font-extrabold text-xs transition-colors flex items-center justify-center gap-2 shadow-sm">
               <span>Select Role</span>
-              <span>&rarr;</span>
+              <ArrowRight className="w-4 h-4" />
             </button>
           </div>
         ))}
@@ -113,3 +126,4 @@ export default function Landing({ lang }) {
     </div>
   );
 }
+

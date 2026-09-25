@@ -2,6 +2,29 @@ import React, { useState, useEffect } from 'react';
 import StatusBadge from '../components/StatusBadge';
 import { i18nDict } from '../i18n';
 import { apiFetch } from '../utils/api';
+import IconBox from '../components/IconBox';
+import { 
+  ShieldCheck, 
+  Lock, 
+  Unlock, 
+  Building2, 
+  AlertTriangle, 
+  FileText, 
+  History, 
+  FileCheck, 
+  Trash2, 
+  CheckCircle2, 
+  XCircle, 
+  ExternalLink, 
+  X, 
+  Eye,
+  CreditCard,
+  Globe,
+  Check,
+  Ban,
+  Clock,
+  Utensils
+} from 'lucide-react';
 
 export default function AdminPage({ lang }) {
   const t = i18nDict[lang] || i18nDict.en;
@@ -83,7 +106,7 @@ export default function AdminPage({ lang }) {
       });
 
       if (data && data.success) {
-        alert(data.message || `🏛️ NGO application ${action}d successfully!`);
+        alert(data.message || `NGO application ${action}d successfully!`);
         setReviewNotes('');
         fetchData();
       } else {
@@ -106,7 +129,7 @@ export default function AdminPage({ lang }) {
       });
 
       if (data && data.success) {
-        alert(data.message || `📋 Flagged donation ${action}d successfully!`);
+        alert(data.message || `Flagged donation ${action}d successfully!`);
         fetchData();
       }
     } catch(e) {
@@ -127,7 +150,7 @@ export default function AdminPage({ lang }) {
       });
 
       if (data && data.success) {
-        alert(data.message || `🗑️ Donation ${donationId} deleted successfully!`);
+        alert(data.message || `Donation ${donationId} deleted successfully!`);
         fetchData();
       }
     } catch(e) {
@@ -148,7 +171,7 @@ export default function AdminPage({ lang }) {
       });
 
       if (data && data.success) {
-        alert(data.message || `🗑️ NGO ${ngoId} removed successfully!`);
+        alert(data.message || `NGO ${ngoId} removed successfully!`);
         fetchData();
       }
     } catch(e) {
@@ -156,13 +179,11 @@ export default function AdminPage({ lang }) {
     }
   };
 
-  // 🔐 ADMIN LOCK SCREEN IF UNAUTHENTICATED
+  // ADMIN LOCK SCREEN IF UNAUTHENTICATED
   if (!authenticated) {
     return (
       <div className="max-w-md mx-auto my-16 p-8 bg-white dark:bg-[#0D1E36] rounded-2xl shadow-xl border border-slate-200 dark:border-navy-700 text-center space-y-6 text-slate-900 dark:text-white">
-        <div className="w-16 h-16 bg-emerald-100 dark:bg-emerald-950/60 rounded-2xl flex items-center justify-center mx-auto text-3xl">
-          🔐
-        </div>
+        <IconBox icon={Lock} variant="emerald" size="xl" className="mx-auto" />
         <div>
           <h2 className="text-2xl font-black">Admin Governance Lock</h2>
           <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
@@ -193,9 +214,10 @@ export default function AdminPage({ lang }) {
 
           <button 
             type="submit" 
-            className="w-full py-3.5 bg-[#00A86B] hover:bg-[#00965E] text-white font-extrabold rounded-xl shadow-md transition-colors text-xs"
+            className="w-full py-3.5 bg-[#00A86B] hover:bg-[#00965E] text-white font-extrabold rounded-xl shadow-md transition-colors text-xs flex items-center justify-center gap-2"
           >
-            🔓 Unlock Admin Portal
+            <Unlock className="w-4 h-4" />
+            <span>Unlock Admin Portal</span>
           </button>
         </form>
       </div>
@@ -211,14 +233,16 @@ export default function AdminPage({ lang }) {
           <p className="text-slate-300 text-sm mt-1 max-w-2xl font-medium">{t.adminSub}</p>
         </div>
         <div className="flex items-center gap-3">
-          <span className="px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-400/30 text-xs font-bold">
-            🛡️ Platform Governance Admin
+          <span className="px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-400/30 text-xs font-bold flex items-center gap-1.5">
+            <ShieldCheck className="w-4 h-4 text-[#00A86B]" />
+            <span>Platform Governance Admin</span>
           </span>
           <button 
             onClick={handleLogout} 
-            className="px-3.5 py-1.5 bg-red-600/80 hover:bg-red-700 text-white text-xs font-bold rounded-xl shadow"
+            className="px-3.5 py-1.5 bg-red-600/80 hover:bg-red-700 text-white text-xs font-bold rounded-xl shadow flex items-center gap-1.5"
           >
-            🔒 Lock Portal
+            <Lock className="w-3.5 h-3.5" />
+            <span>Lock Portal</span>
           </button>
         </div>
       </div>
@@ -251,7 +275,8 @@ export default function AdminPage({ lang }) {
             activeTab === 'ngos' ? 'border-[#00A86B] text-[#00A86B] dark:text-emerald-400' : 'border-transparent text-slate-500 dark:text-slate-400'
           }`}
         >
-          🏛️ NGO Verification Queue 
+          <Building2 className="w-4 h-4" />
+          <span>NGO Verification Queue</span>
           <span className="px-2 py-0.5 rounded-full text-xs bg-amber-100 text-amber-800 font-bold">
             {pendingNgos.length} Pending
           </span>
@@ -263,7 +288,8 @@ export default function AdminPage({ lang }) {
             activeTab === 'flagged' ? 'border-[#00A86B] text-[#00A86B] dark:text-emerald-400' : 'border-transparent text-slate-500 dark:text-slate-400'
           }`}
         >
-          ⚠️ Food Safety Audit Queue 
+          <AlertTriangle className="w-4 h-4 text-amber-500" />
+          <span>Food Safety Audit Queue</span>
           {flaggedDonations.length > 0 && (
             <span className="px-2 py-0.5 rounded-full text-xs bg-red-100 text-red-800 animate-pulse font-bold">
               {flaggedDonations.length} Flagged
@@ -277,7 +303,8 @@ export default function AdminPage({ lang }) {
             activeTab === 'all' ? 'border-[#00A86B] text-[#00A86B] dark:text-emerald-400' : 'border-transparent text-slate-500 dark:text-slate-400'
           }`}
         >
-          📑 Master Surplus Food Registry ({donations.length})
+          <FileText className="w-4 h-4" />
+          <span>Master Surplus Food Registry ({donations.length})</span>
         </button>
 
         <button 
@@ -286,7 +313,8 @@ export default function AdminPage({ lang }) {
             activeTab === 'history' ? 'border-[#00A86B] text-[#00A86B] dark:text-emerald-400' : 'border-transparent text-slate-500 dark:text-slate-400'
           }`}
         >
-          📜 Verification History ({logs.length})
+          <History className="w-4 h-4" />
+          <span>Verification History ({logs.length})</span>
         </button>
       </div>
 
@@ -294,16 +322,18 @@ export default function AdminPage({ lang }) {
       {activeTab === 'ngos' && (
         <div className="space-y-6">
           <div className="bg-white dark:bg-[#0D1E36] rounded-2xl p-6 border border-slate-200/80 dark:border-navy-700/80 shadow-sm">
-            <h3 className="text-lg font-black text-slate-900 dark:text-white mb-2">
-              🏛️ Recipient / NGO Verification Queue ({pendingNgos.length} Pending Approval)
+            <h3 className="text-lg font-black text-slate-900 dark:text-white mb-2 flex items-center gap-2">
+              <Building2 className="w-5 h-5 text-[#00A86B]" />
+              <span>Recipient / NGO Verification Queue ({pendingNgos.length} Pending Approval)</span>
             </h3>
             <p className="text-xs text-slate-500 dark:text-slate-400 mb-6 font-medium">
               Only verified recipient organisations can participate in surplus food matching. Review Darpan ID, Legal Registration, PAN, FCRA status, & uploaded certificate.
             </p>
 
             {pendingNgos.length === 0 ? (
-              <div className="p-4 rounded-xl bg-emerald-50 dark:bg-emerald-950/50 border border-emerald-200 dark:border-emerald-800 text-emerald-800 dark:text-emerald-300 text-xs font-bold">
-                ✓ All registered recipient NGOs have been audited. No pending applications.
+              <div className="p-4 rounded-xl bg-emerald-50 dark:bg-emerald-950/50 border border-emerald-200 dark:border-emerald-800 text-emerald-800 dark:text-emerald-300 text-xs font-bold flex items-center gap-2">
+                <CheckCircle2 className="w-4 h-4 text-[#00A86B]" />
+                <span>All registered recipient NGOs have been audited. No pending applications.</span>
               </div>
             ) : (
               <div className="space-y-4">
@@ -313,38 +343,44 @@ export default function AdminPage({ lang }) {
                       <div>
                         <h4 className="font-black text-base text-slate-900 dark:text-white">{n.name}</h4>
                         <div className="text-xs text-slate-600 dark:text-slate-300 mt-1 flex flex-wrap gap-x-4 gap-y-1 font-semibold">
-                          <span>📱 Phone: <strong>{n.phone}</strong></span>
-                          <span>🆔 Darpan ID: <strong className="font-mono text-[#00A86B] dark:text-emerald-400">{n.darpan_id || 'AP/2026/008891'}</strong></span>
-                          <span>📋 Legal Reg: <strong className="font-mono">{n.legal_reg_no || 'REG-AP-4012'}</strong></span>
-                          <span>💳 PAN: <strong className="font-mono">{n.pan_number || 'DDDDD4444D'}</strong></span>
-                          <span>🌐 FCRA: <strong className="text-blue-600 dark:text-sky-400">{n.fcra_status || 'Compliant'}</strong></span>
+                          <span>Phone: <strong>{n.phone}</strong></span>
+                          <span>Darpan ID: <strong className="font-mono text-[#00A86B] dark:text-emerald-400">{n.darpan_id || 'AP/2026/008891'}</strong></span>
+                          <span>Legal Reg: <strong className="font-mono">{n.legal_reg_no || 'REG-AP-4012'}</strong></span>
+                          <span>PAN: <strong className="font-mono">{n.pan_number || 'DDDDD4444D'}</strong></span>
+                          <span>FCRA: <strong className="text-blue-600 dark:text-sky-400">{n.fcra_status || 'Compliant'}</strong></span>
                         </div>
                         <div className="text-xs text-slate-500 dark:text-slate-400 mt-1 font-medium">
-                          📍 Service Radius: {n.service_radius_km} km &bull; Registered: {new Date(n.created_at).toLocaleString()}
+                          Service Radius: {n.service_radius_km} km &bull; Registered: {new Date(n.created_at).toLocaleString()}
                         </div>
                       </div>
-                      <span className="px-3 py-1 rounded-full bg-amber-200 dark:bg-amber-950 text-amber-900 dark:text-amber-300 text-xs font-black">
-                        ⏳ Pending Admin Audit
+                      <span className="px-3 py-1 rounded-full bg-amber-200 dark:bg-amber-950 text-amber-900 dark:text-amber-300 text-xs font-black flex items-center gap-1">
+                        <Clock className="w-3.5 h-3.5" />
+                        <span>Pending Admin Audit</span>
                       </span>
                     </div>
 
                     <div className="p-3 bg-white dark:bg-[#0D1E36] rounded-xl border border-amber-200 dark:border-navy-700 flex items-center justify-between flex-wrap gap-2">
-                      <span className="text-xs font-bold text-slate-700 dark:text-slate-300">📄 Submitted Registration Certificate & Document:</span>
+                      <span className="text-xs font-bold text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
+                        <FileCheck className="w-4 h-4 text-blue-600" />
+                        <span>Submitted Registration Certificate & Document:</span>
+                      </span>
                       <div className="flex gap-2">
                         <button 
                           onClick={() => setSelectedCertificateDoc(n)}
-                          className="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-lg shadow-sm"
+                          className="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-lg shadow-sm flex items-center gap-1"
                         >
-                          🔍 Inspect Certificate Document
+                          <Eye className="w-3.5 h-3.5" />
+                          <span>Inspect Certificate Document</span>
                         </button>
                         {n.registration_doc_url && (
                           <a 
                             href={n.registration_doc_url} 
                             target="_blank" 
                             rel="noreferrer" 
-                            className="px-3 py-1.5 bg-slate-200 dark:bg-navy-800 hover:bg-slate-300 text-slate-800 dark:text-slate-200 text-xs font-bold rounded-lg"
+                            className="px-3 py-1.5 bg-slate-200 dark:bg-navy-800 hover:bg-slate-300 text-slate-800 dark:text-slate-200 text-xs font-bold rounded-lg flex items-center gap-1"
                           >
-                            🔗 Open PDF Link
+                            <ExternalLink className="w-3.5 h-3.5" />
+                            <span>Open PDF Link</span>
                           </a>
                         )}
                       </div>
@@ -360,15 +396,17 @@ export default function AdminPage({ lang }) {
                       />
                       <button 
                         onClick={() => handleVerifyNgo(n.id, 'approve')} 
-                        className="px-4 py-2.5 bg-[#00A86B] hover:bg-[#00965E] text-white text-xs font-black rounded-xl shadow"
+                        className="px-4 py-2.5 bg-[#00A86B] hover:bg-[#00965E] text-white text-xs font-black rounded-xl shadow flex items-center gap-1.5"
                       >
-                        ✓ Approve & Verify NGO
+                        <Check className="w-4 h-4" />
+                        <span>Approve & Verify NGO</span>
                       </button>
                       <button 
                         onClick={() => handleVerifyNgo(n.id, 'reject')} 
-                        className="px-3.5 py-2.5 bg-red-100 dark:bg-red-950/60 hover:bg-red-200 text-red-800 dark:text-red-300 text-xs font-bold rounded-xl"
+                        className="px-3.5 py-2.5 bg-red-100 dark:bg-red-950/60 hover:bg-red-200 text-red-800 dark:text-red-300 text-xs font-bold rounded-xl flex items-center gap-1"
                       >
-                        ❌ Decline
+                        <XCircle className="w-4 h-4" />
+                        <span>Decline</span>
                       </button>
                     </div>
                   </div>
@@ -379,8 +417,9 @@ export default function AdminPage({ lang }) {
 
           {/* Master NGO List */}
           <div className="bg-white dark:bg-[#0D1E36] rounded-2xl p-6 border border-slate-200/80 dark:border-navy-700/80 shadow-sm">
-            <h3 className="text-lg font-black text-slate-900 dark:text-white mb-4">
-              📋 All Registered Recipient Organisations ({allNgos.length})
+            <h3 className="text-lg font-black text-slate-900 dark:text-white mb-4 flex items-center gap-2">
+              <FileText className="w-5 h-5 text-blue-600" />
+              <span>All Registered Recipient Organisations ({allNgos.length})</span>
             </h3>
             <div className="overflow-x-auto">
               <table className="w-full text-left text-xs border-collapse">
@@ -404,32 +443,56 @@ export default function AdminPage({ lang }) {
                       <td className="p-3 font-mono">{n.pan_number || 'AAAAA1111A'}</td>
                       <td className="p-3 font-semibold">{n.fcra_status || 'Compliant'}</td>
                       <td className="p-3">
-                        <span className={`px-2.5 py-1 rounded-full text-xs font-black ${
+                        <span className={`px-2.5 py-1 rounded-full text-xs font-black flex items-center gap-1 w-fit ${
                           n.verified && n.status === 'verified' ? 'bg-[#E0F7ED] text-[#00875A]' :
                           n.status === 'suspended' ? 'bg-amber-100 text-amber-800' :
                           n.status === 'rejected' ? 'bg-red-100 text-red-800' : 'bg-amber-100 text-amber-800'
                         }`}>
-                          {n.verified && n.status === 'verified' ? '✓ Verified' : n.status === 'suspended' ? '⚠️ Suspended' : n.status === 'rejected' ? '❌ Rejected' : '⏳ Pending'}
+                          {n.verified && n.status === 'verified' ? (
+                            <>
+                              <CheckCircle2 className="w-3.5 h-3.5" />
+                              <span>Verified</span>
+                            </>
+                          ) : n.status === 'suspended' ? (
+                            <>
+                              <AlertTriangle className="w-3.5 h-3.5" />
+                              <span>Suspended</span>
+                            </>
+                          ) : n.status === 'rejected' ? (
+                            <>
+                              <XCircle className="w-3.5 h-3.5" />
+                              <span>Rejected</span>
+                            </>
+                          ) : (
+                            <>
+                              <Clock className="w-3.5 h-3.5" />
+                              <span>Pending</span>
+                            </>
+                          )}
                         </span>
                       </td>
                       <td className="p-3 flex gap-1.5 flex-wrap">
                         {n.status !== 'verified' && (
-                          <button onClick={() => handleVerifyNgo(n.id, 'approve')} className="px-2 py-1 bg-[#00A86B] hover:bg-[#00965E] text-white font-bold rounded text-xs shadow-sm">
-                            ✓ Verify
+                          <button onClick={() => handleVerifyNgo(n.id, 'approve')} className="px-2 py-1 bg-[#00A86B] hover:bg-[#00965E] text-white font-bold rounded text-xs shadow-sm flex items-center gap-1">
+                            <Check className="w-3 h-3" />
+                            <span>Verify</span>
                           </button>
                         )}
                         {n.status === 'verified' && (
-                          <button onClick={() => handleVerifyNgo(n.id, 'suspend')} className="px-2 py-1 bg-amber-600 hover:bg-amber-700 text-white font-bold rounded text-xs shadow-sm">
-                            ⚠️ Suspend
+                          <button onClick={() => handleVerifyNgo(n.id, 'suspend')} className="px-2 py-1 bg-amber-600 hover:bg-amber-700 text-white font-bold rounded text-xs shadow-sm flex items-center gap-1">
+                            <AlertTriangle className="w-3 h-3" />
+                            <span>Suspend</span>
                           </button>
                         )}
                         {n.status !== 'rejected' && (
-                          <button onClick={() => handleVerifyNgo(n.id, 'reject')} className="px-2 py-1 bg-red-600 hover:bg-red-700 text-white font-bold rounded text-xs shadow-sm">
-                            ❌ Reject
+                          <button onClick={() => handleVerifyNgo(n.id, 'reject')} className="px-2 py-1 bg-red-600 hover:bg-red-700 text-white font-bold rounded text-xs shadow-sm flex items-center gap-1">
+                            <XCircle className="w-3 h-3" />
+                            <span>Reject</span>
                           </button>
                         )}
-                        <button onClick={() => handleDeleteNgo(n.id)} className="px-2 py-1 bg-slate-700 hover:bg-slate-800 text-white font-bold rounded text-xs shadow-sm">
-                          🗑️ Delete
+                        <button onClick={() => handleDeleteNgo(n.id)} className="px-2 py-1 bg-slate-700 hover:bg-slate-800 text-white font-bold rounded text-xs shadow-sm flex items-center gap-1">
+                          <Trash2 className="w-3 h-3" />
+                          <span>Delete</span>
                         </button>
                       </td>
                     </tr>
@@ -444,16 +507,18 @@ export default function AdminPage({ lang }) {
       {/* 2. FOOD SAFETY MANUAL REVIEW QUEUE */}
       {activeTab === 'flagged' && (
         <div className="bg-white dark:bg-[#0D1E36] rounded-2xl p-6 border border-slate-200/80 dark:border-navy-700/80 shadow-sm space-y-4">
-          <h3 className="text-lg font-black text-slate-900 dark:text-white mb-2">
-            ⚠️ Food Safety & Exception Inspection Queue ({flaggedDonations.length} Flagged)
+          <h3 className="text-lg font-black text-slate-900 dark:text-white mb-2 flex items-center gap-2">
+            <AlertTriangle className="w-5 h-5 text-amber-500" />
+            <span>Food Safety & Exception Inspection Queue ({flaggedDonations.length} Flagged)</span>
           </h3>
           <p className="text-xs text-slate-500 dark:text-slate-400 mb-4 font-medium">
             Automated food safety checks flag items with short freshness windows, massive bulk quantities, or high-risk perishables. Authorized Admin inspection is required before matching recipient NGOs.
           </p>
 
           {flaggedDonations.length === 0 ? (
-            <div className="p-4 rounded-xl bg-emerald-50 dark:bg-emerald-950/50 border border-emerald-200 dark:border-emerald-800 text-emerald-800 dark:text-emerald-300 text-xs font-bold">
-              ✓ No flagged food donations awaiting safety inspection.
+            <div className="p-4 rounded-xl bg-emerald-50 dark:bg-emerald-950/50 border border-emerald-200 dark:border-emerald-800 text-emerald-800 dark:text-emerald-300 text-xs font-bold flex items-center gap-2">
+              <CheckCircle2 className="w-4 h-4 text-[#00A86B]" />
+              <span>No flagged food donations awaiting safety inspection.</span>
             </div>
           ) : (
             <div className="space-y-4">
@@ -464,19 +529,20 @@ export default function AdminPage({ lang }) {
                       {fd.food_image_url ? (
                         <img src={fd.food_image_url} alt={fd.food_type} className="w-14 h-14 object-cover rounded-xl border border-red-200 shadow-sm" />
                       ) : (
-                        <div className="w-12 h-12 rounded-xl bg-red-100 dark:bg-red-950 text-red-700 flex items-center justify-center text-xl font-bold">
-                          🍲
+                        <div className="w-12 h-12 rounded-xl bg-red-100 dark:bg-red-950 text-red-700 flex items-center justify-center font-bold">
+                          <Utensils className="w-6 h-6 text-red-600" />
                         </div>
                       )}
                       <div>
                         <h4 className="font-black text-base text-slate-900 dark:text-white">{fd.food_type} ({fd.quantity} Servings)</h4>
                         <div className="text-xs text-slate-600 dark:text-slate-300 mt-1 font-medium">
-                          🏬 Donor: <strong>{fd.donor_name}</strong> ({fd.donor_phone}) &bull; Pickup: {fd.pickup_address}
+                          Donor: <strong>{fd.donor_name}</strong> ({fd.donor_phone}) &bull; Pickup: {fd.pickup_address}
                         </div>
                       </div>
                     </div>
-                    <span className="px-3 py-1 rounded-full bg-red-100 text-red-800 font-black text-xs">
-                      ⚠️ Flagged for Manual Audit
+                    <span className="px-3 py-1 rounded-full bg-red-100 text-red-800 font-black text-xs flex items-center gap-1">
+                      <AlertTriangle className="w-3.5 h-3.5 text-red-600" />
+                      <span>Flagged for Manual Audit</span>
                     </span>
                   </div>
 
@@ -487,21 +553,24 @@ export default function AdminPage({ lang }) {
                   <div className="flex gap-3 pt-1 flex-wrap">
                     <button 
                       onClick={() => handleReviewFlaggedDonation(fd.id, 'approve')} 
-                      className="px-4 py-2 bg-[#00A86B] hover:bg-[#00965E] text-white text-xs font-black rounded-xl shadow-sm"
+                      className="px-4 py-2 bg-[#00A86B] hover:bg-[#00965E] text-white text-xs font-black rounded-xl shadow-sm flex items-center gap-1.5"
                     >
-                      ✅ Pass Food Safety Audit & Dispatch to NGOs
+                      <CheckCircle2 className="w-4 h-4" />
+                      <span>Pass Food Safety Audit & Dispatch to NGOs</span>
                     </button>
                     <button 
                       onClick={() => handleReviewFlaggedDonation(fd.id, 'reject')} 
-                      className="px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white text-xs font-black rounded-xl shadow-sm"
+                      className="px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white text-xs font-black rounded-xl shadow-sm flex items-center gap-1.5"
                     >
-                      ❌ Reject Post
+                      <XCircle className="w-4 h-4" />
+                      <span>Reject Post</span>
                     </button>
                     <button 
                       onClick={() => handleDeleteDonation(fd.id)} 
-                      className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white text-xs font-black rounded-xl shadow-sm"
+                      className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white text-xs font-black rounded-xl shadow-sm flex items-center gap-1.5"
                     >
-                      🗑️ Delete Post
+                      <Trash2 className="w-4 h-4" />
+                      <span>Delete Post</span>
                     </button>
                   </div>
                 </div>
@@ -514,8 +583,9 @@ export default function AdminPage({ lang }) {
       {/* 3. MASTER SURPLUS FOOD REGISTRY */}
       {activeTab === 'all' && (
         <div className="bg-white dark:bg-[#0D1E36] rounded-2xl p-6 border border-slate-200/80 dark:border-navy-700/80 shadow-sm">
-          <h3 className="text-lg font-black text-slate-900 dark:text-white mb-4">
-            📑 Master Surplus Food Registry ({donations.length})
+          <h3 className="text-lg font-black text-slate-900 dark:text-white mb-4 flex items-center gap-2">
+            <FileText className="w-5 h-5 text-blue-600" />
+            <span>Master Surplus Food Registry ({donations.length})</span>
           </h3>
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs border-collapse">
@@ -540,7 +610,9 @@ export default function AdminPage({ lang }) {
                       {d.food_image_url ? (
                         <img src={d.food_image_url} alt={d.food_type} className="w-10 h-10 object-cover rounded-lg border border-slate-200 dark:border-navy-700" />
                       ) : (
-                        <div className="w-10 h-10 rounded-lg bg-emerald-100 dark:bg-emerald-950 flex items-center justify-center text-base">🍲</div>
+                        <div className="w-10 h-10 rounded-lg bg-emerald-100 dark:bg-emerald-950 flex items-center justify-center font-bold">
+                          <Utensils className="w-5 h-5 text-[#00A86B]" />
+                        </div>
                       )}
                     </td>
                     <td className="p-3 font-mono font-bold text-slate-900 dark:text-white">{d.id}</td>
@@ -556,7 +628,7 @@ export default function AdminPage({ lang }) {
                         onClick={() => handleDeleteDonation(d.id)} 
                         className="px-2.5 py-1.5 bg-red-600 hover:bg-red-700 text-white font-black text-xs rounded-xl shadow transition-all flex items-center justify-center gap-1 mx-auto"
                       >
-                        <span>🗑️</span>
+                        <Trash2 className="w-3.5 h-3.5" />
                         <span>Delete</span>
                       </button>
                     </td>
@@ -571,8 +643,9 @@ export default function AdminPage({ lang }) {
       {/* 4. VERIFICATION HISTORY & AUDIT LOGS */}
       {activeTab === 'history' && (
         <div className="bg-white dark:bg-[#0D1E36] rounded-2xl p-6 border border-slate-200/80 dark:border-navy-700/80 shadow-sm space-y-4">
-          <h3 className="text-lg font-black text-slate-900 dark:text-white mb-4">
-            📜 Verification Audit Logs ({logs.length})
+          <h3 className="text-lg font-black text-slate-900 dark:text-white mb-4 flex items-center gap-2">
+            <History className="w-5 h-5 text-indigo-600" />
+            <span>Verification Audit Logs ({logs.length})</span>
           </h3>
           <div className="space-y-3">
             {logs.map((l) => (
@@ -598,10 +671,13 @@ export default function AdminPage({ lang }) {
         <div className="fixed inset-0 z-[9999] bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
           <div className="bg-white dark:bg-[#0D1E36] rounded-2xl p-6 max-w-xl w-full space-y-4 shadow-2xl border border-slate-200 dark:border-navy-700 text-slate-900 dark:text-white">
             <div className="flex justify-between items-center border-b border-slate-100 dark:border-navy-700 pb-3">
-              <h3 className="font-black text-lg">
-                📄 NGO Legal Registration Certificate Audit
+              <h3 className="font-black text-lg flex items-center gap-2">
+                <FileCheck className="w-5 h-5 text-[#00A86B]" />
+                <span>NGO Legal Registration Certificate Audit</span>
               </h3>
-              <button onClick={() => setSelectedCertificateDoc(null)} className="text-slate-400 hover:text-slate-600 font-bold text-lg">✕</button>
+              <button onClick={() => setSelectedCertificateDoc(null)} className="text-slate-400 hover:text-slate-600 font-bold text-lg p-1 rounded-lg hover:bg-slate-100 dark:hover:bg-navy-700">
+                <X className="w-5 h-5" />
+              </button>
             </div>
 
             <div className="p-4 rounded-xl bg-emerald-50 dark:bg-[#0A1628] border border-emerald-200 dark:border-navy-700 space-y-2 text-xs">
@@ -613,7 +689,7 @@ export default function AdminPage({ lang }) {
             </div>
 
             <div className="p-6 border-2 border-dashed border-slate-300 dark:border-navy-700 rounded-xl text-center space-y-3">
-              <div className="text-4xl">📜</div>
+              <FileText className="w-10 h-10 mx-auto text-[#00A86B]" />
               <div className="font-bold text-sm">Official Society Registration & Verification Document</div>
               <div className="text-xs text-slate-500 dark:text-slate-400">Government of Andhra Pradesh / NITI Aayog NGO Darpan Database Record</div>
               {selectedCertificateDoc.registration_doc_url && (
@@ -621,9 +697,10 @@ export default function AdminPage({ lang }) {
                   href={selectedCertificateDoc.registration_doc_url} 
                   target="_blank" 
                   rel="noreferrer" 
-                  className="inline-block px-4 py-2 bg-blue-600 text-white font-bold text-xs rounded-xl hover:bg-blue-700 shadow"
+                  className="inline-flex items-center gap-1.5 px-4 py-2 bg-blue-600 text-white font-bold text-xs rounded-xl hover:bg-blue-700 shadow"
                 >
-                  🔗 View Full Official Document PDF
+                  <ExternalLink className="w-3.5 h-3.5" />
+                  <span>View Full Official Document PDF</span>
                 </a>
               )}
             </div>
@@ -634,9 +711,10 @@ export default function AdminPage({ lang }) {
                   handleVerifyNgo(selectedCertificateDoc.id, 'approve');
                   setSelectedCertificateDoc(null);
                 }} 
-                className="px-4 py-2 bg-[#00A86B] text-white font-black text-xs rounded-xl hover:bg-[#00965E] shadow"
+                className="px-4 py-2 bg-[#00A86B] text-white font-black text-xs rounded-xl hover:bg-[#00965E] shadow flex items-center gap-1.5"
               >
-                ✓ Verify NGO License
+                <Check className="w-4 h-4" />
+                <span>Verify NGO License</span>
               </button>
               <button 
                 onClick={() => setSelectedCertificateDoc(null)} 

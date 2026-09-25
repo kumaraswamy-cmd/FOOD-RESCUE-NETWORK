@@ -38,26 +38,26 @@ export default function MapView({ donations = [], ngos = [], center = [17.7123, 
       }
     });
 
-    // Custom Icons
+    // Custom Vector Icons
     const donorIcon = L.divIcon({
       className: 'custom-map-pin donor-pin',
-      html: `<div style="background:#EF4444; color:#fff; width:30px; height:30px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:16px; border:2px solid #fff; box-shadow:0 3px 8px rgba(0,0,0,0.3);">🍲</div>`,
-      iconSize: [30, 30],
-      iconAnchor: [15, 15]
+      html: `<div style="background:#EF4444; color:#fff; width:32px; height:32px; border-radius:50%; display:flex; align-items:center; justify-content:center; border:2px solid #fff; box-shadow:0 3px 8px rgba(0,0,0,0.3);"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m12 14 4-4"/><path d="M3.34 19a10 10 0 1 1 17.32 0"/></svg></div>`,
+      iconSize: [32, 32],
+      iconAnchor: [16, 16]
     });
 
     const ngoIcon = L.divIcon({
       className: 'custom-map-pin ngo-pin',
-      html: `<div style="background:#2563EB; color:#fff; width:30px; height:30px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:16px; border:2px solid #fff; box-shadow:0 3px 8px rgba(0,0,0,0.3);">🏛️</div>`,
-      iconSize: [30, 30],
-      iconAnchor: [15, 15]
+      html: `<div style="background:#2563EB; color:#fff; width:32px; height:32px; border-radius:50%; display:flex; align-items:center; justify-content:center; border:2px solid #fff; box-shadow:0 3px 8px rgba(0,0,0,0.3);"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect width="16" height="20" x="4" y="2" rx="2" ry="2"/><path d="M9 22v-4h6v4"/><path d="M8 6h.01"/><path d="M16 6h.01"/><path d="M12 6h.01"/></svg></div>`,
+      iconSize: [32, 32],
+      iconAnchor: [16, 16]
     });
 
     const deliveredIcon = L.divIcon({
       className: 'custom-map-pin delivered-pin',
-      html: `<div style="background:#10B981; color:#fff; width:30px; height:30px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:16px; border:2px solid #fff; box-shadow:0 3px 8px rgba(0,0,0,0.3);">✅</div>`,
-      iconSize: [30, 30],
-      iconAnchor: [15, 15]
+      html: `<div style="background:#10B981; color:#fff; width:32px; height:32px; border-radius:50%; display:flex; align-items:center; justify-content:center; border:2px solid #fff; box-shadow:0 3px 8px rgba(0,0,0,0.3);"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></div>`,
+      iconSize: [32, 32],
+      iconAnchor: [16, 16]
     });
 
     // Render NGO Markers
@@ -66,10 +66,10 @@ export default function MapView({ donations = [], ngos = [], center = [17.7123, 
         L.marker([ngo.lat, ngo.lng], { icon: ngoIcon })
           .addTo(map)
           .bindPopup(`
-            <div style="font-family:sans-serif; font-size:13px;">
-              <strong>🏛️ ${ngo.name}</strong><br/>
-              <span>Reg: ${ngo.registration_doc_url ? 'Govt Verified' : 'Pending'}</span><br/>
-              <span>Radius: ${ngo.service_radius_km} km</span>
+            <div style="font-family:sans-serif; font-size:13px; line-height:1.4;">
+              <strong>${ngo.name}</strong><br/>
+              <span style="color:#64748B;">Reg: ${ngo.registration_doc_url ? 'Govt Verified' : 'Pending'}</span><br/>
+              <span style="color:#64748B;">Radius: ${ngo.service_radius_km} km</span>
             </div>
           `);
       }
@@ -83,9 +83,9 @@ export default function MapView({ donations = [], ngos = [], center = [17.7123, 
 
       const marker = L.marker([lat, lng], { icon }).addTo(map);
       marker.bindPopup(`
-        <div style="font-family:sans-serif; font-size:13px;">
-          <strong>🍲 ${d.food_type}</strong> (${d.quantity} Servings)<br/>
-          <span>📍 ${d.pickup_address}</span><br/>
+        <div style="font-family:sans-serif; font-size:13px; line-height:1.4;">
+          <strong>${d.food_type}</strong> (${d.quantity} Servings)<br/>
+          <span style="color:#64748B;">Pickup: ${d.pickup_address}</span><br/>
           <span>Status: <strong>${d.status}</strong></span>
         </div>
       `);

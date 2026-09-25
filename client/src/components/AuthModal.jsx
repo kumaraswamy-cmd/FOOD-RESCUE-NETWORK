@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { signInWithGoogle, loginWithEmail, signUpWithEmail } from '../firebase';
+import { Lock, X, Sparkles, AlertTriangle } from 'lucide-react';
 
 export default function AuthModal({ isOpen, onClose, onAuthSuccess, role = 'donor' }) {
   const [activeTab, setActiveTab] = useState('login'); // 'login' | 'signup'
@@ -27,7 +28,7 @@ export default function AuthModal({ isOpen, onClose, onAuthSuccess, role = 'dono
       onClose();
     } else if (error) {
       if (error.includes('configuration-not-found') || error.includes('invalid-api-key') || error.includes('YOUR_API_KEY')) {
-        setErrorMsg('⚠️ Firebase Auth providers not toggled in Console yet. Logging in via fallback profile...');
+        setErrorMsg('Firebase Auth providers not toggled in Console yet. Logging in via fallback profile...');
         setTimeout(() => {
           onAuthSuccess({
             id: `GOOG-${Date.now()}`,
@@ -105,14 +106,14 @@ export default function AuthModal({ isOpen, onClose, onAuthSuccess, role = 'dono
       <div className="bg-white dark:bg-[#0D1E36] rounded-3xl max-w-md w-full p-6 sm:p-8 shadow-2xl border border-slate-200 dark:border-navy-700 relative text-slate-900 dark:text-white">
         <button 
           onClick={onClose} 
-          className="absolute top-5 right-5 text-slate-400 hover:text-slate-600 dark:hover:text-white text-xl font-black transition-colors"
+          className="absolute top-5 right-5 text-slate-400 hover:text-slate-600 dark:hover:text-white p-1 rounded-lg transition-colors"
         >
-          ✕
+          <X className="w-5 h-5" />
         </button>
 
         <div className="text-center mb-6">
           <div className="w-14 h-14 bg-emerald-100 dark:bg-emerald-950/60 text-[#00A86B] rounded-2xl flex items-center justify-center text-2xl mx-auto mb-3 border border-emerald-300 dark:border-emerald-800 shadow-inner">
-            🔐
+            <Lock className="w-7 h-7" />
           </div>
           <h3 className="text-2xl font-black tracking-tight">Food Rescue Access</h3>
           <p className="text-slate-500 dark:text-slate-300 text-xs font-medium mt-1">
@@ -145,8 +146,9 @@ export default function AuthModal({ isOpen, onClose, onAuthSuccess, role = 'dono
         </div>
 
         {errorMsg && (
-          <div className="mb-4 p-3 rounded-xl bg-red-50 dark:bg-red-950/50 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-300 text-xs font-bold">
-            {errorMsg}
+          <div className="mb-4 p-3 rounded-xl bg-red-50 dark:bg-red-950/50 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-300 text-xs font-bold flex items-center gap-2">
+            <AlertTriangle className="w-4 h-4 shrink-0" />
+            <span>{errorMsg}</span>
           </div>
         )}
 
@@ -214,9 +216,21 @@ export default function AuthModal({ isOpen, onClose, onAuthSuccess, role = 'dono
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-3 bg-[#00A86B] hover:bg-[#00965E] text-white text-xs font-black rounded-2xl shadow-md transition-all cursor-pointer disabled:opacity-50 mt-2"
+            className="w-full py-3 bg-[#00A86B] hover:bg-[#00965E] text-white text-xs font-black rounded-2xl shadow-md transition-all cursor-pointer disabled:opacity-50 mt-2 flex items-center justify-center gap-2"
           >
-            {loading ? 'Authenticating...' : (activeTab === 'login' ? '🔐 Sign In' : '🚀 Create Account')}
+            {loading ? (
+              'Authenticating...'
+            ) : activeTab === 'login' ? (
+              <>
+                <Lock className="w-4 h-4" />
+                <span>Sign In</span>
+              </>
+            ) : (
+              <>
+                <Sparkles className="w-4 h-4" />
+                <span>Create Account</span>
+              </>
+            )}
           </button>
         </form>
       </div>

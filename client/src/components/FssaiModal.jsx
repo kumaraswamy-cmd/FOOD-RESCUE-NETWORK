@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { ClipboardCheck, CheckCircle2 } from 'lucide-react';
 
 export default function FssaiModal({ isOpen, onClose, onConfirm, donationTitle }) {
   const [c1, setC1] = useState(true);
@@ -13,7 +14,10 @@ export default function FssaiModal({ isOpen, onClose, onConfirm, donationTitle }
   return (
     <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-[9999] flex items-center justify-center p-4">
       <div className="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl animate-in fade-in zoom-in duration-200">
-        <h3 className="text-xl font-extrabold text-emerald-950 mb-2">📋 FSSAI Food Safety Audit</h3>
+        <div className="flex items-center gap-2 mb-2">
+          <ClipboardCheck className="w-6 h-6 text-emerald-600" />
+          <h3 className="text-xl font-extrabold text-emerald-950">FSSAI Food Safety Audit</h3>
+        </div>
         <p className="text-sm text-gray-600 mb-4">
           Statutory 4-point verification required under FSSAI Redistribution Guidelines for <strong>{donationTitle}</strong>.
         </p>
@@ -47,9 +51,10 @@ export default function FssaiModal({ isOpen, onClose, onConfirm, donationTitle }
           <button 
             disabled={!allChecked} 
             onClick={onConfirm} 
-            className="px-5 py-2 text-sm font-bold bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg disabled:opacity-50"
+            className="px-5 py-2 text-sm font-bold bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg disabled:opacity-50 flex items-center gap-2"
           >
-            ✓ Pass Audit & Accept
+            <CheckCircle2 className="w-4 h-4" />
+            <span>Pass Audit & Accept</span>
           </button>
         </div>
       </div>

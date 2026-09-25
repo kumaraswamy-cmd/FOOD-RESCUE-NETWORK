@@ -2,6 +2,24 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { logoutFirebase } from '../firebase';
 import AuthModal from '../components/AuthModal';
+import IconBox from '../components/IconBox';
+import { 
+  User, 
+  Edit3, 
+  LogOut, 
+  Key, 
+  CheckCircle2, 
+  MapPin, 
+  Phone, 
+  ShieldCheck, 
+  Utensils, 
+  Leaf, 
+  Building2, 
+  Award, 
+  Flame, 
+  Save, 
+  Lock
+} from 'lucide-react';
 
 export default function ProfilePage({ user, setUser, lang }) {
   const navigate = useNavigate();
@@ -22,21 +40,20 @@ export default function ProfilePage({ user, setUser, lang }) {
       address
     }));
     setIsEditing(false);
-    alert('✅ Profile details updated successfully!');
+    alert('Profile details updated successfully!');
   };
 
   const handleLogout = async () => {
     await logoutFirebase();
     setUser(null);
-    alert('👋 Logged out successfully.');
+    alert('Logged out successfully.');
+    navigate('/login');
   };
 
   if (!user) {
     return (
       <div className="max-w-md mx-auto my-12 p-8 bg-white dark:bg-[#0D1E36] rounded-3xl shadow-xl border border-slate-200 dark:border-navy-700 text-center space-y-5 text-slate-900 dark:text-white">
-        <div className="w-16 h-16 bg-[#00A86B]/20 text-[#00A86B] rounded-2xl flex items-center justify-center mx-auto text-3xl font-black">
-          👤
-        </div>
+        <IconBox icon={User} variant="emerald" size="xl" className="mx-auto" />
         <div>
           <h2 className="text-2xl font-black">Sign In to Your Account</h2>
           <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 font-medium">
@@ -47,7 +64,7 @@ export default function ProfilePage({ user, setUser, lang }) {
           onClick={() => navigate('/login')}
           className="w-full py-3.5 bg-[#00A86B] hover:bg-[#00965E] text-white font-extrabold rounded-xl shadow-md transition-all text-xs flex items-center justify-center gap-2 cursor-pointer"
         >
-          <span>🔑</span>
+          <Key className="w-4 h-4" />
           <span>Sign In / Register Account</span>
         </button>
       </div>
@@ -84,23 +101,24 @@ export default function ProfilePage({ user, setUser, lang }) {
                   {user?.name ? user.name.charAt(0).toUpperCase() : 'K'}
                 </div>
               )}
-              <span className="absolute -bottom-1 -right-1 bg-[#00A86B] text-white p-1 rounded-lg text-xs shadow" title="Verified Account">
-                ✓
+              <span className="absolute -bottom-1 -right-1 bg-[#00A86B] text-white p-1 rounded-lg text-xs shadow flex items-center justify-center" title="Verified Account">
+                <CheckCircle2 className="w-3.5 h-3.5" />
               </span>
             </div>
 
             <div>
               <div className="flex items-center gap-2 flex-wrap">
                 <h2 className="text-2xl sm:text-3xl font-black tracking-tight">{user?.name || 'Kumar Thale'}</h2>
-                <span className="px-3 py-1 bg-[#00A86B]/20 border border-[#00A86B]/40 text-[#00A86B] text-xs font-black rounded-full">
-                  Verified {user?.role ? user.role.toUpperCase() : 'DONOR'}
+                <span className="px-3 py-1 bg-[#00A86B]/20 border border-[#00A86B]/40 text-[#00A86B] text-xs font-black rounded-full flex items-center gap-1">
+                  <ShieldCheck className="w-3.5 h-3.5" />
+                  <span>Verified {user?.role ? user.role.toUpperCase() : 'DONOR'}</span>
                 </span>
               </div>
               <p className="text-slate-300 text-xs font-semibold mt-1">{user?.email || 'kumar.thale@foodrescue.org'}</p>
               <div className="flex items-center gap-4 text-xs text-slate-400 mt-2 font-medium flex-wrap">
-                <span>📍 Visakhapatnam, AP</span>
-                <span>📞 {user?.phone || '+91 98480 22338'}</span>
-                <span>🆔 <strong className="font-mono text-slate-200">{user?.id || 'DONOR-001'}</strong></span>
+                <span className="flex items-center gap-1"><MapPin className="w-3.5 h-3.5 text-[#00A86B]" /> Visakhapatnam, AP</span>
+                <span className="flex items-center gap-1"><Phone className="w-3.5 h-3.5 text-blue-400" /> {user?.phone || '+91 98480 22338'}</span>
+                <span>ID: <strong className="font-mono text-slate-200">{user?.id || 'DONOR-001'}</strong></span>
               </div>
             </div>
           </div>
@@ -110,15 +128,17 @@ export default function ProfilePage({ user, setUser, lang }) {
               <>
                 <button
                   onClick={() => setIsEditing(!isEditing)}
-                  className="px-4 py-2.5 bg-white/10 hover:bg-white/20 text-white text-xs font-black rounded-xl border border-white/20 shadow transition-all cursor-pointer"
+                  className="px-4 py-2.5 bg-white/10 hover:bg-white/20 text-white text-xs font-black rounded-xl border border-white/20 shadow transition-all cursor-pointer flex items-center gap-1.5"
                 >
-                  ✏️ {isEditing ? 'Cancel Edit' : 'Edit Profile'}
+                  <Edit3 className="w-3.5 h-3.5" />
+                  <span>{isEditing ? 'Cancel Edit' : 'Edit Profile'}</span>
                 </button>
                 <button
                   onClick={handleLogout}
-                  className="px-4 py-2.5 bg-red-600 hover:bg-red-700 text-white text-xs font-black rounded-xl shadow transition-all cursor-pointer"
+                  className="px-4 py-2.5 bg-red-600 hover:bg-red-700 text-white text-xs font-black rounded-xl shadow transition-all cursor-pointer flex items-center gap-1.5"
                 >
-                  🚪 Logout
+                  <LogOut className="w-3.5 h-3.5" />
+                  <span>Logout</span>
                 </button>
               </>
             ) : (
@@ -126,7 +146,8 @@ export default function ProfilePage({ user, setUser, lang }) {
                 onClick={() => setShowAuthModal(true)}
                 className="px-6 py-3 bg-[#00A86B] hover:bg-[#00965E] text-white text-xs font-black rounded-2xl shadow-lg transition-all cursor-pointer flex items-center gap-2"
               >
-                🔑 Sign In / Register Account
+                <Key className="w-4 h-4" />
+                <span>Sign In / Register Account</span>
               </button>
             )}
           </div>
@@ -179,9 +200,10 @@ export default function ProfilePage({ user, setUser, lang }) {
             <div className="md:col-span-2 flex justify-end gap-3 mt-2">
               <button
                 type="submit"
-                className="px-6 py-2.5 bg-[#00A86B] hover:bg-[#00965E] text-white text-xs font-black rounded-xl shadow transition-all"
+                className="px-6 py-2.5 bg-[#00A86B] hover:bg-[#00965E] text-white text-xs font-black rounded-xl shadow transition-all flex items-center gap-1.5"
               >
-                💾 Save Changes
+                <Save className="w-4 h-4" />
+                <span>Save Changes</span>
               </button>
             </div>
           </form>
@@ -190,36 +212,36 @@ export default function ProfilePage({ user, setUser, lang }) {
 
       {/* Account Activity & Impact Dashboard Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-        <div className="bg-white dark:bg-navy-900 rounded-3xl p-5 border border-slate-200 dark:border-navy-800 shadow-sm">
+        <div className="bg-white dark:bg-navy-900 rounded-3xl p-5 border border-slate-200 dark:border-navy-800 shadow-sm flex flex-col justify-between">
           <div className="flex items-center justify-between">
-            <span className="text-2xl">🍱</span>
+            <IconBox icon={Utensils} variant="emerald" size="md" />
             <span className="text-xs font-black text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/60 px-2.5 py-1 rounded-full">+18% this month</span>
           </div>
           <div className="text-3xl font-black text-slate-900 dark:text-white mt-3">1,248</div>
           <div className="text-xs font-bold text-slate-500 dark:text-slate-400 mt-1">Total Meals Rescued</div>
         </div>
 
-        <div className="bg-white dark:bg-navy-900 rounded-3xl p-5 border border-slate-200 dark:border-navy-800 shadow-sm">
+        <div className="bg-white dark:bg-navy-900 rounded-3xl p-5 border border-slate-200 dark:border-navy-800 shadow-sm flex flex-col justify-between">
           <div className="flex items-center justify-between">
-            <span className="text-2xl">🌱</span>
+            <IconBox icon={Leaf} variant="emerald" size="md" />
             <span className="text-xs font-black text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/60 px-2.5 py-1 rounded-full">Eco Impact</span>
           </div>
           <div className="text-3xl font-black text-slate-900 dark:text-white mt-3">312 kg</div>
           <div className="text-xs font-bold text-slate-500 dark:text-slate-400 mt-1">CO₂ Emissions Prevented</div>
         </div>
 
-        <div className="bg-white dark:bg-navy-900 rounded-3xl p-5 border border-slate-200 dark:border-navy-800 shadow-sm">
+        <div className="bg-white dark:bg-navy-900 rounded-3xl p-5 border border-slate-200 dark:border-navy-800 shadow-sm flex flex-col justify-between">
           <div className="flex items-center justify-between">
-            <span className="text-2xl">🏛️</span>
+            <IconBox icon={Building2} variant="blue" size="md" />
             <span className="text-xs font-black text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-950/60 px-2.5 py-1 rounded-full">Proximity Matches</span>
           </div>
           <div className="text-3xl font-black text-slate-900 dark:text-white mt-3">14 NGOs</div>
           <div className="text-xs font-bold text-slate-500 dark:text-slate-400 mt-1">Connected Shelter Partners</div>
         </div>
 
-        <div className="bg-white dark:bg-navy-900 rounded-3xl p-5 border border-slate-200 dark:border-navy-800 shadow-sm">
+        <div className="bg-white dark:bg-navy-900 rounded-3xl p-5 border border-slate-200 dark:border-navy-800 shadow-sm flex flex-col justify-between">
           <div className="flex items-center justify-between">
-            <span className="text-2xl">🏅</span>
+            <IconBox icon={Award} variant="amber" size="md" />
             <span className="text-xs font-black text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/60 px-2.5 py-1 rounded-full">Trust Score</span>
           </div>
           <div className="text-3xl font-black text-slate-900 dark:text-white mt-3">99.4%</div>
@@ -231,11 +253,12 @@ export default function ProfilePage({ user, setUser, lang }) {
       <div className="bg-white dark:bg-navy-900 rounded-3xl p-6 border border-slate-200 dark:border-navy-800 shadow-sm space-y-4">
         <div className="flex items-center justify-between flex-wrap gap-2">
           <h3 className="text-lg font-black text-slate-900 dark:text-white flex items-center gap-2">
-            <span>🔥 Live Firebase Cloud Infrastructure</span>
+            <Flame className="w-5 h-5 text-amber-500" />
+            <span>Live Firebase Cloud Infrastructure</span>
           </h3>
           <span className="px-3 py-1 rounded-full bg-emerald-100 dark:bg-emerald-950/60 border border-emerald-300 dark:border-emerald-800 text-[#00A86B] dark:text-emerald-400 text-xs font-black flex items-center gap-1.5">
             <span className="w-2 h-2 rounded-full bg-[#00A86B] animate-pulse"></span>
-            <span>✓ Connected & Active</span>
+            <span>Connected & Active</span>
           </span>
         </div>
 
@@ -250,7 +273,10 @@ export default function ProfilePage({ user, setUser, lang }) {
           </div>
           <div className="p-3 rounded-2xl bg-slate-50 dark:bg-[#0A1628] border border-slate-200 dark:border-navy-800">
             <div className="text-[10px] uppercase font-black text-slate-400">Cloud Firestore</div>
-            <div className="text-xs font-bold text-[#00A86B] dark:text-emerald-400 mt-0.5">✓ Real-time Sync Active</div>
+            <div className="text-xs font-bold text-[#00A86B] dark:text-emerald-400 mt-0.5 flex items-center gap-1">
+              <CheckCircle2 className="w-3.5 h-3.5" />
+              <span>Real-time Sync Active</span>
+            </div>
           </div>
           <div className="p-3 rounded-2xl bg-slate-50 dark:bg-[#0A1628] border border-slate-200 dark:border-navy-800">
             <div className="text-[10px] uppercase font-black text-slate-400">Auth Providers</div>
@@ -261,3 +287,4 @@ export default function ProfilePage({ user, setUser, lang }) {
     </div>
   );
 }
+

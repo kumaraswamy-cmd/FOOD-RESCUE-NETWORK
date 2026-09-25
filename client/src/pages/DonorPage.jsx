@@ -6,6 +6,26 @@ import MapView from '../components/MapView';
 import { openLiveNavigation } from '../utils/navigation';
 import { i18nDict } from '../i18n';
 import { apiFetch } from '../utils/api';
+import IconBox from '../components/IconBox';
+import { 
+  Utensils, 
+  FileText, 
+  Users, 
+  Scale, 
+  MapPin, 
+  Building2, 
+  Navigation, 
+  Compass, 
+  Clock, 
+  Leaf, 
+  ArrowRight, 
+  Camera, 
+  X, 
+  Send, 
+  Plus, 
+  Lock,
+  TrendingUp
+} from 'lucide-react';
 
 import { useNavigate } from 'react-router-dom';
 
@@ -52,7 +72,7 @@ export default function DonorPage({ lang, user }) {
 
   const handleOpenPostModal = () => {
     if (!user) {
-      alert('🔐 Sign In Required: Please sign in to your account so your surplus food rescue posts are saved & synced to your account in Cloud Firestore.');
+      alert('Sign In Required: Please sign in to your account so your surplus food rescue posts are saved & synced to your account in Cloud Firestore.');
       navigate('/login');
       return;
     }
@@ -115,7 +135,7 @@ export default function DonorPage({ lang, user }) {
             setPickupAddress(`Visakhapatnam GPS (${lat.toFixed(4)}, ${lng.toFixed(4)})`);
           }
 
-          alert('📍 High-accuracy GPS location captured!');
+          alert('High-accuracy GPS location captured!');
         },
         () => {
           alert('Could not access Geolocation. Using Visakhapatnam default coordinates.');
@@ -153,9 +173,9 @@ export default function DonorPage({ lang, user }) {
 
       if (data && data.success) {
         if (data.flagged) {
-          alert(`⚠️ ${data.message || 'Inspection Flagged'}\nReason: ${data.flagReason}`);
+          alert(`${data.message || 'Inspection Flagged'}\nReason: ${data.flagReason}`);
         } else {
-          alert('🚀 Surplus food post published! Smart recommendation engine matched nearby verified NGOs.');
+          alert('Surplus food post published! Smart recommendation engine matched nearby verified NGOs.');
         }
         setFoodType('');
         setNotes('');
@@ -206,29 +226,26 @@ export default function DonorPage({ lang, user }) {
             </div>
             <div className="w-8 h-1 bg-[#00A86B] rounded-full mt-2"></div>
           </div>
-          <div className="w-16 h-16 rounded-2xl bg-white dark:bg-[#0A1628] flex items-center justify-center text-3xl shadow-sm">
-            🍲
-          </div>
+          <IconBox icon={Utensils} variant="emerald" size="xl" />
         </div>
       </div>
 
       {/* KPI CARDS ROW */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
         <div className="bg-white dark:bg-[#0D1E36] p-5 rounded-2xl border border-slate-200/80 dark:border-navy-700/80 shadow-sm flex items-center gap-4">
-          <div className="w-12 h-12 rounded-2xl bg-brandGreen-100 dark:bg-emerald-950/60 text-[#00A86B] flex items-center justify-center text-xl font-bold">
-            🍴
-          </div>
+          <IconBox icon={Utensils} variant="emerald" size="lg" />
           <div>
             <div className="text-xs font-bold text-slate-500 dark:text-slate-400">Total Meals Saved</div>
             <div className="text-2xl font-black text-slate-900 dark:text-white mt-0.5">1,248</div>
-            <div className="text-[11px] font-extrabold text-[#00A86B] dark:text-emerald-400 mt-0.5">↑ +12% from last month</div>
+            <div className="text-[11px] font-extrabold text-[#00A86B] dark:text-emerald-400 mt-0.5 flex items-center gap-1">
+              <TrendingUp className="w-3 h-3" />
+              <span>+12% from last month</span>
+            </div>
           </div>
         </div>
 
         <div className="bg-white dark:bg-[#0D1E36] p-5 rounded-2xl border border-slate-200/80 dark:border-navy-700/80 shadow-sm flex items-center gap-4">
-          <div className="w-12 h-12 rounded-2xl bg-blue-100 dark:bg-sky-950/60 text-blue-600 dark:text-sky-400 flex items-center justify-center text-xl font-bold">
-            📄
-          </div>
+          <IconBox icon={FileText} variant="blue" size="lg" />
           <div>
             <div className="text-xs font-bold text-slate-500 dark:text-slate-400">Active Requests</div>
             <div className="text-2xl font-black text-slate-900 dark:text-white mt-0.5">6</div>
@@ -237,9 +254,7 @@ export default function DonorPage({ lang, user }) {
         </div>
 
         <div className="bg-white dark:bg-[#0D1E36] p-5 rounded-2xl border border-slate-200/80 dark:border-navy-700/80 shadow-sm flex items-center gap-4">
-          <div className="w-12 h-12 rounded-2xl bg-teal-100 dark:bg-teal-950/60 text-teal-600 dark:text-teal-400 flex items-center justify-center text-xl font-bold">
-            👥
-          </div>
+          <IconBox icon={Users} variant="emerald" size="lg" />
           <div>
             <div className="text-xs font-bold text-slate-500 dark:text-slate-400">NGOs Supported</div>
             <div className="text-2xl font-black text-slate-900 dark:text-white mt-0.5">12</div>
@@ -248,9 +263,7 @@ export default function DonorPage({ lang, user }) {
         </div>
 
         <div className="bg-white dark:bg-[#0D1E36] p-5 rounded-2xl border border-slate-200/80 dark:border-navy-700/80 shadow-sm flex items-center gap-4">
-          <div className="w-12 h-12 rounded-2xl bg-sky-100 dark:bg-blue-950/60 text-sky-600 dark:text-blue-400 flex items-center justify-center text-xl font-bold">
-            ⚖️
-          </div>
+          <IconBox icon={Scale} variant="navy" size="lg" />
           <div>
             <div className="text-xs font-bold text-slate-500 dark:text-slate-400">Food Waste Reduced</div>
             <div className="text-2xl font-black text-slate-900 dark:text-white mt-0.5">320 kg</div>
@@ -307,8 +320,8 @@ export default function DonorPage({ lang, user }) {
                       {d.food_image_url ? (
                         <img src={d.food_image_url} alt={d.food_type} className="w-10 h-10 object-cover rounded-xl border border-slate-200 dark:border-navy-700 shadow-sm" />
                       ) : (
-                        <div className="w-9 h-9 rounded-xl bg-emerald-50 dark:bg-[#0A1628] text-emerald-700 dark:text-emerald-400 flex items-center justify-center text-lg font-bold border border-emerald-100 dark:border-navy-700">
-                          🍲
+                        <div className="w-9 h-9 rounded-xl bg-emerald-50 dark:bg-[#0A1628] text-emerald-700 dark:text-emerald-400 flex items-center justify-center font-bold border border-emerald-100 dark:border-navy-700">
+                          <Utensils className="w-4 h-4" />
                         </div>
                       )}
                       <div>
@@ -320,14 +333,14 @@ export default function DonorPage({ lang, user }) {
                   <td className="p-4 font-bold text-slate-900 dark:text-white">{d.quantity} packs</td>
                   <td className="p-4">
                     <div className="flex items-center gap-1.5 text-slate-600 dark:text-slate-300">
-                      <span>📍</span>
+                      <MapPin className="w-3.5 h-3.5 text-[#00A86B]" />
                       <span>{d.pickup_address}</span>
                     </div>
                   </td>
                   <td className="p-4">
                     <div className="flex items-center gap-2">
                       <div className="w-6 h-6 rounded-full bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300 flex items-center justify-center font-bold text-[10px]">
-                        🏛️
+                        <Building2 className="w-3.5 h-3.5" />
                       </div>
                       <span className="font-bold text-slate-900 dark:text-white">
                         {d.assigned_ngo_name || 'Asha Care Foundation'}
@@ -350,7 +363,7 @@ export default function DonorPage({ lang, user }) {
                       className="px-2.5 py-1 bg-[#00A86B] hover:bg-[#00965E] text-white font-extrabold text-[11px] rounded-lg shadow flex items-center justify-center gap-1 mx-auto"
                       title="Open Turn-by-Turn GPS Map Navigation"
                     >
-                      <span>🗺️</span>
+                      <Navigation className="w-3 h-3" />
                       <span>GPS</span>
                     </button>
                   </td>
@@ -365,7 +378,10 @@ export default function DonorPage({ lang, user }) {
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         <div className="lg:col-span-7 bg-white dark:bg-[#0D1E36] rounded-2xl p-6 border border-slate-200/80 dark:border-navy-700/80 shadow-sm">
           <h4 className="text-sm font-extrabold uppercase text-slate-500 dark:text-slate-400 mb-3 flex items-center justify-between">
-            <span>🗺️ Proximity Geographic Rescue Nodes</span>
+            <span className="flex items-center gap-2">
+              <Compass className="w-4 h-4 text-[#00A86B]" />
+              <span>Proximity Geographic Rescue Nodes</span>
+            </span>
             <span className="text-[11px] text-[#00A86B] dark:text-emerald-400 font-bold">Visakhapatnam Network</span>
           </h4>
           <MapView donations={donations} ngos={ngos} />
@@ -373,8 +389,9 @@ export default function DonorPage({ lang, user }) {
 
         {/* Stepper Pipeline View */}
         <div className="lg:col-span-5 bg-white dark:bg-[#0D1E36] rounded-2xl p-6 border border-slate-200/80 dark:border-navy-700/80 shadow-sm space-y-4">
-          <h4 className="text-sm font-extrabold text-slate-900 dark:text-white">
-            ⏳ Real-Time Live Delivery Tracker
+          <h4 className="text-sm font-extrabold text-slate-900 dark:text-white flex items-center gap-2">
+            <Clock className="w-4 h-4 text-[#00A86B]" />
+            <span>Real-Time Live Delivery Tracker</span>
           </h4>
           {donations.length > 0 ? (
             <div className="space-y-4 max-h-[350px] overflow-y-auto pr-1">
@@ -399,9 +416,7 @@ export default function DonorPage({ lang, user }) {
       {/* BOTTOM CTA BANNER */}
       <div className="bg-[#E0F7ED] dark:bg-[#0D1E36] p-6 sm:p-8 rounded-2xl border border-emerald-200 dark:border-navy-700 flex items-center justify-between flex-wrap gap-4 shadow-sm">
         <div className="flex items-center gap-4">
-          <div className="w-12 h-12 rounded-2xl bg-[#00A86B] text-white flex items-center justify-center text-2xl font-bold shadow-sm">
-            🌿
-          </div>
+          <IconBox icon={Leaf} variant="emerald" size="lg" />
           <div>
             <h4 className="text-base font-black text-slate-900 dark:text-white">Together, we can end food waste.</h4>
             <p className="text-xs text-slate-600 dark:text-slate-300 font-medium mt-0.5">
@@ -415,7 +430,7 @@ export default function DonorPage({ lang, user }) {
           className="px-5 py-3 bg-[#00A86B] hover:bg-[#00965E] text-white font-extrabold text-xs rounded-xl shadow-md transition-all flex items-center gap-2"
         >
           <span>Make Another Donation</span>
-          <span>&rarr;</span>
+          <ArrowRight className="w-4 h-4" />
         </button>
       </div>
 
@@ -425,10 +440,12 @@ export default function DonorPage({ lang, user }) {
           <div className="bg-white dark:bg-[#0D1E36] rounded-2xl p-6 max-w-xl w-full space-y-4 shadow-2xl border border-slate-200 dark:border-navy-700 max-h-[90vh] overflow-y-auto text-slate-900 dark:text-white">
             <div className="flex justify-between items-center border-b border-slate-100 dark:border-navy-700 pb-3">
               <h3 className="font-extrabold text-lg flex items-center gap-2">
-                <span>🍲</span>
+                <Utensils className="w-5 h-5 text-[#00A86B]" />
                 <span>Publish Surplus Food Rescue Post</span>
               </h3>
-              <button onClick={() => setShowPostModal(false)} className="text-slate-400 hover:text-slate-600 dark:hover:text-white font-bold text-lg">✕</button>
+              <button onClick={() => setShowPostModal(false)} className="text-slate-400 hover:text-slate-600 dark:hover:text-white font-bold text-lg p-1 rounded-lg hover:bg-slate-100 dark:hover:bg-navy-700">
+                <X className="w-5 h-5" />
+              </button>
             </div>
 
             <form onSubmit={handleSubmitPost} className="space-y-4">
@@ -495,8 +512,9 @@ export default function DonorPage({ lang, user }) {
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-600 dark:text-slate-300 uppercase mb-1">
-                  📸 Upload Food Photo (Optional)
+                <label className="block text-xs font-bold text-slate-600 dark:text-slate-300 uppercase mb-1 flex items-center gap-1.5">
+                  <Camera className="w-3.5 h-3.5 text-[#00A86B]" />
+                  <span>Upload Food Photo (Optional)</span>
                 </label>
                 <div className="flex items-center gap-3">
                   <input 
@@ -511,9 +529,9 @@ export default function DonorPage({ lang, user }) {
                       <button 
                         type="button" 
                         onClick={() => setFoodPhoto('')} 
-                        className="absolute -top-1 -right-1 bg-red-600 text-white rounded-full w-4 h-4 flex items-center justify-center text-[10px] font-bold shadow"
+                        className="absolute -top-1 -right-1 bg-red-600 text-white rounded-full w-4 h-4 flex items-center justify-center shadow"
                       >
-                        ✕
+                        <X className="w-3 h-3" />
                       </button>
                     </div>
                   )}
@@ -528,7 +546,8 @@ export default function DonorPage({ lang, user }) {
                     onClick={handleAutoFillLocation} 
                     className="text-xs font-black text-[#00A86B] dark:text-emerald-400 hover:underline flex items-center gap-1"
                   >
-                    <span>📍 Detect High-Accuracy Live GPS</span>
+                    <MapPin className="w-3 h-3" />
+                    <span>Detect High-Accuracy Live GPS</span>
                   </button>
                 </div>
                 <input 
@@ -557,9 +576,10 @@ export default function DonorPage({ lang, user }) {
               <button 
                 type="submit" 
                 disabled={loading} 
-                className="w-full py-3.5 bg-[#00A86B] hover:bg-[#00965E] text-white font-extrabold rounded-xl shadow-md transition-colors text-xs"
+                className="w-full py-3.5 bg-[#00A86B] hover:bg-[#00965E] text-white font-extrabold rounded-xl shadow-md transition-colors text-xs flex items-center justify-center gap-2"
               >
-                {loading ? 'Publishing Post...' : '🚀 Publish Surplus Food Rescue Post'}
+                <Send className="w-4 h-4" />
+                <span>{loading ? 'Publishing Post...' : 'Publish Surplus Food Rescue Post'}</span>
               </button>
             </form>
           </div>

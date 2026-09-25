@@ -1,5 +1,21 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { 
+  Building2, 
+  HeartHandshake, 
+  Truck, 
+  ShieldCheck, 
+  MapPin, 
+  ClipboardCheck, 
+  Navigation, 
+  KeyRound, 
+  Sparkles, 
+  Leaf, 
+  Mail, 
+  Lock, 
+  User 
+} from 'lucide-react';
+import IconBox from '../components/IconBox';
 import { signInWithGoogle, loginWithEmail, signUpWithEmail } from '../firebase';
 
 export default function LoginPage({ user, setUser, lang }) {
@@ -27,13 +43,12 @@ export default function LoginPage({ user, setUser, lang }) {
         role: selectedRole
       };
       setUser(loggedUser);
-      alert(`🎉 Welcome back, ${loggedUser.name}!`);
+      alert(`Welcome back, ${loggedUser.name}!`);
       navigate(selectedRole === 'ngo' ? '/ngo' : selectedRole === 'volunteer' ? '/volunteer' : selectedRole === 'admin' ? '/admin' : '/donor');
     } else if (error) {
       if (error.includes('auth/popup-closed-by-user')) {
         setErrorMsg('Google Sign-In popup was closed. Please try again.');
       } else {
-        // Graceful demo login fallback if popup is blocked by browser settings
         const demoUser = {
           id: `GOOG-${Date.now().toString().slice(-6)}`,
           name: email ? email.split('@')[0] : 'Google Verified User',
@@ -90,7 +105,7 @@ export default function LoginPage({ user, setUser, lang }) {
           role: selectedRole
         };
         setUser(loggedUser);
-        alert(`🚀 Account created! Welcome, ${loggedUser.name}!`);
+        alert(`Account created! Welcome, ${loggedUser.name}!`);
         navigate(selectedRole === 'ngo' ? '/ngo' : selectedRole === 'volunteer' ? '/volunteer' : selectedRole === 'admin' ? '/admin' : '/donor');
       } else {
         const demoUser = {
@@ -113,9 +128,7 @@ export default function LoginPage({ user, setUser, lang }) {
         {/* Left Column: Branding & Features */}
         <div className="space-y-6">
           <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-2xl bg-[#00A86B]/20 border border-[#00A86B] text-[#00A86B] flex items-center justify-center text-2xl font-black shadow-sm">
-              🌿
-            </div>
+            <IconBox icon={Leaf} size="lg" variant="emerald" />
             <div>
               <h1 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight">Food Rescue Network</h1>
               <p className="text-xs text-[#00A86B] font-bold">Good Food. Brighter Tomorrows.</p>
@@ -134,7 +147,7 @@ export default function LoginPage({ user, setUser, lang }) {
           {/* Key Value Cards */}
           <div className="space-y-3 pt-2">
             <div className="flex items-start gap-3 p-3.5 rounded-2xl bg-slate-50 dark:bg-[#0A1628] border border-slate-200 dark:border-navy-800">
-              <span className="text-xl">📍</span>
+              <IconBox icon={MapPin} size="md" variant="emerald" />
               <div>
                 <div className="text-xs font-black text-slate-900 dark:text-white">Smart Proximity Matching</div>
                 <div className="text-[11px] text-slate-500 dark:text-slate-400">GPS Haversine engine matches nearby verified NGOs within 10 km</div>
@@ -142,7 +155,7 @@ export default function LoginPage({ user, setUser, lang }) {
             </div>
 
             <div className="flex items-start gap-3 p-3.5 rounded-2xl bg-slate-50 dark:bg-[#0A1628] border border-slate-200 dark:border-navy-800">
-              <span className="text-xl">📋</span>
+              <IconBox icon={ClipboardCheck} size="md" variant="blue" />
               <div>
                 <div className="text-xs font-black text-slate-900 dark:text-white">FSSAI Safety Audits</div>
                 <div className="text-[11px] text-slate-500 dark:text-slate-400">Digital safety verification for all excess food donations</div>
@@ -150,7 +163,7 @@ export default function LoginPage({ user, setUser, lang }) {
             </div>
 
             <div className="flex items-start gap-3 p-3.5 rounded-2xl bg-slate-50 dark:bg-[#0A1628] border border-slate-200 dark:border-navy-800">
-              <span className="text-xl">🗺️</span>
+              <IconBox icon={Navigation} size="md" variant="purple" />
               <div>
                 <div className="text-xs font-black text-slate-900 dark:text-white">Turn-by-Turn GPS Navigation</div>
                 <div className="text-[11px] text-slate-500 dark:text-slate-400">Direct Google Maps & Apple Maps live route redirects</div>
@@ -166,59 +179,59 @@ export default function LoginPage({ user, setUser, lang }) {
             <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">Select your role and log in with Google</p>
           </div>
 
-          {/* Role Selection Tabs */}
+          {/* Role Selection Cards */}
           <div>
             <label className="block text-[10px] font-black uppercase tracking-wider text-slate-400 mb-2">Select Your Network Role</label>
             <div className="grid grid-cols-2 gap-2">
               <button
                 type="button"
                 onClick={() => setSelectedRole('donor')}
-                className={`p-2.5 rounded-xl text-xs font-black transition-all flex items-center justify-center gap-1.5 ${
+                className={`p-2.5 rounded-xl text-xs font-black transition-all flex items-center justify-center gap-2 ${
                   selectedRole === 'donor'
                     ? 'bg-[#00A86B] text-white shadow-md'
                     : 'bg-white dark:bg-[#0D1E36] text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-navy-700'
                 }`}
               >
-                <span>🏬</span>
+                <Building2 size={16} strokeWidth={2} />
                 <span>Food Donor</span>
               </button>
 
               <button
                 type="button"
                 onClick={() => setSelectedRole('ngo')}
-                className={`p-2.5 rounded-xl text-xs font-black transition-all flex items-center justify-center gap-1.5 ${
+                className={`p-2.5 rounded-xl text-xs font-black transition-all flex items-center justify-center gap-2 ${
                   selectedRole === 'ngo'
                     ? 'bg-[#00A86B] text-white shadow-md'
                     : 'bg-white dark:bg-[#0D1E36] text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-navy-700'
                 }`}
               >
-                <span>🏛️</span>
+                <HeartHandshake size={16} strokeWidth={2} />
                 <span>NGO Partner</span>
               </button>
 
               <button
                 type="button"
                 onClick={() => setSelectedRole('volunteer')}
-                className={`p-2.5 rounded-xl text-xs font-black transition-all flex items-center justify-center gap-1.5 ${
+                className={`p-2.5 rounded-xl text-xs font-black transition-all flex items-center justify-center gap-2 ${
                   selectedRole === 'volunteer'
                     ? 'bg-[#00A86B] text-white shadow-md'
                     : 'bg-white dark:bg-[#0D1E36] text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-navy-700'
                 }`}
               >
-                <span>🚴</span>
+                <Truck size={16} strokeWidth={2} />
                 <span>Volunteer</span>
               </button>
 
               <button
                 type="button"
                 onClick={() => setSelectedRole('admin')}
-                className={`p-2.5 rounded-xl text-xs font-black transition-all flex items-center justify-center gap-1.5 ${
+                className={`p-2.5 rounded-xl text-xs font-black transition-all flex items-center justify-center gap-2 ${
                   selectedRole === 'admin'
                     ? 'bg-[#00A86B] text-white shadow-md'
                     : 'bg-white dark:bg-[#0D1E36] text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-navy-700'
                 }`}
               >
-                <span>🛡️</span>
+                <ShieldCheck size={16} strokeWidth={2} />
                 <span>Admin</span>
               </button>
             </div>
@@ -257,46 +270,56 @@ export default function LoginPage({ user, setUser, lang }) {
             {activeTab === 'signup' && (
               <div>
                 <label className="block text-[10px] font-black uppercase text-slate-400 mb-1">Full Name</label>
-                <input
-                  type="text"
-                  value={displayName}
-                  onChange={(e) => setDisplayName(e.target.value)}
-                  placeholder="e.g. Kumar Thale"
-                  className="w-full p-3 rounded-xl text-xs font-semibold bg-white dark:bg-[#0D1E36] border border-slate-200 dark:border-navy-700 text-slate-900 dark:text-white"
-                  required
-                />
+                <div className="relative flex items-center">
+                  <User size={14} className="absolute left-3 text-slate-400" />
+                  <input
+                    type="text"
+                    value={displayName}
+                    onChange={(e) => setDisplayName(e.target.value)}
+                    placeholder="e.g. Kumar Thale"
+                    className="w-full pl-9 pr-3 py-3 rounded-xl text-xs font-semibold bg-white dark:bg-[#0D1E36] border border-slate-200 dark:border-navy-700 text-slate-900 dark:text-white"
+                    required
+                  />
+                </div>
               </div>
             )}
 
             <div>
               <label className="block text-[10px] font-black uppercase text-slate-400 mb-1">Email</label>
-              <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="kumar@example.com"
-                className="w-full p-3 rounded-xl text-xs font-semibold bg-white dark:bg-[#0D1E36] border border-slate-200 dark:border-navy-700 text-slate-900 dark:text-white"
-                required
-              />
+              <div className="relative flex items-center">
+                <Mail size={14} className="absolute left-3 text-slate-400" />
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="kumar@example.com"
+                  className="w-full pl-9 pr-3 py-3 rounded-xl text-xs font-semibold bg-white dark:bg-[#0D1E36] border border-slate-200 dark:border-navy-700 text-slate-900 dark:text-white"
+                  required
+                />
+              </div>
             </div>
 
             <div>
               <label className="block text-[10px] font-black uppercase text-slate-400 mb-1">Password</label>
-              <input
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="••••••••"
-                className="w-full p-3 rounded-xl text-xs font-semibold bg-white dark:bg-[#0D1E36] border border-slate-200 dark:border-navy-700 text-slate-900 dark:text-white"
-                required
-              />
+              <div className="relative flex items-center">
+                <Lock size={14} className="absolute left-3 text-slate-400" />
+                <input
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="••••••••"
+                  className="w-full pl-9 pr-3 py-3 rounded-xl text-xs font-semibold bg-white dark:bg-[#0D1E36] border border-slate-200 dark:border-navy-700 text-slate-900 dark:text-white"
+                  required
+                />
+              </div>
             </div>
 
             <button
               type="submit"
-              className="w-full py-3 bg-[#00A86B] hover:bg-[#00965E] text-white text-xs font-black rounded-xl shadow transition-all cursor-pointer"
+              className="w-full py-3 bg-[#00A86B] hover:bg-[#00965E] text-white text-xs font-black rounded-xl shadow transition-all cursor-pointer flex items-center justify-center gap-2"
             >
-              {activeTab === 'login' ? '🔑 Sign In with Email' : '🚀 Register Account'}
+              {activeTab === 'login' ? <KeyRound size={14} strokeWidth={2} /> : <Sparkles size={14} strokeWidth={2} />}
+              <span>{activeTab === 'login' ? 'Sign In with Email' : 'Register Account'}</span>
             </button>
           </form>
 

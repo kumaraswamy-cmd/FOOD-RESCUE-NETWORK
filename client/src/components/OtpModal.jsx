@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { apiFetch } from '../utils/api';
+import { Smartphone, CheckCircle2 } from 'lucide-react';
 
 export default function OtpModal({ isOpen, onClose, onVerified, defaultPhone = '9848022338', role = 'donor' }) {
   const [phone, setPhone] = useState(defaultPhone);
@@ -50,7 +51,10 @@ export default function OtpModal({ isOpen, onClose, onVerified, defaultPhone = '
   return (
     <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-[9999] flex items-center justify-center p-4">
       <div className="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl">
-        <h3 className="text-xl font-extrabold text-emerald-950 mb-2">📱 Phone Number & OTP Verification</h3>
+        <div className="flex items-center gap-2 mb-2">
+          <Smartphone className="w-6 h-6 text-emerald-600" />
+          <h3 className="text-xl font-extrabold text-emerald-950">Phone Number & OTP Verification</h3>
+        </div>
         <p className="text-sm text-gray-600 mb-4">
           Verify mobile number to establish trust for NGO matching and food delivery.
         </p>
@@ -85,9 +89,9 @@ export default function OtpModal({ isOpen, onClose, onVerified, defaultPhone = '
               <button 
                 onClick={handleSendOtp} 
                 disabled={loading} 
-                className="px-5 py-2 text-sm font-bold bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg"
+                className="px-5 py-2 text-sm font-bold bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg flex items-center gap-2"
               >
-                {loading ? 'Sending...' : 'Send OTP Code'}
+                <span>{loading ? 'Sending...' : 'Send OTP Code'}</span>
               </button>
             </div>
           </div>
@@ -118,9 +122,10 @@ export default function OtpModal({ isOpen, onClose, onVerified, defaultPhone = '
               <button 
                 onClick={handleVerifyOtp} 
                 disabled={loading || inputCode.length < 4} 
-                className="px-5 py-2 text-sm font-bold bg-amber-500 hover:bg-amber-600 text-white rounded-lg disabled:opacity-50"
+                className="px-5 py-2 text-sm font-bold bg-amber-500 hover:bg-amber-600 text-white rounded-lg disabled:opacity-50 flex items-center gap-2"
               >
-                {loading ? 'Verifying...' : 'Verify & Sign In'}
+                <CheckCircle2 className="w-4 h-4" />
+                <span>{loading ? 'Verifying...' : 'Verify & Sign In'}</span>
               </button>
             </div>
           </div>
