@@ -116,6 +116,17 @@ function initSchema() {
       name TEXT NOT NULL,
       phone TEXT NOT NULL UNIQUE
     );
+
+    CREATE TABLE IF NOT EXISTS users (
+      id TEXT PRIMARY KEY,
+      name TEXT NOT NULL,
+      email TEXT NOT NULL UNIQUE,
+      phone TEXT,
+      role TEXT NOT NULL,
+      password TEXT,
+      verified INTEGER DEFAULT 1,
+      created_at TEXT NOT NULL
+    );
   `);
 
   // Migrate existing databases if columns missing
