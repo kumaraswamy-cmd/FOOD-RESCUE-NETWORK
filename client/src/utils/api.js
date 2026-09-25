@@ -23,84 +23,327 @@ export const API_BASE = getApiBase();
 const DEFAULT_NGOS = [
   {
     id: 'NGO-001',
-    name: 'Asha Care Foundation',
-    phone: '9849011223',
-    darpan_id: 'AP/2024/001928',
-    legal_reg_no: 'REG-AP-1029',
-    pan_number: 'AAATA1029P',
+    name: 'Little Sisters of the Poor – Secunderabad',
+    phone: '9849067890',
+    darpan_id: 'TS/2024/001928',
+    legal_reg_no: 'REG-TS-1029',
+    pan_number: 'AAATL1029P',
     fcra_status: 'Compliant',
     verified: 1,
     status: 'verified',
-    lat: 17.7200,
-    lng: 83.3100,
+    lat: 17.4400,
+    lng: 78.5000,
     service_radius_km: 10
   },
   {
     id: 'NGO-002',
-    name: 'Akshaya Patra Branch',
-    phone: '9849022334',
-    darpan_id: 'AP/2024/002441',
-    legal_reg_no: 'REG-AP-2044',
-    pan_number: 'AAATA2044P',
+    name: 'Don Bosco Navajeevan for Boys',
+    phone: '9849078901',
+    darpan_id: 'TS/2024/002441',
+    legal_reg_no: 'REG-TS-2044',
+    pan_number: 'AAATD2044P',
     fcra_status: 'Compliant',
     verified: 1,
     status: 'verified',
-    lat: 17.7300,
-    lng: 83.3200,
+    lat: 17.4320,
+    lng: 78.5030,
     service_radius_km: 15
   },
   {
     id: 'NGO-003',
-    name: 'Annamrita Foundation',
-    phone: '9849033445',
-    darpan_id: 'AP/2026/008891',
-    legal_reg_no: 'REG-AP-8891',
-    pan_number: 'AAATA8891P',
+    name: "St. Joseph's Orphanage for Girls",
+    phone: '9849089012',
+    darpan_id: 'TS/2025/005512',
+    legal_reg_no: 'REG-TS-5512',
+    pan_number: 'AAATS5512P',
     fcra_status: 'Compliant',
-    verified: 0,
-    status: 'pending',
-    lat: 17.7100,
-    lng: 83.3000,
+    verified: 1,
+    status: 'verified',
+    lat: 17.3940,
+    lng: 78.4750,
     service_radius_km: 12
+  },
+  {
+    id: 'NGO-004',
+    name: 'Tharuni',
+    phone: '9849090123',
+    darpan_id: 'TS/2025/007890',
+    legal_reg_no: 'REG-TS-7890',
+    pan_number: 'AAATT7890P',
+    fcra_status: 'Compliant',
+    verified: 1,
+    status: 'verified',
+    lat: 17.4020,
+    lng: 78.4840,
+    service_radius_km: 10
+  },
+  {
+    id: 'NGO-005',
+    name: 'Robin Hood Army – Hyderabad',
+    phone: '9849001234',
+    darpan_id: 'TS/2026/009941',
+    legal_reg_no: 'REG-TS-9941',
+    pan_number: 'AAATR9941P',
+    fcra_status: 'Compliant',
+    verified: 1,
+    status: 'verified',
+    lat: 17.4310,
+    lng: 78.4070,
+    service_radius_km: 15
   }
 ];
 
 const DEFAULT_DONATIONS = [
-  { 
-    id: 'DON-1001', 
-    donor_id: 'DONOR-001', 
-    donor_name: 'Kumar Thale',
+  {
+    id: 'DON-1001',
+    donor_id: 'DONOR-001',
+    donor_name: 'N Convention Centre',
     donor_phone: '9849012345',
-    food_type: 'Vegetable Biryani & Salan', 
-    quantity: 50, 
-    packaging: 'Sealed Containers',
-    pickup_lat: 17.7123, 
-    pickup_lng: 83.3150, 
-    pickup_address: 'Visakhapatnam Beach Road, Andhra Pradesh', 
-    assigned_ngo_name: 'Asha Care Foundation', 
-    ngo_name: 'Asha Care Foundation',
+    food_type: 'Paneer Butter Masala (40 plates), Vegetable Biryani (50 plates), Butter Naan (30 pieces)',
+    quantity: 120,
+    food_items: [
+      { itemName: 'Paneer Butter Masala', quantity: 40, unit: 'plates', description: 'Rich tomato gravy' },
+      { itemName: 'Vegetable Biryani', quantity: 50, unit: 'plates', description: 'Hyderabadi style with raita' },
+      { itemName: 'Butter Naan', quantity: 30, unit: 'pieces', description: 'Freshly baked' }
+    ],
+    packaging: 'Insulated Hot Containers',
+    pickup_lat: 17.4560,
+    pickup_lng: 78.3840,
+    pickup_address: 'Madhapur, Hyderabad',
+    assigned_ngo_name: 'Little Sisters of the Poor – Secunderabad',
+    ngo_name: 'Little Sisters of the Poor – Secunderabad',
+    ngo_id: 'NGO-001',
+    volunteer_id: 'VOL-001',
+    volunteer_name: 'Rajesh Kumar',
+    volunteer_assigned: 'Rajesh Kumar',
     status: 'delivered',
     inspection_status: 'passed',
     freshness_window_minutes: 120,
-    created_at: new Date(Date.now() - 3600000 * 2).toISOString() 
+    created_at: new Date(Date.now() - 3600000 * 3).toISOString()
   },
-  { 
-    id: 'DON-1002', 
-    donor_id: 'DONOR-001', 
-    donor_name: 'Kumar Thale',
+  {
+    id: 'DON-1002',
+    donor_id: 'DONOR-002',
+    donor_name: 'HITEX Exhibition Center',
+    donor_phone: '9849023456',
+    food_type: 'Steamed Rice & Dal (80 meals), Mixed Vegetable Curry (60 plates), Whole Wheat Roti (40 pieces)',
+    quantity: 180,
+    food_items: [
+      { itemName: 'Steamed Rice & Dal', quantity: 80, unit: 'meals', description: 'Hot corporate lunch' },
+      { itemName: 'Mixed Vegetable Curry', quantity: 60, unit: 'plates', description: 'Seasonal veggies' },
+      { itemName: 'Whole Wheat Roti', quantity: 40, unit: 'pieces', description: 'Soft rotis' }
+    ],
+    packaging: 'Sealed Foil Trays',
+    pickup_lat: 17.4700,
+    pickup_lng: 78.3750,
+    pickup_address: 'Izzat Nagar, Hyderabad',
+    assigned_ngo_name: 'Don Bosco Navajeevan for Boys',
+    ngo_name: 'Don Bosco Navajeevan for Boys',
+    ngo_id: 'NGO-002',
+    volunteer_id: 'VOL-001',
+    volunteer_name: 'Rajesh Kumar',
+    volunteer_assigned: 'Rajesh Kumar',
+    status: 'picked_up',
+    inspection_status: 'passed',
+    freshness_window_minutes: 180,
+    created_at: new Date(Date.now() - 3600000 * 2).toISOString()
+  },
+  {
+    id: 'DON-1003',
+    donor_id: 'DONOR-003',
+    donor_name: 'Novotel Hyderabad Convention Centre',
+    donor_phone: '9849034567',
+    food_type: 'Penne Pasta in White Sauce (100 plates), Veg Fried Rice (90 plates), Stir-Fried Vegetables (60 kg)',
+    quantity: 250,
+    food_items: [
+      { itemName: 'Penne Pasta in White Sauce', quantity: 100, unit: 'plates', description: 'Cheesy pasta' },
+      { itemName: 'Veg Fried Rice', quantity: 90, unit: 'plates', description: 'Indo-Chinese' },
+      { itemName: 'Stir-Fried Vegetables', quantity: 60, unit: 'kg', description: 'Fresh broccoli & peppers' }
+    ],
+    packaging: 'Food-Grade Catering Boxes',
+    pickup_lat: 17.4720,
+    pickup_lng: 78.3730,
+    pickup_address: 'HITEC City, Hyderabad',
+    assigned_ngo_name: 'Robin Hood Army – Hyderabad',
+    ngo_name: 'Robin Hood Army – Hyderabad',
+    ngo_id: 'NGO-005',
+    volunteer_id: 'VOL-001',
+    volunteer_name: 'Rajesh Kumar',
+    volunteer_assigned: 'Rajesh Kumar',
+    status: 'volunteer_assigned',
+    inspection_status: 'passed',
+    freshness_window_minutes: 150,
+    created_at: new Date(Date.now() - 5400000).toISOString()
+  },
+  {
+    id: 'DON-1004',
+    donor_id: 'DONOR-004',
+    donor_name: 'The Park Hyderabad',
+    donor_phone: '9849045678',
+    food_type: 'South Indian Idli (40 pieces), Meduk Vada (30 pieces), Sambar & Chutney (30 litres)',
+    quantity: 100,
+    food_items: [
+      { itemName: 'South Indian Idli', quantity: 40, unit: 'pieces', description: 'Steamed rice cakes' },
+      { itemName: 'Meduk Vada', quantity: 30, unit: 'pieces', description: 'Crispy vadas' },
+      { itemName: 'Sambar & Chutney', quantity: 30, unit: 'litres', description: 'Lentil soup' }
+    ],
+    packaging: 'Clean Plastic Containers',
+    pickup_lat: 17.4240,
+    pickup_lng: 78.4610,
+    pickup_address: 'Somajiguda, Hyderabad',
+    assigned_ngo_name: "St. Joseph's Orphanage for Girls",
+    ngo_name: "St. Joseph's Orphanage for Girls",
+    ngo_id: 'NGO-003',
+    status: 'accepted',
+    inspection_status: 'passed',
+    freshness_window_minutes: 120,
+    created_at: new Date(Date.now() - 3600000).toISOString()
+  },
+  {
+    id: 'DON-1005',
+    donor_id: 'DONOR-005',
+    donor_name: 'Taj Falaknuma Palace',
+    donor_phone: '9849056789',
+    food_type: 'Hyderabadi Veg Pulao (70 plates), Dal Tadka (40 litres), Tandoori Roti (40 pieces)',
+    quantity: 150,
+    food_items: [
+      { itemName: 'Hyderabadi Veg Pulao', quantity: 70, unit: 'plates', description: 'Fragrant basmati rice' },
+      { itemName: 'Dal Tadka', quantity: 40, unit: 'litres', description: 'Tempered yellow lentils' },
+      { itemName: 'Tandoori Roti', quantity: 40, unit: 'pieces', description: 'Clay oven bread' }
+    ],
+    packaging: 'Insulated Casseroles',
+    pickup_lat: 17.3315,
+    pickup_lng: 78.4673,
+    pickup_address: 'Falaknuma, Hyderabad',
+    assigned_ngo_name: 'Tharuni',
+    ngo_name: 'Tharuni',
+    ngo_id: 'NGO-004',
+    status: 'posted',
+    inspection_status: 'passed',
+    freshness_window_minutes: 240,
+    created_at: new Date(Date.now() - 2700000).toISOString()
+  },
+  {
+    id: 'DON-1006',
+    donor_id: 'DONOR-001',
+    donor_name: 'N Convention Centre',
     donor_phone: '9849012345',
-    food_type: 'Paneer Butter Masala & Naan', 
-    quantity: 35, 
-    packaging: 'Insulated Boxes',
-    pickup_lat: 17.7250, 
-    pickup_lng: 83.3012, 
-    pickup_address: 'Srikakulam Highway Junction, Andhra Pradesh', 
-    assigned_ngo_name: 'Akshaya Patra Branch', 
-    ngo_name: 'Akshaya Patra Branch',
+    food_type: 'Crispy Veg Samosas (40 pieces), Vegetable Cutlets (25 pieces), Plum Tea Cake (15 packets)',
+    quantity: 80,
+    food_items: [
+      { itemName: 'Crispy Veg Samosas', quantity: 40, unit: 'pieces', description: 'Spiced potato filing' },
+      { itemName: 'Vegetable Cutlets', quantity: 25, unit: 'pieces', description: 'Golden fried' },
+      { itemName: 'Plum Tea Cake', quantity: 15, unit: 'packets', description: 'Bakery cake slices' }
+    ],
+    packaging: 'Food Grade Cardboard Boxes',
+    pickup_lat: 17.4560,
+    pickup_lng: 78.3840,
+    pickup_address: 'Madhapur, Hyderabad',
+    assigned_ngo_name: 'Don Bosco Navajeevan for Boys',
+    ngo_name: 'Don Bosco Navajeevan for Boys',
+    ngo_id: 'NGO-002',
+    volunteer_id: 'VOL-001',
+    volunteer_name: 'Rajesh Kumar',
+    volunteer_assigned: 'Rajesh Kumar',
+    status: 'delivered',
+    inspection_status: 'passed',
+    freshness_window_minutes: 90,
+    created_at: new Date(Date.now() - 18000000).toISOString()
+  },
+  {
+    id: 'DON-1007',
+    donor_id: 'DONOR-002',
+    donor_name: 'HITEX Exhibition Center',
+    donor_phone: '9849023456',
+    food_type: 'Assorted Veg Sandwiches (80 packets), Fresh Fruit Bowl (50 kg), Pulao Boxes (70 meals)',
+    quantity: 200,
+    food_items: [
+      { itemName: 'Assorted Veg Sandwiches', quantity: 80, unit: 'packets', description: 'Fresh cucumber & cheese' },
+      { itemName: 'Fresh Fruit Bowl', quantity: 50, unit: 'kg', description: 'Seasonal fruit mix' },
+      { itemName: 'Pulao Boxes', quantity: 70, unit: 'meals', description: 'Packed lunch boxes' }
+    ],
+    packaging: 'Individual Packed Boxes',
+    pickup_lat: 17.4700,
+    pickup_lng: 78.3750,
+    pickup_address: 'Izzat Nagar, Hyderabad',
+    assigned_ngo_name: 'Tharuni',
+    ngo_name: 'Tharuni',
+    ngo_id: 'NGO-004',
     status: 'accepted',
     inspection_status: 'passed',
     freshness_window_minutes: 180,
-    created_at: new Date(Date.now() - 3600000).toISOString() 
+    created_at: new Date(Date.now() - 7200000).toISOString()
+  },
+  {
+    id: 'DON-1008',
+    donor_id: 'DONOR-003',
+    donor_name: 'Novotel Hyderabad Convention Centre',
+    donor_phone: '9849034567',
+    food_type: 'French Pastries (50 pieces), Savory Cheese Puffs (40 pieces)',
+    quantity: 90,
+    food_items: [
+      { itemName: 'French Pastries', quantity: 50, unit: 'pieces', description: 'Assorted chocolate & fruit' },
+      { itemName: 'Savory Cheese Puffs', quantity: 40, unit: 'pieces', description: 'Flaky puff pastry' }
+    ],
+    packaging: 'Bakery Boxes',
+    pickup_lat: 17.4720,
+    pickup_lng: 78.3730,
+    pickup_address: 'HITEC City, Hyderabad',
+    assigned_ngo_name: null,
+    ngo_name: null,
+    status: 'posted',
+    inspection_status: 'passed',
+    freshness_window_minutes: 120,
+    created_at: new Date(Date.now() - 1800000).toISOString()
+  },
+  {
+    id: 'DON-1009',
+    donor_id: 'DONOR-004',
+    donor_name: 'The Park Hyderabad',
+    donor_phone: '9849045678',
+    food_type: 'Jeera Rice (30 plates), Chana Masala (25 plates), Lachha Paratha (15 pieces)',
+    quantity: 70,
+    food_items: [
+      { itemName: 'Jeera Rice', quantity: 30, unit: 'plates', description: 'Cumin rice' },
+      { itemName: 'Chana Masala', quantity: 25, unit: 'plates', description: 'Spiced chickpeas' },
+      { itemName: 'Lachha Paratha', quantity: 15, unit: 'pieces', description: 'Layered flatbread' }
+    ],
+    packaging: 'Hot Foil Packs',
+    pickup_lat: 17.4240,
+    pickup_lng: 78.4610,
+    pickup_address: 'Somajiguda, Hyderabad',
+    assigned_ngo_name: "St. Joseph's Orphanage for Girls",
+    ngo_name: "St. Joseph's Orphanage for Girls",
+    ngo_id: 'NGO-003',
+    volunteer_id: 'VOL-001',
+    volunteer_name: 'Rajesh Kumar',
+    volunteer_assigned: 'Rajesh Kumar',
+    status: 'picked_up',
+    inspection_status: 'passed',
+    freshness_window_minutes: 150,
+    created_at: new Date(Date.now() - 5400000).toISOString()
+  },
+  {
+    id: 'DON-1010',
+    donor_id: 'DONOR-005',
+    donor_name: 'Taj Falaknuma Palace',
+    donor_phone: '9849056789',
+    food_type: 'Double Ka Meetha (80 pieces), Badam Kheer (50 litres)',
+    quantity: 130,
+    food_items: [
+      { itemName: 'Double Ka Meetha', quantity: 80, unit: 'pieces', description: 'Hyderabadi bread pudding' },
+      { itemName: 'Badam Kheer', quantity: 50, unit: 'litres', description: 'Rich almond milk sweet' }
+    ],
+    packaging: 'Covered Plastic Trays',
+    pickup_lat: 17.3315,
+    pickup_lng: 78.4673,
+    pickup_address: 'Falaknuma, Hyderabad',
+    assigned_ngo_name: null,
+    ngo_name: null,
+    status: 'expired',
+    inspection_status: 'passed',
+    freshness_window_minutes: 60,
+    created_at: new Date(Date.now() - 28800000).toISOString()
   }
 ];
 
@@ -127,8 +370,8 @@ async function handleFirestoreOperation(url, options = {}) {
   const body = options.body ? JSON.parse(options.body) : {};
   const pathname = url.replace(/https?:\/\/[^\/]+/, '');
 
-  let ngos = getStored('frn_ngos', DEFAULT_NGOS);
-  let donations = getStored('frn_donations', DEFAULT_DONATIONS);
+  let ngos = getStored('frn_ngos_v3', DEFAULT_NGOS);
+  let donations = getStored('frn_donations_v4', DEFAULT_DONATIONS);
 
   try {
     // 0. AUTH / OTP ENDPOINTS
@@ -157,20 +400,32 @@ async function handleFirestoreOperation(url, options = {}) {
       const donId = `DON-${Date.now().toString().slice(-5)}`;
       const pickupOtp = Math.floor(1000 + Math.random() * 9000).toString();
 
+      let foodItems = body.food_items || [];
+      let summaryFoodType = body.food_type;
+      let totalQty = parseInt(body.quantity) || 0;
+
+      if (Array.isArray(foodItems) && foodItems.length > 0) {
+        summaryFoodType = foodItems.map(i => `${i.itemName} (${i.quantity} ${i.unit || 'servings'})`).join(', ');
+        totalQty = foodItems.reduce((sum, i) => sum + (parseInt(i.quantity) || 0), 0);
+      } else if (body.food_type) {
+        foodItems = [{ itemName: body.food_type, quantity: totalQty || 50, unit: 'plates', description: '' }];
+      }
+
       const newDonation = {
         id: donId,
         donor_id: body.donor_id || 'DONOR-001',
-        donor_name: body.donor_name || 'Kumar Thale',
+        donor_name: body.donor_name || 'N Convention Centre',
         donor_phone: body.donor_phone || '9849012345',
-        food_type: body.food_type,
-        quantity: body.quantity,
+        food_type: summaryFoodType,
+        quantity: totalQty,
+        food_items: foodItems,
         packaging: body.packaging || 'Sealed Package',
-        pickup_lat: parseFloat(body.pickup_lat) || 17.7200,
-        pickup_lng: parseFloat(body.pickup_lng) || 83.3100,
-        pickup_address: body.pickup_address || 'Visakhapatnam, AP',
+        pickup_lat: parseFloat(body.pickup_lat) || 17.4560,
+        pickup_lng: parseFloat(body.pickup_lng) || 78.3840,
+        pickup_address: body.pickup_address || 'Madhapur, Hyderabad',
         food_image_url: body.food_image_url || null,
-        ngo_name: 'Asha Care Foundation',
-        assigned_ngo_name: 'Asha Care Foundation',
+        ngo_name: 'Don Bosco Navajeevan for Boys',
+        assigned_ngo_name: 'Don Bosco Navajeevan for Boys',
         freshness_window_minutes: freshness,
         status: isFlagged ? 'flagged' : 'posted',
         inspection_status: isFlagged ? 'flagged' : 'passed',
@@ -180,7 +435,7 @@ async function handleFirestoreOperation(url, options = {}) {
       };
 
       donations.unshift(newDonation);
-      setStored('frn_donations', donations);
+      setStored('frn_donations_v4', donations);
 
       try {
         await setDoc(doc(db, 'donations', donId), newDonation, { merge: true });
@@ -194,12 +449,19 @@ async function handleFirestoreOperation(url, options = {}) {
       const donId = pathname.split('/').pop();
       const target = donations.find(d => String(d.id) === String(donId));
       if (target) {
-        if (body.food_type) target.food_type = body.food_type;
-        if (body.quantity) target.quantity = body.quantity;
+        if (body.food_items && Array.isArray(body.food_items) && body.food_items.length > 0) {
+          target.food_items = body.food_items;
+          target.food_type = body.food_items.map(i => `${i.itemName} (${i.quantity} ${i.unit || 'servings'})`).join(', ');
+          target.quantity = body.food_items.reduce((sum, i) => sum + (parseInt(i.quantity) || 0), 0);
+        } else {
+          if (body.food_type) target.food_type = body.food_type;
+          if (body.quantity) target.quantity = body.quantity;
+        }
+
         if (body.packaging) target.packaging = body.packaging;
         if (body.pickup_address) target.pickup_address = body.pickup_address;
         if (body.freshness_window_minutes) target.freshness_window_minutes = body.freshness_window_minutes;
-        setStored('frn_donations', donations);
+        setStored('frn_donations_v4', donations);
 
         try {
           await setDoc(doc(db, 'donations', donId), target, { merge: true });
@@ -213,7 +475,7 @@ async function handleFirestoreOperation(url, options = {}) {
         ((pathname === '/api/admin/delete-donation' || pathname === '/api/donations/delete') && method === 'POST')) {
       const donId = body.donation_id || body.id || pathname.split('/').pop();
       donations = donations.filter(d => String(d.id) !== String(donId));
-      setStored('frn_donations', donations);
+      setStored('frn_donations_v3', donations);
 
       try {
         await deleteDoc(doc(db, 'donations', donId));
@@ -251,21 +513,21 @@ async function handleFirestoreOperation(url, options = {}) {
         id: ngoId,
         name: body.name,
         phone: body.phone,
-        darpan_id: body.darpan_id || 'AP/2026/089123',
-        legal_reg_no: body.legal_reg_no || 'REG-AP-8812/2024',
+        darpan_id: body.darpan_id || 'TS/2026/089123',
+        legal_reg_no: body.legal_reg_no || 'REG-TS-8812/2024',
         pan_number: body.pan_number || 'AAATN9988X',
         fcra_status: body.fcra_status || 'Compliant',
         registration_doc_url: body.registration_doc_url || 'https://docs.gov.in/ngo/certificate.pdf',
         verified: 0,
         status: 'pending',
         service_radius_km: parseFloat(body.service_radius_km) || 10,
-        lat: parseFloat(body.lat) || 17.7200,
-        lng: parseFloat(body.lng) || 83.3100,
+        lat: parseFloat(body.lat) || 17.4320,
+        lng: parseFloat(body.lng) || 78.5030,
         created_at: new Date().toISOString()
       };
 
       ngos.unshift(newNgo);
-      setStored('frn_ngos', ngos);
+      setStored('frn_ngos_v3', ngos);
 
       try {
         await setDoc(doc(db, 'ngos', ngoId), newNgo, { merge: true });
@@ -281,16 +543,16 @@ async function handleFirestoreOperation(url, options = {}) {
       if (target) {
         target.status = 'volunteer_assigned';
         target.volunteer_id = volunteer_id;
-        target.volunteer_name = 'Ramesh Kumar (Volunteer Hero)';
-        target.volunteer_assigned = 'Ramesh Kumar (Volunteer Hero)';
-        setStored('frn_donations', donations);
+        target.volunteer_name = 'Rajesh Kumar (Volunteer Hero)';
+        target.volunteer_assigned = 'Rajesh Kumar (Volunteer Hero)';
+        setStored('frn_donations_v3', donations);
 
         try {
           await setDoc(doc(db, 'donations', donation_id), {
             status: 'volunteer_assigned',
             volunteer_id: volunteer_id,
-            volunteer_name: 'Ramesh Kumar (Volunteer Hero)',
-            volunteer_assigned: 'Ramesh Kumar (Volunteer Hero)'
+            volunteer_name: 'Rajesh Kumar (Volunteer Hero)',
+            volunteer_assigned: 'Rajesh Kumar (Volunteer Hero)'
           }, { merge: true });
         } catch(e) {}
       }
@@ -315,17 +577,17 @@ async function handleFirestoreOperation(url, options = {}) {
       const target = donations.find(d => String(d.id) === String(donation_id));
       if (target) {
         target.status = action === 'accept' ? 'accepted' : 'rejected';
-        target.assigned_ngo_name = 'Asha Care Foundation';
-        target.ngo_name = 'Asha Care Foundation';
-        setStored('frn_donations', donations);
+        target.assigned_ngo_name = 'Don Bosco Navajeevan for Boys';
+        target.ngo_name = 'Don Bosco Navajeevan for Boys';
+        setStored('frn_donations_v3', donations);
       }
 
       try {
         const ref = doc(db, 'donations', donation_id);
         await setDoc(ref, {
           status: action === 'accept' ? 'accepted' : 'rejected',
-          assigned_ngo_name: 'Asha Care Foundation',
-          ngo_name: 'Asha Care Foundation'
+          assigned_ngo_name: 'Don Bosco Navajeevan for Boys',
+          ngo_name: 'Don Bosco Navajeevan for Boys'
         }, { merge: true });
       } catch(e) {}
 
@@ -356,17 +618,17 @@ async function handleFirestoreOperation(url, options = {}) {
       if (target) {
         target.status = 'volunteer_assigned';
         target.volunteer_id = volId;
-        target.volunteer_name = 'Ramesh Kumar (Volunteer Hero)';
-        target.volunteer_assigned = 'Ramesh Kumar (Volunteer Hero)';
-        setStored('frn_donations', donations);
+        target.volunteer_name = 'Rajesh Kumar (Volunteer Hero)';
+        target.volunteer_assigned = 'Rajesh Kumar (Volunteer Hero)';
+        setStored('frn_donations_v3', donations);
 
         try {
           const ref = doc(db, 'donations', body.donation_id);
           await setDoc(ref, {
             status: 'volunteer_assigned',
             volunteer_id: volId,
-            volunteer_name: 'Ramesh Kumar (Volunteer Hero)',
-            volunteer_assigned: 'Ramesh Kumar (Volunteer Hero)'
+            volunteer_name: 'Rajesh Kumar (Volunteer Hero)',
+            volunteer_assigned: 'Rajesh Kumar (Volunteer Hero)'
           }, { merge: true });
         } catch(e) {}
       }
@@ -382,7 +644,7 @@ async function handleFirestoreOperation(url, options = {}) {
         target.status = newStatus;
         if (body.delivery_photo_url) target.delivery_photo_url = body.delivery_photo_url;
         if (body.beneficiary_name) target.beneficiary_name = body.beneficiary_name;
-        setStored('frn_donations', donations);
+        setStored('frn_donations_v3', donations);
 
         try {
           const ref = doc(db, 'donations', body.donation_id);
@@ -427,15 +689,15 @@ async function handleFirestoreOperation(url, options = {}) {
       } else {
         ngos.push({
           id: ngoId,
-          name: 'Annamrita Foundation',
-          darpan_id: 'AP/2026/008891',
+          name: 'Don Bosco Navajeevan for Boys',
+          darpan_id: 'TS/2024/002441',
           status: statusStr,
           verified: isVerifiedNum,
           verification_notes: body.notes || 'Official Verification Issued by Admin'
         });
       }
 
-      setStored('frn_ngos', ngos);
+      setStored('frn_ngos_v3', ngos);
 
       try {
         const ref = doc(db, 'ngos', ngoId);
@@ -457,7 +719,7 @@ async function handleFirestoreOperation(url, options = {}) {
     if ((pathname.startsWith('/api/ngos/') && method === 'DELETE') || (pathname === '/api/admin/delete-ngo' && method === 'POST')) {
       const ngoId = body.ngo_id || body.id || pathname.split('/').pop();
       ngos = ngos.filter(n => n.id !== ngoId && n.darpan_id !== ngoId);
-      setStored('frn_ngos', ngos);
+      setStored('frn_ngos_v3', ngos);
 
       try {
         await deleteDoc(doc(db, 'ngos', ngoId));
@@ -479,7 +741,7 @@ async function handleFirestoreOperation(url, options = {}) {
       if (target) {
         target.inspection_status = isApproved ? 'passed' : 'rejected';
         target.status = isApproved ? 'posted' : 'rejected';
-        setStored('frn_donations', donations);
+        setStored('frn_donations_v3', donations);
       }
 
       try {
@@ -500,16 +762,16 @@ async function handleFirestoreOperation(url, options = {}) {
     if (pathname === '/api/admin/stats') {
       const activeNgosCount = ngos.filter(n => n.verified && n.status === 'verified').length;
       const totalMeals = donations.reduce((sum, d) => sum + (parseInt(d.quantity) || 0), 0);
-      const kg = Math.round(totalMeals * 0.4);
+      const kg = Math.round(totalMeals * 0.35);
       return {
         success: true,
         stats: {
           totalDonations: donations.length,
           totalNgos: ngos.length,
-          activeNgos: activeNgosCount || 12,
-          totalVolunteers: 18,
-          totalMealsSaved: totalMeals || 1248,
-          kgRescued: kg || 320,
+          activeNgos: activeNgosCount || 5,
+          totalVolunteers: 5,
+          totalMealsSaved: totalMeals || 1370,
+          kgRescued: kg || 480,
           successRate: 98
         }
       };

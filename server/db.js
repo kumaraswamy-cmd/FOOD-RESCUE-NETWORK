@@ -143,6 +143,7 @@ function initSchema() {
   safeAddColumn('donations', "pickup_otp TEXT");
   safeAddColumn('donations', "food_image_url TEXT");
   safeAddColumn('donations', "delivery_photo_url TEXT");
+  safeAddColumn('donations', "food_items TEXT");
   safeAddColumn('deliveries', "delivery_photo_url TEXT");
 }
 

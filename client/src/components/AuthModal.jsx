@@ -32,8 +32,8 @@ export default function AuthModal({ isOpen, onClose, onAuthSuccess, role = 'dono
         setTimeout(() => {
           onAuthSuccess({
             id: `GOOG-${Date.now()}`,
-            name: 'Kumar Thale (Verified User)',
-            email: 'kumar.thale@gmail.com',
+            name: 'Rahul Mehta (Verified User)',
+            email: 'donor@nconvention.org',
             photoURL: 'https://lh3.googleusercontent.com/a/default-user',
             role: role
           });
@@ -65,7 +65,7 @@ export default function AuthModal({ isOpen, onClose, onAuthSuccess, role = 'dono
         if (error && (error.includes('configuration-not-found') || error.includes('invalid-api-key') || error.includes('YOUR_API_KEY'))) {
           onAuthSuccess({
             id: `USER-${Date.now()}`,
-            name: email.split('@')[0] || 'Kumar Thale',
+            name: email.split('@')[0] || 'Rahul Mehta',
             email,
             role
           });
@@ -182,7 +182,7 @@ export default function AuthModal({ isOpen, onClose, onAuthSuccess, role = 'dono
                 type="text"
                 value={displayName}
                 onChange={(e) => setDisplayName(e.target.value)}
-                placeholder="e.g. Kumar Thale"
+                placeholder="e.g. Rahul Mehta"
                 className="w-full p-3 rounded-xl text-xs font-semibold bg-slate-50 dark:bg-[#0A1628] border border-slate-200 dark:border-navy-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#00A86B]"
                 required
               />

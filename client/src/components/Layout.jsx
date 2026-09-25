@@ -264,7 +264,6 @@ export default function Layout({ children, lang, setLang, theme, toggleTheme, us
                   )}
                   <div className="hidden md:block text-left">
                     <div className="font-extrabold text-xs text-slate-900 dark:text-white leading-tight group-hover:text-[#00A86B] transition-colors max-w-[110px] truncate">{user.name}</div>
-                    <div className="text-[9px] font-bold text-[#00A86B] dark:text-emerald-400 capitalize">{user.role || 'Verified User'}</div>
                   </div>
                 </Link>
               ) : (

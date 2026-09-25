@@ -71,7 +71,7 @@ export default function DeliveryProofModal({ isOpen, onClose, onConfirm, donatio
               type="text" 
               value={beneficiary} 
               onChange={(e) => setBeneficiary(e.target.value)} 
-              placeholder="e.g. Asha Shelter Children" 
+              placeholder="e.g. Don Bosco Children Center" 
               className="w-full p-3 rounded-xl text-xs font-semibold bg-slate-50 dark:bg-[#0A1628] border border-slate-200 dark:border-navy-700 text-slate-900 dark:text-white"
               required
             />

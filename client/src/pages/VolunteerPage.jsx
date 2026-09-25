@@ -33,16 +33,16 @@ export default function VolunteerPage({ lang, user }) {
 
   const [volunteer, setVolunteer] = useState(() => ({
     id: user?.id || 'VOL-001',
-    name: user?.name || 'Ramesh Kumar',
-    phone: user?.phone || '9876543210'
+    name: user?.name || 'Rajesh Kumar',
+    phone: user?.phone || '9849099999'
   }));
 
   useEffect(() => {
     if (user) {
       setVolunteer({
         id: user.id,
-        name: user.name || 'Volunteer Hero',
-        phone: user.phone || '9876543210'
+        name: user.name || 'Rajesh Kumar',
+        phone: user.phone || '9849099999'
       });
     }
   }, [user]);
@@ -50,14 +50,14 @@ export default function VolunteerPage({ lang, user }) {
   const [openJobs, setOpenJobs] = useState([
     {
       id: 'DON-1002',
-      food_type: 'Paneer Butter Masala & Naan',
-      quantity: 90,
-      pickup_address: 'Beach Road, Visakhapatnam',
-      pickup_lat: 17.7123,
-      pickup_lng: 83.3150,
-      ngo_name: 'Asha Care Foundation',
-      ngo_lat: 17.7200,
-      ngo_lng: 83.3100,
+      food_type: 'Corporate Lunch Meals (Rice, Dal, Vegetable Curry, Roti)',
+      quantity: 180,
+      pickup_address: 'Izzat Nagar, Hyderabad',
+      pickup_lat: 17.4700,
+      pickup_lng: 78.3750,
+      ngo_name: 'Don Bosco Navajeevan for Boys',
+      ngo_lat: 17.4320,
+      ngo_lng: 78.5030,
       status: 'accepted'
     }
   ]);
@@ -112,12 +112,12 @@ export default function VolunteerPage({ lang, user }) {
           id: donationId,
           food_type: 'Naan (90 Servings)',
           quantity: 90,
-          pickup_address: 'Beach Road, Visakhapatnam',
-          pickup_lat: 17.7123,
-          pickup_lng: 83.3150,
-          ngo_name: 'Asha Care Foundation',
-          donor_name: 'Kumar Thale',
-          donor_phone: '9848022338',
+          pickup_address: 'Izzat Nagar, Hyderabad',
+          pickup_lat: 17.4700,
+          pickup_lng: 78.3750,
+          ngo_name: 'Don Bosco Navajeevan for Boys',
+          donor_name: 'HITEX Exhibition Center',
+          donor_phone: '9849023456',
           status: 'volunteer_assigned'
         };
 
@@ -274,7 +274,18 @@ export default function VolunteerPage({ lang, user }) {
                             <Bike className="w-5 h-5" />
                           </div>
                         )}
-                        <h4 className="font-black text-sm text-slate-900 dark:text-white">{j.food_type} ({j.quantity} Servings)</h4>
+                        {j.food_items && Array.isArray(j.food_items) && j.food_items.length > 0 ? (
+                          <div>
+                            <h4 className="font-black text-sm text-slate-900 dark:text-white">
+                              {j.food_items.map(i => i.itemName).join(', ')}
+                            </h4>
+                            <div className="text-xs font-bold text-purple-700 dark:text-purple-400">
+                              {j.food_items.map(i => `${i.quantity} ${i.unit || 'plates'}`).join(' + ')}
+                            </div>
+                          </div>
+                        ) : (
+                          <h4 className="font-black text-sm text-slate-900 dark:text-white">{j.food_type} ({j.quantity} Servings)</h4>
+                        )}
                       </div>
                       <StatusBadge status={j.status} />
                     </div>
@@ -349,7 +360,18 @@ export default function VolunteerPage({ lang, user }) {
                             <Target className="w-5 h-5 text-[#00A86B]" />
                           </div>
                         )}
-                        <h4 className="font-black text-sm text-slate-900 dark:text-white">{task.food_type} ({task.quantity} Servings)</h4>
+                        {task.food_items && Array.isArray(task.food_items) && task.food_items.length > 0 ? (
+                          <div>
+                            <h4 className="font-black text-sm text-slate-900 dark:text-white">
+                              {task.food_items.map(i => i.itemName).join(', ')}
+                            </h4>
+                            <div className="text-xs font-bold text-emerald-600 dark:text-emerald-400">
+                              {task.food_items.map(i => `${i.quantity} ${i.unit || 'plates'}`).join(' + ')}
+                            </div>
+                          </div>
+                        ) : (
+                          <h4 className="font-black text-sm text-slate-900 dark:text-white">{task.food_type} ({task.quantity} Servings)</h4>
+                        )}
                       </div>
                       <StatusBadge status={task.status} />
                     </div>

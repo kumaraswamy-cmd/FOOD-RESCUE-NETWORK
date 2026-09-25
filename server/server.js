@@ -162,13 +162,39 @@ app.post('/api/donations', (req, res) => {
   }
 
   const donationId = `DON-${Date.now().toString().slice(-6)}`;
+  const {
+    donor_id,
+    food_type,
+    quantity,
+    food_items,
+    packaging,
+    pickup_lat,
+    pickup_lng,
+    pickup_address,
+    freshness_window_minutes
+  } = req.body;
+
+  let parsedItems = [];
+  if (Array.isArray(food_items)) {
+    parsedItems = food_items;
+  } else if (typeof food_items === 'string' && food_items.trim().startsWith('[')) {
+    try { parsedItems = JSON.parse(food_items); } catch(e) {}
+  }
+
+  let summaryFoodType = food_type;
+  let qty = parseInt(quantity, 10) || 0;
+
+  if (parsedItems.length > 0) {
+    summaryFoodType = parsedItems.map(i => `${i.itemName} (${i.quantity} ${i.unit || 'servings'})`).join(', ');
+    qty = parsedItems.reduce((sum, item) => sum + (parseInt(item.quantity, 10) || 0), 0);
+  }
+
   const now = new Date();
   const windowMins = parseInt(freshness_window_minutes, 10) || 120;
-  const qty = parseInt(quantity, 10);
   const availableUntil = new Date(now.getTime() + windowMins * 60000).toISOString();
 
   // AUTOMATED FOOD SAFETY VALIDATION
-  const foodTypeLower = (food_type || '').toLowerCase();
+  const foodTypeLower = (summaryFoodType || '').toLowerCase();
   let isFlagged = false;
   let flagReason = '';
 
@@ -189,21 +215,26 @@ app.post('/api/donations', (req, res) => {
 
   const insertStmt = db.prepare(`
     INSERT INTO donations (
-      id, donor_id, food_type, quantity, packaging, pickup_lat, pickup_lng, pickup_address,
+      id, donor_id, food_type, quantity, food_items, packaging, pickup_lat, pickup_lng, pickup_address,
       available_from, available_until, freshness_window_minutes, status, inspection_status, flagged_reason, pickup_otp, food_image_url, created_at
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
   `);
 
-  const lat = parseFloat(pickup_lat) || 17.7123;
-  const lng = parseFloat(pickup_lng) || 83.3150;
+  const lat = parseFloat(pickup_lat) || 17.4560;
+  const lng = parseFloat(pickup_lng) || 78.3840;
 
   insertStmt.run(
-    donationId, donor_id, food_type, qty, packaging || 'Containers',
+    donationId, donor_id, summaryFoodType, qty, parsedItems.length > 0 ? JSON.stringify(parsedItems) : null, packaging || 'Containers',
     lat, lng, pickup_address, now.toISOString(), availableUntil, windowMins,
     initialStatus, inspectionStatus, flagReason || null, pickupOtp, req.body.food_image_url || null, now.toISOString()
   );
 
   const createdDonation = db.prepare('SELECT * FROM donations WHERE id = ?').get(donationId);
+  if (createdDonation && createdDonation.food_items) {
+    try { createdDonation.food_items = JSON.parse(createdDonation.food_items); } catch(e) {}
+  } else if (createdDonation) {
+    createdDonation.food_items = parsedItems;
+  }
 
   let matches = [];
   if (!isFlagged) {
@@ -247,6 +278,12 @@ app.get('/api/donations/donor/:donorId', (req, res) => {
     `).all();
   }
 
+  donations.forEach(d => {
+    if (d.food_items && typeof d.food_items === 'string') {
+      try { d.food_items = JSON.parse(d.food_items); } catch(e) {}
+    }
+  });
+
   return res.json({ success: true, donations });
 });
 
@@ -267,6 +304,10 @@ app.get('/api/donations/:id', (req, res) => {
 
   if (!donation) return res.status(404).json({ error: 'Donation not found.' });
 
+  if (donation.food_items && typeof donation.food_items === 'string') {
+    try { donation.food_items = JSON.parse(donation.food_items); } catch(e) {}
+  }
+
   const matches = db.prepare(`
     SELECT m.*, n.name as ngo_name, n.phone as ngo_phone, n.lat as ngo_lat, n.lng as ngo_lng
     FROM donation_ngo_matches m
@@ -280,22 +321,39 @@ app.get('/api/donations/:id', (req, res) => {
 // EDIT / MODIFY DONATION
 app.put('/api/donations/:id', (req, res) => {
   const { id } = req.params;
-  const { food_type, quantity, packaging, pickup_address, freshness_window_minutes } = req.body;
+  const { food_type, quantity, food_items, packaging, pickup_address, freshness_window_minutes } = req.body;
 
   const existing = db.prepare('SELECT * FROM donations WHERE id = ?').get(id);
   if (!existing) return res.status(404).json({ error: 'Donation post not found.' });
+
+  let parsedItems = null;
+  if (Array.isArray(food_items)) {
+    parsedItems = food_items;
+  } else if (typeof food_items === 'string' && food_items.trim().startsWith('[')) {
+    try { parsedItems = JSON.parse(food_items); } catch(e) {}
+  }
+
+  let summaryFoodType = food_type;
+  let qty = quantity ? parseInt(quantity, 10) : null;
+
+  if (parsedItems && parsedItems.length > 0) {
+    summaryFoodType = parsedItems.map(i => `${i.itemName} (${i.quantity} ${i.unit || 'servings'})`).join(', ');
+    qty = parsedItems.reduce((sum, item) => sum + (parseInt(item.quantity, 10) || 0), 0);
+  }
 
   db.prepare(`
     UPDATE donations 
     SET food_type = coalesce(?, food_type),
         quantity = coalesce(?, quantity),
+        food_items = coalesce(?, food_items),
         packaging = coalesce(?, packaging),
         pickup_address = coalesce(?, pickup_address),
         freshness_window_minutes = coalesce(?, freshness_window_minutes)
     WHERE id = ?
   `).run(
-    food_type || null, 
-    quantity ? parseInt(quantity, 10) : null, 
+    summaryFoodType || null, 
+    qty, 
+    parsedItems ? JSON.stringify(parsedItems) : null,
     packaging || null, 
     pickup_address || null, 
     freshness_window_minutes ? parseInt(freshness_window_minutes, 10) : null, 
@@ -303,6 +361,9 @@ app.put('/api/donations/:id', (req, res) => {
   );
 
   const updated = db.prepare('SELECT * FROM donations WHERE id = ?').get(id);
+  if (updated && updated.food_items && typeof updated.food_items === 'string') {
+    try { updated.food_items = JSON.parse(updated.food_items); } catch(e) {}
+  }
   return res.json({ success: true, message: 'Food donation post modified successfully!', donation: updated });
 });
 
@@ -364,14 +425,14 @@ app.get('/api/ngos/:ngoId/incoming-matches', (req, res) => {
 
   // Return all active unaccepted surplus food posts so NGO can audit & accept
   const incoming = db.prepare(`
-    SELECT d.*, coalesce(don.name, 'Kumar Thale') as donor_name, coalesce(don.phone, '9849012345') as donor_phone
+    SELECT d.*, coalesce(don.name, 'N Convention Centre') as donor_name, coalesce(don.phone, '9849012345') as donor_phone
     FROM donations d
     LEFT JOIN donors don ON d.donor_id = don.id
     WHERE d.status IN ('posted', 'ngo_notified', 'accepted', 'flagged_for_inspection')
     ORDER BY d.created_at DESC
   `).all();
 
-  return res.json({ success: true, ngo: ngo || { id: ngoId, name: 'Asha Care Foundation', status: 'verified', verified: 1 }, incoming });
+  return res.json({ success: true, ngo: ngo || { id: ngoId, name: 'Don Bosco Navajeevan for Boys', status: 'verified', verified: 1 }, incoming });
 });
 
 app.post('/api/ngos/:ngoId/respond-match', (req, res) => {
@@ -430,7 +491,7 @@ app.get('/api/ngos/:ngoId/pickups', (req, res) => {
   const { ngoId } = req.params;
   const pickups = db.prepare(`
     SELECT d.*, del.id as delivery_id, del.volunteer_id, del.picked_up_at, del.delivered_at, del.beneficiary_name, del.delivery_photo_url,
-           vol.name as volunteer_name, coalesce(don.name, 'Kumar Thale') as donor_name, coalesce(don.phone, '9849012345') as donor_phone
+           vol.name as volunteer_name, coalesce(don.name, 'N Convention Centre') as donor_name, coalesce(don.phone, '9849012345') as donor_phone
     FROM donations d
     LEFT JOIN deliveries del ON d.id = del.donation_id
     LEFT JOIN donors don ON d.donor_id = don.id
@@ -447,8 +508,8 @@ app.get('/api/volunteers/open-jobs', (req, res) => {
   const openJobs = db.prepare(`
     SELECT d.*, 
            del.id as delivery_id, del.ngo_id, 
-           coalesce(ngo.name, 'Asha Care Foundation') as ngo_name, 
-           coalesce(don.name, 'Kumar Thale') as donor_name, coalesce(don.phone, '9849012345') as donor_phone
+           coalesce(ngo.name, 'Don Bosco Navajeevan for Boys') as ngo_name, 
+           coalesce(don.name, 'N Convention Centre') as donor_name, coalesce(don.phone, '9849012345') as donor_phone
     FROM donations d
     LEFT JOIN donors don ON d.donor_id = don.id
     LEFT JOIN deliveries del ON d.id = del.donation_id
@@ -486,7 +547,7 @@ app.post('/api/volunteers/claim-job', (req, res) => {
 app.get('/api/volunteers/:volId/my-jobs', (req, res) => {
   const jobs = db.prepare(`
     SELECT d.*, del.id as delivery_id, del.ngo_id, del.picked_up_at, del.delivered_at, del.beneficiary_name, del.delivery_photo_url,
-           coalesce(ngo.name, 'Asha Care Foundation') as ngo_name, coalesce(don.name, 'Kumar Thale') as donor_name, coalesce(don.phone, '9849012345') as donor_phone
+           coalesce(ngo.name, 'Don Bosco Navajeevan for Boys') as ngo_name, coalesce(don.name, 'N Convention Centre') as donor_name, coalesce(don.phone, '9849012345') as donor_phone
     FROM donations d
     LEFT JOIN deliveries del ON d.id = del.donation_id
     LEFT JOIN donors don ON d.donor_id = don.id
@@ -617,7 +678,7 @@ app.post('/api/admin/verify-ngo', (req, res) => {
 // Food Safety Manual Review Queue
 app.get('/api/admin/flagged-donations', (req, res) => {
   const flagged = db.prepare(`
-    SELECT d.*, coalesce(don.name, 'Kumar Thale') as donor_name, coalesce(don.phone, '9849012345') as donor_phone
+    SELECT d.*, coalesce(don.name, 'N Convention Centre') as donor_name, coalesce(don.phone, '9849012345') as donor_phone
     FROM donations d
     LEFT JOIN donors don ON d.donor_id = don.id
     WHERE d.status = 'flagged_for_inspection' OR d.inspection_status = 'flagged'
@@ -655,7 +716,7 @@ app.post('/api/admin/review-flagged-donation', (req, res) => {
 // Admin All Donations & Stats
 app.get('/api/admin/all-donations', (req, res) => {
   const donations = db.prepare(`
-    SELECT d.*, coalesce(don.name, 'Kumar Thale') as donor_name, coalesce(don.phone, '9849012345') as donor_phone,
+    SELECT d.*, coalesce(don.name, 'N Convention Centre') as donor_name, coalesce(don.phone, '9849012345') as donor_phone,
            ngo.name as assigned_ngo_name, vol.name as assigned_volunteer_name
     FROM donations d
     LEFT JOIN donors don ON d.donor_id = don.id

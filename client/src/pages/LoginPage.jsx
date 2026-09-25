@@ -334,7 +334,7 @@ export default function LoginPage({ user, setUser, lang }) {
                       type="text"
                       value={displayName}
                       onChange={(e) => setDisplayName(e.target.value)}
-                      placeholder="e.g. Kumar Thale"
+                      placeholder="e.g. Rahul Mehta"
                       className="w-full pl-9 pr-3 py-3 rounded-xl text-xs font-semibold bg-slate-50 dark:bg-[#0A1628] border border-slate-200 dark:border-navy-700 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#00A86B]"
                       required
                     />

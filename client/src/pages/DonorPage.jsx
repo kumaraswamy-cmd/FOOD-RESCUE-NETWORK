@@ -50,9 +50,9 @@ export default function DonorPage({ lang, user }) {
     if (user) {
       setDonor({
         id: user.id,
-        name: user.name || 'User Donor',
-        email: user.email || '',
-        phone: user.phone || '9848022338',
+        name: user.name || 'Rahul Mehta',
+        email: user.email || 'donor@nconvention.org',
+        phone: user.phone || '9849012345',
         otp_verified: 1
       });
     }
@@ -63,29 +63,70 @@ export default function DonorPage({ lang, user }) {
   const [loading, setLoading] = useState(false);
 
   // Form State
-  const [foodType, setFoodType] = useState('');
-  const [quantity, setQuantity] = useState(50);
+  const [foodItems, setFoodItems] = useState([
+    { itemName: '', quantity: 50, unit: 'plates', description: '' }
+  ]);
   const [cookedTime, setCookedTime] = useState('19:00');
   const [freshnessMinutes, setFreshnessMinutes] = useState(120);
-  const [pickupAddress, setPickupAddress] = useState('Beach Road, Visakhapatnam');
-  const [pickupLat, setPickupLat] = useState(17.7123);
-  const [pickupLng, setPickupLng] = useState(83.3150);
+  const [pickupAddress, setPickupAddress] = useState('Madhapur, Hyderabad');
+  const [pickupLat, setPickupLat] = useState(17.4560);
+  const [pickupLng, setPickupLng] = useState(78.3840);
   const [notes, setNotes] = useState('');
   const [foodPhoto, setFoodPhoto] = useState('');
 
   // Edit Modal State
   const [showEditModal, setShowEditModal] = useState(false);
   const [editingDonation, setEditingDonation] = useState(null);
-  const [editFoodType, setEditFoodType] = useState('');
-  const [editQuantity, setEditQuantity] = useState(50);
+  const [editFoodItems, setEditFoodItems] = useState([
+    { itemName: '', quantity: 50, unit: 'plates', description: '' }
+  ]);
   const [editAddress, setEditAddress] = useState('');
   const [editFreshness, setEditFreshness] = useState(120);
 
+  const handleAddFoodItem = () => {
+    setFoodItems(prev => [...prev, { itemName: '', quantity: 50, unit: 'plates', description: '' }]);
+  };
+
+  const handleRemoveFoodItem = (index) => {
+    if (foodItems.length <= 1) return;
+    setFoodItems(prev => prev.filter((_, i) => i !== index));
+  };
+
+  const handleFoodItemChange = (index, field, value) => {
+    setFoodItems(prev => {
+      const copy = [...prev];
+      copy[index] = { ...copy[index], [field]: value };
+      return copy;
+    });
+  };
+
+  const handleAddEditFoodItem = () => {
+    setEditFoodItems(prev => [...prev, { itemName: '', quantity: 50, unit: 'plates', description: '' }]);
+  };
+
+  const handleRemoveEditFoodItem = (index) => {
+    if (editFoodItems.length <= 1) return;
+    setEditFoodItems(prev => prev.filter((_, i) => i !== index));
+  };
+
+  const handleEditFoodItemChange = (index, field, value) => {
+    setEditFoodItems(prev => {
+      const copy = [...prev];
+      copy[index] = { ...copy[index], [field]: value };
+      return copy;
+    });
+  };
+
   const handleOpenEditModal = (donation) => {
     setEditingDonation(donation);
-    setEditFoodType(donation.food_type);
-    setEditQuantity(donation.quantity);
-    setEditAddress(donation.pickup_address);
+    if (donation.food_items && Array.isArray(donation.food_items) && donation.food_items.length > 0) {
+      setEditFoodItems(donation.food_items.map(i => ({ ...i })));
+    } else {
+      setEditFoodItems([
+        { itemName: donation.food_type || '', quantity: donation.quantity || 50, unit: 'plates', description: '' }
+      ]);
+    }
+    setEditAddress(donation.pickup_address || '');
     setEditFreshness(donation.freshness_window_minutes || 120);
     setShowEditModal(true);
   };
@@ -93,13 +134,25 @@ export default function DonorPage({ lang, user }) {
   const handleSaveEditSubmit = async (e) => {
     e.preventDefault();
     if (!editingDonation) return;
+
+    for (let i = 0; i < editFoodItems.length; i++) {
+      const item = editFoodItems[i];
+      if (!item.itemName || !item.itemName.trim()) {
+        alert(`Please enter an Item Name for food item #${i + 1}.`);
+        return;
+      }
+      if (!item.quantity || parseInt(item.quantity, 10) <= 0) {
+        alert(`Please enter a valid Quantity (>0) for food item #${i + 1}.`);
+        return;
+      }
+    }
+
     try {
       const data = await apiFetch(`/api/donations/${editingDonation.id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          food_type: editFoodType,
-          quantity: editQuantity,
+          food_items: editFoodItems,
           pickup_address: editAddress,
           freshness_window_minutes: editFreshness
         })
@@ -188,16 +241,16 @@ export default function DonorPage({ lang, user }) {
             if (geoData && geoData.display_name) {
               setPickupAddress(geoData.display_name);
             } else {
-              setPickupAddress(`Visakhapatnam GPS (${lat.toFixed(4)}, ${lng.toFixed(4)})`);
+              setPickupAddress(`Hyderabad GPS (${lat.toFixed(4)}, ${lng.toFixed(4)})`);
             }
           } catch(e) {
-            setPickupAddress(`Visakhapatnam GPS (${lat.toFixed(4)}, ${lng.toFixed(4)})`);
+            setPickupAddress(`Hyderabad GPS (${lat.toFixed(4)}, ${lng.toFixed(4)})`);
           }
 
           alert('High-accuracy GPS location captured!');
         },
         () => {
-          alert('Could not access Geolocation. Using Visakhapatnam default coordinates.');
+          alert('Could not access Geolocation. Using Hyderabad default coordinates.');
         },
         { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
       );
@@ -207,6 +260,18 @@ export default function DonorPage({ lang, user }) {
   const handleSubmitPost = async (e) => {
     e.preventDefault();
 
+    for (let i = 0; i < foodItems.length; i++) {
+      const item = foodItems[i];
+      if (!item.itemName || !item.itemName.trim()) {
+        alert(`Please enter an Item Name for food item #${i + 1}.`);
+        return;
+      }
+      if (!item.quantity || parseInt(item.quantity, 10) <= 0) {
+        alert(`Please enter a valid Quantity (>0) for food item #${i + 1}.`);
+        return;
+      }
+    }
+
     setLoading(true);
     try {
       const data = await apiFetch('/api/donations', {
@@ -214,8 +279,7 @@ export default function DonorPage({ lang, user }) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           donor_id: donor.id,
-          food_type: foodType,
-          quantity,
+          food_items: foodItems,
           packaging: 'Sealed Containers',
           pickup_lat: pickupLat,
           pickup_lng: pickupLng,
@@ -235,7 +299,7 @@ export default function DonorPage({ lang, user }) {
         } else {
           alert('Surplus food post published! Smart recommendation engine matched nearby verified NGOs.');
         }
-        setFoodType('');
+        setFoodItems([{ itemName: '', quantity: 50, unit: 'plates', description: '' }]);
         setNotes('');
         setFoodPhoto('');
         setShowPostModal(false);
@@ -355,7 +419,7 @@ export default function DonorPage({ lang, user }) {
               <tr className="bg-slate-50 dark:bg-[#0A1628] text-slate-400 dark:text-slate-400 uppercase font-black tracking-wider border-b border-slate-100 dark:border-navy-700">
                 <th className="p-4 w-12">#</th>
                 <th className="p-4">Food Items</th>
-                <th className="p-4">Quantity</th>
+                <th className="p-4">Quantity / Units</th>
                 <th className="p-4">Pickup OTP</th>
                 <th className="p-4">Location</th>
                 <th className="p-4">NGO Partner</th>
@@ -369,21 +433,47 @@ export default function DonorPage({ lang, user }) {
                 <tr key={d.id} className="hover:bg-slate-50/80 dark:hover:bg-[#1C3B64]/50 transition-colors">
                   <td className="p-4 font-mono font-bold text-slate-400">{index + 1}</td>
                   <td className="p-4">
-                    <div className="flex items-center gap-3">
+                    <div className="flex items-start gap-3">
                       {d.food_image_url ? (
-                        <img src={d.food_image_url} alt={d.food_type} className="w-10 h-10 object-cover rounded-xl border border-slate-200 dark:border-navy-700 shadow-sm" />
+                        <img src={d.food_image_url} alt={d.food_type} className="w-10 h-10 object-cover rounded-xl border border-slate-200 dark:border-navy-700 shadow-sm flex-shrink-0" />
                       ) : (
-                        <div className="w-9 h-9 rounded-xl bg-emerald-50 dark:bg-[#0A1628] text-emerald-700 dark:text-emerald-400 flex items-center justify-center font-bold border border-emerald-100 dark:border-navy-700">
+                        <div className="w-9 h-9 rounded-xl bg-emerald-50 dark:bg-[#0A1628] text-emerald-700 dark:text-emerald-400 flex items-center justify-center font-bold border border-emerald-100 dark:border-navy-700 flex-shrink-0">
                           <Utensils className="w-4 h-4" />
                         </div>
                       )}
                       <div>
-                        <div className="font-extrabold text-slate-900 dark:text-white text-sm">{d.food_type}</div>
-                        <div className="text-[11px] text-slate-400">Cooked Food</div>
+                        {d.food_items && Array.isArray(d.food_items) && d.food_items.length > 0 ? (
+                          <div className="space-y-1">
+                            {d.food_items.map((item, iIdx) => (
+                              <div key={iIdx} className="text-xs">
+                                <span className="font-extrabold text-slate-900 dark:text-white">{item.itemName}</span>
+                                <span className="text-slate-500 font-medium ml-1">({item.quantity} {item.unit || 'plates'})</span>
+                                {item.description && <div className="text-[11px] text-slate-400 italic">{item.description}</div>}
+                              </div>
+                            ))}
+                          </div>
+                        ) : (
+                          <>
+                            <div className="font-extrabold text-slate-900 dark:text-white text-sm">{d.food_type}</div>
+                            <div className="text-[11px] text-slate-400">Cooked Food</div>
+                          </>
+                        )}
                       </div>
                     </div>
                   </td>
-                  <td className="p-4 font-bold text-slate-900 dark:text-white">{d.quantity} packs</td>
+                  <td className="p-4 font-bold text-slate-900 dark:text-white">
+                    {d.food_items && Array.isArray(d.food_items) && d.food_items.length > 0 ? (
+                      <div>
+                        {d.food_items.map((i, iIdx) => (
+                          <div key={iIdx} className="text-xs font-bold text-slate-800 dark:text-slate-200">
+                            {i.quantity} {i.unit || 'plates'}
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <span>{d.quantity} packs</span>
+                    )}
+                  </td>
                   <td className="p-4">
                     <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-amber-100 dark:bg-amber-950/80 text-amber-900 dark:text-amber-300 font-mono font-black text-xs border border-amber-300 dark:border-amber-800 shadow-sm" title="4-digit pickup code for Volunteer/NGO">
                       <KeyRound className="w-3.5 h-3.5 text-amber-600" />
@@ -402,7 +492,7 @@ export default function DonorPage({ lang, user }) {
                         <Building2 className="w-3.5 h-3.5" />
                       </div>
                       <span className="font-bold text-slate-900 dark:text-white">
-                        {d.assigned_ngo_name || 'Asha Care Foundation'}
+                        {d.assigned_ngo_name || 'Little Sisters of the Poor – Secunderabad'}
                       </span>
                     </div>
                   </td>
@@ -416,8 +506,8 @@ export default function DonorPage({ lang, user }) {
                     <div className="flex items-center justify-center gap-1.5">
                       <button 
                         onClick={() => openLiveNavigation({
-                          lat: d.pickup_lat || 17.7123,
-                          lng: d.pickup_lng || 83.3150,
+                          lat: d.pickup_lat || 17.4560,
+                          lng: d.pickup_lng || 78.3840,
                           title: d.food_type
                         })}
                         className="px-2 py-1 bg-[#00A86B] hover:bg-[#00965E] text-white font-extrabold text-[11px] rounded-lg shadow flex items-center justify-center gap-1"
@@ -459,7 +549,7 @@ export default function DonorPage({ lang, user }) {
               <Compass className="w-4 h-4 text-[#00A86B]" />
               <span>Proximity Geographic Rescue Nodes</span>
             </span>
-            <span className="text-[11px] text-[#00A86B] dark:text-emerald-400 font-bold">Visakhapatnam Network</span>
+            <span className="text-[11px] text-[#00A86B] dark:text-emerald-400 font-bold">Hyderabad Network</span>
           </h4>
           <MapView donations={donations} ngos={ngos} />
         </div>
@@ -476,7 +566,13 @@ export default function DonorPage({ lang, user }) {
                 <div key={d.id} className="p-4 rounded-xl bg-slate-50 dark:bg-[#0A1628] border border-slate-200/60 dark:border-navy-700 space-y-2">
                   <div className="flex justify-between items-center flex-wrap gap-2">
                     <div>
-                      <span className="font-extrabold text-slate-900 dark:text-white text-xs">{d.food_type}</span>
+                      {d.food_items && Array.isArray(d.food_items) && d.food_items.length > 0 ? (
+                        <div className="font-extrabold text-slate-900 dark:text-white text-xs">
+                          {d.food_items.map(i => `${i.itemName} (${i.quantity} ${i.unit || 'plates'})`).join(' + ')}
+                        </div>
+                      ) : (
+                        <div className="font-extrabold text-slate-900 dark:text-white text-xs">{d.food_type}</div>
+                      )}
                       <div className="text-[10px] text-amber-600 dark:text-amber-400 font-mono font-extrabold flex items-center gap-1 mt-0.5">
                         <KeyRound className="w-3 h-3" />
                         <span>Pickup OTP: {d.pickup_otp || '7429'}</span>
@@ -549,28 +645,103 @@ export default function DonorPage({ lang, user }) {
                 />
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-xs font-bold text-slate-600 dark:text-slate-300 uppercase mb-1">Food Item & Description</label>
-                  <input 
-                    type="text" 
-                    value={foodType} 
-                    onChange={(e) => setFoodType(e.target.value)} 
-                    placeholder="e.g. Paneer Biryani & Naan" 
-                    className="w-full p-3 border border-slate-200 dark:border-navy-700 bg-white dark:bg-[#0A1628] rounded-xl text-xs font-semibold text-slate-900 dark:text-white" 
-                    required 
-                  />
+              {/* FOOD ITEMS DYNAMIC LIST */}
+              <div className="space-y-3">
+                <div className="flex justify-between items-center">
+                  <label className="block text-xs font-bold text-slate-600 dark:text-slate-300 uppercase">
+                    Food Items ({foodItems.length})
+                  </label>
+                  <button
+                    type="button"
+                    onClick={handleAddFoodItem}
+                    className="px-3 py-1.5 bg-[#00A86B]/10 hover:bg-[#00A86B]/20 text-[#00A86B] dark:bg-emerald-950 dark:text-emerald-400 font-extrabold text-xs rounded-xl flex items-center gap-1 transition-colors cursor-pointer"
+                  >
+                    <Plus className="w-3.5 h-3.5" />
+                    <span>Add Another Food Item</span>
+                  </button>
                 </div>
-                <div>
-                  <label className="block text-xs font-bold text-slate-600 dark:text-slate-300 uppercase mb-1">Quantity (Servings / Packs)</label>
-                  <input 
-                    type="number" 
-                    value={quantity} 
-                    onChange={(e) => setQuantity(e.target.value)} 
-                    className="w-full p-3 border border-slate-200 dark:border-navy-700 bg-white dark:bg-[#0A1628] rounded-xl text-xs font-semibold text-slate-900 dark:text-white" 
-                    required 
-                  />
-                </div>
+
+                {foodItems.map((item, idx) => (
+                  <div key={idx} className="p-3.5 bg-slate-50 dark:bg-[#0A1628] rounded-xl border border-slate-200/80 dark:border-navy-700 space-y-3 relative">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-black text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                        Item #{idx + 1}
+                      </span>
+                      {foodItems.length > 1 && (
+                        <button
+                          type="button"
+                          onClick={() => handleRemoveFoodItem(idx)}
+                          className="text-red-500 hover:text-red-700 font-bold text-xs flex items-center gap-1 p-1 rounded-lg hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors"
+                          title="Remove this food item"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                          <span>Remove</span>
+                        </button>
+                      )}
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-12 gap-3">
+                      <div className="sm:col-span-6">
+                        <label className="block text-[11px] font-bold text-slate-500 dark:text-slate-400 mb-1">
+                          Food Item Name *
+                        </label>
+                        <input
+                          type="text"
+                          value={item.itemName}
+                          onChange={(e) => handleFoodItemChange(idx, 'itemName', e.target.value)}
+                          placeholder="e.g. Vegetable Biryani"
+                          className="w-full p-2.5 border border-slate-200 dark:border-navy-700 bg-white dark:bg-[#0D1E36] rounded-xl text-xs font-semibold text-slate-900 dark:text-white"
+                          required
+                        />
+                      </div>
+
+                      <div className="sm:col-span-3">
+                        <label className="block text-[11px] font-bold text-slate-500 dark:text-slate-400 mb-1">
+                          Quantity *
+                        </label>
+                        <input
+                          type="number"
+                          min="1"
+                          value={item.quantity}
+                          onChange={(e) => handleFoodItemChange(idx, 'quantity', e.target.value)}
+                          className="w-full p-2.5 border border-slate-200 dark:border-navy-700 bg-white dark:bg-[#0D1E36] rounded-xl text-xs font-semibold text-slate-900 dark:text-white"
+                          required
+                        />
+                      </div>
+
+                      <div className="sm:col-span-3">
+                        <label className="block text-[11px] font-bold text-slate-500 dark:text-slate-400 mb-1">
+                          Unit *
+                        </label>
+                        <select
+                          value={item.unit}
+                          onChange={(e) => handleFoodItemChange(idx, 'unit', e.target.value)}
+                          className="w-full p-2.5 border border-slate-200 dark:border-navy-700 bg-white dark:bg-[#0D1E36] rounded-xl text-xs font-semibold text-slate-900 dark:text-white capitalize"
+                        >
+                          <option value="plates">Plates</option>
+                          <option value="meals">Meals</option>
+                          <option value="packets">Packets</option>
+                          <option value="kg">kg</option>
+                          <option value="pieces">Pieces</option>
+                          <option value="litres">Litres</option>
+                        </select>
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-[11px] font-bold text-slate-500 dark:text-slate-400 mb-1">
+                        Description / Dietary Info (Optional)
+                      </label>
+                      <input
+                        type="text"
+                        value={item.description}
+                        onChange={(e) => handleFoodItemChange(idx, 'description', e.target.value)}
+                        placeholder="e.g. Mild spice, vegetarian, freshly prepared"
+                        className="w-full p-2 border border-slate-200 dark:border-navy-700 bg-white dark:bg-[#0D1E36] rounded-xl text-xs font-semibold text-slate-900 dark:text-white"
+                      />
+                    </div>
+                  </div>
+                ))}
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -690,38 +861,97 @@ export default function DonorPage({ lang, user }) {
             </div>
 
             <form onSubmit={handleSaveEditSubmit} className="space-y-4 pt-4">
+              {/* EDIT FOOD ITEMS DYNAMIC LIST */}
+              <div className="space-y-3">
+                <div className="flex justify-between items-center">
+                  <label className="block text-xs font-bold text-slate-600 dark:text-slate-300 uppercase">
+                    Food Items ({editFoodItems.length})
+                  </label>
+                  <button
+                    type="button"
+                    onClick={handleAddEditFoodItem}
+                    className="px-3 py-1.5 bg-blue-500/10 hover:bg-blue-500/20 text-blue-600 dark:text-blue-400 font-extrabold text-xs rounded-xl flex items-center gap-1 transition-colors cursor-pointer"
+                  >
+                    <Plus className="w-3.5 h-3.5" />
+                    <span>Add Item</span>
+                  </button>
+                </div>
+
+                {editFoodItems.map((item, idx) => (
+                  <div key={idx} className="p-3 bg-slate-50 dark:bg-[#0A1628] rounded-xl border border-slate-200 dark:border-navy-700 space-y-2">
+                    <div className="flex items-center justify-between">
+                      <span className="text-[11px] font-black text-slate-400 uppercase">Item #{idx + 1}</span>
+                      {editFoodItems.length > 1 && (
+                        <button
+                          type="button"
+                          onClick={() => handleRemoveEditFoodItem(idx)}
+                          className="text-red-500 hover:text-red-700 font-bold text-xs flex items-center gap-1"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                          <span>Remove</span>
+                        </button>
+                      )}
+                    </div>
+
+                    <div className="grid grid-cols-12 gap-2">
+                      <div className="col-span-6">
+                        <input
+                          type="text"
+                          value={item.itemName}
+                          onChange={(e) => handleEditFoodItemChange(idx, 'itemName', e.target.value)}
+                          placeholder="Food Item Name"
+                          className="w-full p-2 border border-slate-200 dark:border-navy-700 bg-white dark:bg-[#0D1E36] rounded-xl text-xs font-semibold"
+                          required
+                        />
+                      </div>
+                      <div className="col-span-3">
+                        <input
+                          type="number"
+                          min="1"
+                          value={item.quantity}
+                          onChange={(e) => handleEditFoodItemChange(idx, 'quantity', e.target.value)}
+                          className="w-full p-2 border border-slate-200 dark:border-navy-700 bg-white dark:bg-[#0D1E36] rounded-xl text-xs font-semibold"
+                          required
+                        />
+                      </div>
+                      <div className="col-span-3">
+                        <select
+                          value={item.unit || 'plates'}
+                          onChange={(e) => handleEditFoodItemChange(idx, 'unit', e.target.value)}
+                          className="w-full p-2 border border-slate-200 dark:border-navy-700 bg-white dark:bg-[#0D1E36] rounded-xl text-xs font-semibold capitalize"
+                        >
+                          <option value="plates">Plates</option>
+                          <option value="meals">Meals</option>
+                          <option value="packets">Packets</option>
+                          <option value="kg">kg</option>
+                          <option value="pieces">Pieces</option>
+                          <option value="litres">Litres</option>
+                        </select>
+                      </div>
+                    </div>
+
+                    <div>
+                      <input
+                        type="text"
+                        value={item.description || ''}
+                        onChange={(e) => handleEditFoodItemChange(idx, 'description', e.target.value)}
+                        placeholder="Description / Notes (Optional)"
+                        className="w-full p-2 border border-slate-200 dark:border-navy-700 bg-white dark:bg-[#0D1E36] rounded-xl text-xs font-semibold"
+                      />
+                    </div>
+                  </div>
+                ))}
+              </div>
+
               <div>
-                <label className="block text-xs font-bold text-slate-600 dark:text-slate-300 uppercase mb-1">Food Description</label>
+                <label className="block text-xs font-bold text-slate-600 dark:text-slate-300 uppercase mb-1">Shelf-Life (Minutes)</label>
                 <input 
-                  type="text" 
-                  value={editFoodType} 
-                  onChange={(e) => setEditFoodType(e.target.value)} 
+                  type="number" 
+                  value={editFreshness} 
+                  onChange={(e) => setEditFreshness(e.target.value)} 
                   className="w-full p-3 border border-slate-200 dark:border-navy-700 bg-slate-50 dark:bg-[#0A1628] rounded-xl text-xs font-semibold text-slate-900 dark:text-white" 
                   required 
                 />
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-xs font-bold text-slate-600 dark:text-slate-300 uppercase mb-1">Servings Count</label>
-                  <input 
-                    type="number" 
-                    value={editQuantity} 
-                    onChange={(e) => setEditQuantity(e.target.value)} 
-                    className="w-full p-3 border border-slate-200 dark:border-navy-700 bg-slate-50 dark:bg-[#0A1628] rounded-xl text-xs font-semibold text-slate-900 dark:text-white" 
-                    required 
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs font-bold text-slate-600 dark:text-slate-300 uppercase mb-1">Shelf-Life (Minutes)</label>
-                  <input 
-                    type="number" 
-                    value={editFreshness} 
-                    onChange={(e) => setEditFreshness(e.target.value)} 
-                    className="w-full p-3 border border-slate-200 dark:border-navy-700 bg-slate-50 dark:bg-[#0A1628] rounded-xl text-xs font-semibold text-slate-900 dark:text-white" 
-                    required 
-                  />
-                </div>
               </div>
 
               <div>

@@ -108,17 +108,17 @@ export default function ProfilePage({ user, setUser, lang }) {
 
             <div>
               <div className="flex items-center gap-2 flex-wrap">
-                <h2 className="text-2xl sm:text-3xl font-black tracking-tight">{user?.name || 'Kumar Thale'}</h2>
+                <h2 className="text-2xl sm:text-3xl font-black tracking-tight">{user?.name || 'Rahul Mehta'}</h2>
                 <span className="px-3 py-1 bg-[#00A86B]/20 border border-[#00A86B]/40 text-[#00A86B] text-xs font-black rounded-full flex items-center gap-1">
                   <ShieldCheck className="w-3.5 h-3.5" />
                   <span>Verified {user?.role ? user.role.toUpperCase() : 'DONOR'}</span>
                 </span>
               </div>
-              <p className="text-slate-300 text-xs font-semibold mt-1">{user?.email || 'kumar.thale@foodrescue.org'}</p>
+              <p className="text-slate-300 text-xs font-semibold mt-1">{user?.email || 'donor@nconvention.org'}</p>
               <div className="flex items-center gap-4 text-xs text-slate-400 mt-2 font-medium flex-wrap">
-                <span className="flex items-center gap-1"><MapPin className="w-3.5 h-3.5 text-[#00A86B]" /> Visakhapatnam, AP</span>
-                <span className="flex items-center gap-1"><Phone className="w-3.5 h-3.5 text-blue-400" /> {user?.phone || '+91 98480 22338'}</span>
-                <span>ID: <strong className="font-mono text-slate-200">{user?.id || 'DONOR-001'}</strong></span>
+                <span className="flex items-center gap-1"><MapPin className="w-3.5 h-3.5 text-[#00A86B]" /> Hyderabad, TS</span>
+                <span className="flex items-center gap-1"><Phone className="w-3.5 h-3.5 text-blue-400" /> {user?.phone || '+91 98490 12345'}</span>
+                <span>ID: <strong className="font-mono text-slate-200">{user?.id || 'DONOR-USER-001'}</strong></span>
               </div>
             </div>
           </div>

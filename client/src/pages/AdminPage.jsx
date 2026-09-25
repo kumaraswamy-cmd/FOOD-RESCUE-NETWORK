@@ -534,7 +534,18 @@ export default function AdminPage({ lang }) {
                         </div>
                       )}
                       <div>
-                        <h4 className="font-black text-base text-slate-900 dark:text-white">{fd.food_type} ({fd.quantity} Servings)</h4>
+                        {fd.food_items && Array.isArray(fd.food_items) && fd.food_items.length > 0 ? (
+                          <div>
+                            <h4 className="font-black text-base text-slate-900 dark:text-white">
+                              {fd.food_items.map(i => i.itemName).join(', ')}
+                            </h4>
+                            <div className="text-xs font-bold text-[#00A86B] dark:text-emerald-400 mt-0.5">
+                              {fd.food_items.map(i => `${i.quantity} ${i.unit || 'plates'}`).join(' + ')}
+                            </div>
+                          </div>
+                        ) : (
+                          <h4 className="font-black text-base text-slate-900 dark:text-white">{fd.food_type} ({fd.quantity} Servings)</h4>
+                        )}
                         <div className="text-xs text-slate-600 dark:text-slate-300 mt-1 font-medium">
                           Donor: <strong>{fd.donor_name}</strong> ({fd.donor_phone}) &bull; Pickup: {fd.pickup_address}
                         </div>
@@ -593,9 +604,9 @@ export default function AdminPage({ lang }) {
                 <tr className="border-b-2 border-slate-200 dark:border-navy-700 text-slate-400 uppercase font-black">
                   <th className="p-3">Photo</th>
                   <th className="p-3">ID</th>
-                  <th className="p-3">Food Item</th>
+                  <th className="p-3">Food Items</th>
                   <th className="p-3">Pickup OTP</th>
-                  <th className="p-3">Servings</th>
+                  <th className="p-3">Quantity / Units</th>
                   <th className="p-3">Donor Venue</th>
                   <th className="p-3">Location</th>
                   <th className="p-3">Status</th>
@@ -617,14 +628,39 @@ export default function AdminPage({ lang }) {
                       )}
                     </td>
                     <td className="p-3 font-mono font-bold text-slate-900 dark:text-white">{d.id}</td>
-                    <td className="p-3 font-semibold text-slate-900 dark:text-white">{d.food_type}</td>
+                    <td className="p-3">
+                      {d.food_items && Array.isArray(d.food_items) && d.food_items.length > 0 ? (
+                        <div className="space-y-0.5">
+                          {d.food_items.map((i, iIdx) => (
+                            <div key={iIdx} className="text-xs">
+                              <span className="font-extrabold text-slate-900 dark:text-white">{i.itemName}</span>
+                              <span className="text-slate-500 font-medium ml-1">({i.quantity} {i.unit || 'plates'})</span>
+                            </div>
+                          ))}
+                        </div>
+                      ) : (
+                        <span className="font-semibold text-slate-900 dark:text-white">{d.food_type}</span>
+                      )}
+                    </td>
                     <td className="p-3">
                       <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-amber-100 dark:bg-amber-950/80 border border-amber-300 dark:border-amber-800 text-amber-900 dark:text-amber-300 font-mono font-black text-xs">
                         <KeyRound className="w-3 h-3 text-amber-600" />
                         <span>{d.pickup_otp || '7429'}</span>
                       </span>
                     </td>
-                    <td className="p-3 font-bold">{d.quantity}</td>
+                    <td className="p-3 font-bold">
+                      {d.food_items && Array.isArray(d.food_items) && d.food_items.length > 0 ? (
+                        <div>
+                          {d.food_items.map((i, iIdx) => (
+                            <div key={iIdx} className="text-xs font-bold text-slate-800 dark:text-slate-200">
+                              {i.quantity} {i.unit || 'plates'}
+                            </div>
+                          ))}
+                        </div>
+                      ) : (
+                        <span>{d.quantity} packs</span>
+                      )}
+                    </td>
                     <td className="p-3">{d.donor_name}</td>
                     <td className="p-3">{d.pickup_address}</td>
                     <td className="p-3"><StatusBadge status={d.status} /></td>

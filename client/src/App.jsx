@@ -24,10 +24,10 @@ export default function App() {
   const [theme, setTheme] = useState(() => localStorage.getItem('frn_theme_full') || 'light');
   const [user, setUser] = useState(() => {
     try {
-      const saved = localStorage.getItem('frn_user');
-      return saved ? JSON.parse(saved) : { id: 'DEMO-USER-001', name: 'Kumar Thale (Demo)', email: 'kumar@foodrescue.org', phone: '9849012345', role: 'donor', verified: true };
+      const saved = localStorage.getItem('frn_user_v3');
+      return saved ? JSON.parse(saved) : { id: 'DONOR-USER-001', name: 'Rahul Mehta', email: 'donor@nconvention.org', phone: '9849012345', role: 'donor', verified: true };
     } catch(e) {
-      return { id: 'DEMO-USER-001', name: 'Kumar Thale (Demo)', email: 'kumar@foodrescue.org', phone: '9849012345', role: 'donor', verified: true };
+      return { id: 'DONOR-USER-001', name: 'Rahul Mehta', email: 'donor@nconvention.org', phone: '9849012345', role: 'donor', verified: true };
     }
   });
 
@@ -46,7 +46,7 @@ export default function App() {
 
   useEffect(() => {
     if (user) {
-      localStorage.setItem('frn_user', JSON.stringify(user));
+      localStorage.setItem('frn_user_v3', JSON.stringify(user));
     }
   }, [user]);
 

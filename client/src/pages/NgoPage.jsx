@@ -39,15 +39,15 @@ export default function NgoPage({ lang, user }) {
   const navigate = useNavigate();
 
   const [ngo, setNgo] = useState({ 
-    id: 'NGO-001', 
-    name: 'Asha Care Foundation', 
-    phone: '9849011223', 
-    darpan_id: 'AP/2024/001928',
+    id: 'NGO-002', 
+    name: 'Don Bosco Navajeevan for Boys', 
+    phone: '9849078901', 
+    darpan_id: 'TS/2024/002441',
     verified: 1, 
     status: 'verified',
-    lat: 17.7200,
-    lng: 83.3100,
-    service_radius_km: 10 
+    lat: 17.4320,
+    lng: 78.5030,
+    service_radius_km: 15 
   });
 
   const handleOpenRegModal = () => {
@@ -57,36 +57,58 @@ export default function NgoPage({ lang, user }) {
   const [ngosList, setNgosList] = useState([
     { 
       id: 'NGO-001', 
-      name: 'Asha Care Foundation', 
-      phone: '9849011223', 
-      darpan_id: 'AP/2024/001928',
+      name: 'Little Sisters of the Poor – Secunderabad', 
+      phone: '9849067890', 
+      darpan_id: 'TS/2024/001928',
       verified: 1, 
       status: 'verified',
-      lat: 17.7200,
-      lng: 83.3100,
+      lat: 17.4400,
+      lng: 78.5000,
       service_radius_km: 10 
     },
     { 
       id: 'NGO-002', 
-      name: 'Akshaya Patra Branch', 
-      phone: '9849022334', 
-      darpan_id: 'AP/2024/002441',
+      name: 'Don Bosco Navajeevan for Boys', 
+      phone: '9849078901', 
+      darpan_id: 'TS/2024/002441',
       verified: 1, 
       status: 'verified',
-      lat: 17.7300,
-      lng: 83.3200,
+      lat: 17.4320,
+      lng: 78.5030,
       service_radius_km: 15 
     },
     { 
       id: 'NGO-003', 
-      name: 'Annamrita Foundation', 
-      phone: '9849033445', 
-      darpan_id: 'AP/2026/008891',
-      verified: 0, 
-      status: 'pending',
-      lat: 17.7100,
-      lng: 83.3000,
+      name: "St. Joseph's Orphanage for Girls", 
+      phone: '9849089012', 
+      darpan_id: 'TS/2025/005512',
+      verified: 1, 
+      status: 'verified',
+      lat: 17.3940,
+      lng: 78.4750,
       service_radius_km: 12 
+    },
+    { 
+      id: 'NGO-004', 
+      name: 'Tharuni', 
+      phone: '9849090123', 
+      darpan_id: 'TS/2025/007890',
+      verified: 1, 
+      status: 'verified',
+      lat: 17.4020,
+      lng: 78.4840,
+      service_radius_km: 10 
+    },
+    { 
+      id: 'NGO-005', 
+      name: 'Robin Hood Army – Hyderabad', 
+      phone: '9849001234', 
+      darpan_id: 'TS/2026/009941',
+      verified: 1, 
+      status: 'verified',
+      lat: 17.4310,
+      lng: 78.4070,
+      service_radius_km: 15 
     }
   ]);
   const [incoming, setIncoming] = useState([]);
@@ -98,14 +120,14 @@ export default function NgoPage({ lang, user }) {
   const [showRegModal, setShowRegModal] = useState(false);
   const [regName, setRegName] = useState('');
   const [regPhone, setRegPhone] = useState('');
-  const [regDarpan, setRegDarpan] = useState('AP/2026/089123');
-  const [regLegalNo, setRegLegalNo] = useState('REG-AP-8812/2024');
+  const [regDarpan, setRegDarpan] = useState('TS/2026/089123');
+  const [regLegalNo, setRegLegalNo] = useState('REG-TS-8812/2024');
   const [regPan, setRegPan] = useState('AAATN9988X');
   const [regFcra, setRegFcra] = useState('Compliant');
-  const [regCertUrl, setRegCertUrl] = useState('https://docs.gov.in/ngo/AP2026_certificate.pdf');
+  const [regCertUrl, setRegCertUrl] = useState('https://docs.gov.in/ngo/TS2026_certificate.pdf');
   const [regRadius, setRegRadius] = useState(10);
-  const [regLat, setRegLat] = useState(17.7200);
-  const [regLng, setRegLng] = useState(83.3100);
+  const [regLat, setRegLat] = useState(17.4320);
+  const [regLng, setRegLng] = useState(78.5030);
 
   const fetchNgos = async () => {
     try {
@@ -419,7 +441,7 @@ export default function NgoPage({ lang, user }) {
             OpenStreetMap Radius: {ngo.service_radius_km} km
           </span>
         </div>
-        <MapView donations={allNgoDonations} ngos={ngosList} center={[ngo.lat || 17.7200, ngo.lng || 83.3100]} />
+        <MapView donations={allNgoDonations} ngos={ngosList} center={[ngo.lat || 17.4320, ngo.lng || 78.5030]} />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
@@ -455,7 +477,18 @@ export default function NgoPage({ lang, user }) {
                           </div>
                         )}
                         <div>
-                          <h4 className="font-black text-base text-slate-900 dark:text-white">{d.food_type} ({d.quantity} Servings)</h4>
+                          {d.food_items && Array.isArray(d.food_items) && d.food_items.length > 0 ? (
+                            <div>
+                              <h4 className="font-black text-base text-slate-900 dark:text-white">
+                                {d.food_items.map(i => i.itemName).join(', ')}
+                              </h4>
+                              <div className="text-xs font-bold text-[#00A86B] dark:text-emerald-400 mt-0.5">
+                                {d.food_items.map(i => `${i.quantity} ${i.unit || 'plates'}`).join(' + ')}
+                              </div>
+                            </div>
+                          ) : (
+                            <h4 className="font-black text-base text-slate-900 dark:text-white">{d.food_type} ({d.quantity} Servings)</h4>
+                          )}
                           <div className="text-xs text-slate-600 dark:text-slate-300 mt-1 font-medium flex items-center gap-1">
                             <Store className="w-3.5 h-3.5 text-slate-400" />
                             <span>Donor: <strong>{d.donor_name}</strong> &bull; Phone: {d.donor_phone}</span>
@@ -519,7 +552,18 @@ export default function NgoPage({ lang, user }) {
                 {pickups.map((p) => (
                   <div key={p.id} className="p-4 rounded-xl bg-slate-50 dark:bg-navy-950 border border-slate-200/80 dark:border-navy-800 shadow-sm space-y-2">
                     <div className="flex justify-between items-start">
-                      <h4 className="font-extrabold text-sm text-slate-900 dark:text-white">{p.food_type} ({p.quantity} Meals)</h4>
+                      {p.food_items && Array.isArray(p.food_items) && p.food_items.length > 0 ? (
+                        <div>
+                          <h4 className="font-extrabold text-sm text-slate-900 dark:text-white">
+                            {p.food_items.map(i => i.itemName).join(', ')}
+                          </h4>
+                          <div className="text-xs font-bold text-[#00A86B] dark:text-emerald-400">
+                            {p.food_items.map(i => `${i.quantity} ${i.unit || 'plates'}`).join(' + ')}
+                          </div>
+                        </div>
+                      ) : (
+                        <h4 className="font-extrabold text-sm text-slate-900 dark:text-white">{p.food_type} ({p.quantity} Meals)</h4>
+                      )}
                       <StatusBadge status={p.status} />
                     </div>
 
@@ -544,8 +588,8 @@ export default function NgoPage({ lang, user }) {
                           className="px-2 py-1 rounded-lg text-xs font-bold bg-white dark:bg-[#0D1E36] border border-slate-300 dark:border-navy-600 text-slate-800 dark:text-white cursor-pointer"
                         >
                           <option value="">-- Select Volunteer (Or Leave Open) --</option>
-                          <option value="VOL-001">Ramesh Kumar (VOL-001)</option>
-                          <option value="VOL-002">Sita Devi (VOL-002)</option>
+                          <option value="VOL-001">Rajesh Kumar (VOL-001)</option>
+                          <option value="VOL-002">Suresh Varma (VOL-002)</option>
                           <option value="VOL-HERO">Hero Volunteer</option>
                         </select>
                       </div>

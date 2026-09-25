@@ -34,10 +34,11 @@ export default function ImpactPage({ lang }) {
   }, []);
 
   const leaders = [
-    { name: 'Royal Grand Palace Hall', meals: 680 },
-    { name: 'Novotel Corporate Convention', meals: 490 },
-    { name: 'Spice Garden Caterers', meals: 310 },
-    { name: 'Green Leaf Function Hall', meals: 240 }
+    { name: 'N Convention Centre', meals: 200 },
+    { name: 'HITEX Exhibition Center', meals: 380 },
+    { name: 'Novotel Hyderabad Convention Centre', meals: 340 },
+    { name: 'Taj Falaknuma Palace', meals: 280 },
+    { name: 'The Park Hyderabad', meals: 170 }
   ];
 
   return (

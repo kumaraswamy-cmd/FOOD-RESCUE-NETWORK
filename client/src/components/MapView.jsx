@@ -10,7 +10,7 @@ L.Icon.Default.mergeOptions({
   shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
 });
 
-export default function MapView({ donations = [], ngos = [], center = [17.7123, 83.3150], zoom = 12 }) {
+export default function MapView({ donations = [], ngos = [], center = [17.4400, 78.4400], zoom = 12 }) {
   const mapContainerRef = useRef(null);
   const mapInstanceRef = useRef(null);
 
@@ -78,13 +78,18 @@ export default function MapView({ donations = [], ngos = [], center = [17.7123, 
     // Render Donation Markers & Connection Polylines
     donations.forEach((d) => {
       const icon = d.status === 'delivered' ? deliveredIcon : donorIcon;
-      const lat = parseFloat(d.pickup_lat) || 17.7123;
-      const lng = parseFloat(d.pickup_lng) || 83.3150;
+      const lat = parseFloat(d.pickup_lat) || 17.4526;
+      const lng = parseFloat(d.pickup_lng) || 78.3846;
+
+      let foodItemsText = d.food_type ? `${d.food_type} (${d.quantity} Servings)` : `${d.quantity} Servings`;
+      if (d.food_items && Array.isArray(d.food_items) && d.food_items.length > 0) {
+        foodItemsText = d.food_items.map(i => `${i.itemName} (${i.quantity} ${i.unit || 'plates'})`).join(', ');
+      }
 
       const marker = L.marker([lat, lng], { icon }).addTo(map);
       marker.bindPopup(`
         <div style="font-family:sans-serif; font-size:13px; line-height:1.4;">
-          <strong>${d.food_type}</strong> (${d.quantity} Servings)<br/>
+          <strong>${foodItemsText}</strong><br/>
           <span style="color:#64748B;">Pickup: ${d.pickup_address}</span><br/>
           <span>Status: <strong>${d.status}</strong></span>
         </div>
