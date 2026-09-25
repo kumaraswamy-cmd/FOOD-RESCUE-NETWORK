@@ -96,25 +96,20 @@ export default function Layout({ children, lang, setLang, theme, toggleTheme, us
         ${mobileMenuOpen ? 'translate-x-0' : '-translate-x-full'}
       `}>
         {/* Logo & Header */}
-        <div className="p-5 border-b border-navy-700/50 flex flex-col items-start gap-2">
-          <Link to="/" className="flex items-center gap-3 group">
+        <div className="p-4 border-b border-navy-700/50 flex flex-col items-center justify-center gap-1 text-center">
+          <Link to="/" className="flex flex-col items-center group">
             <img 
               src="/logo.png" 
-              alt="Food Rescue Network Logo" 
-              className="h-12 w-auto object-contain rounded-xl group-hover:scale-105 transition-transform drop-shadow-md"
+              alt="Food Rescue Network Official Logo" 
+              className="h-24 w-auto object-contain group-hover:scale-105 transition-transform"
             />
           </Link>
-          <div className="text-[10px] font-mono font-bold tracking-widest text-emerald-400 uppercase opacity-90 flex items-center gap-1">
-            <Sparkles size={12} className="text-emerald-400" />
-            <span>DEMO MODE &bull; ALL PORTALS UNLOCKED</span>
-          </div>
         </div>
 
         {/* Navigation Items */}
         <nav className="flex-1 px-4 py-4 space-y-1 overflow-y-auto">
           <div className="text-[10px] font-extrabold uppercase tracking-wider text-slate-400 px-3 mb-2 flex items-center justify-between">
             <span>Main Navigation</span>
-            <span className="text-[9px] bg-[#00A86B]/20 text-emerald-300 px-1.5 py-0.5 rounded font-mono">LIVE DEMO</span>
           </div>
           {navItems.map((item) => {
             const active = isActive(item.path);
@@ -188,11 +183,11 @@ export default function Layout({ children, lang, setLang, theme, toggleTheme, us
                 {mobileMenuOpen ? <X size={18} strokeWidth={2} /> : <Menu size={18} strokeWidth={2} />}
               </button>
 
-              {/* Instant One-Click Role Switcher Bar for Live Presentation */}
+              {/* Instant One-Click Role Switcher Bar */}
               <div className="hidden sm:flex items-center gap-1 liquid-glass-capsule rounded-full p-1 border border-white/20 dark:border-navy-700">
                 <span className="text-[10px] font-black uppercase text-[#00A86B] dark:text-emerald-400 px-2 tracking-wider flex items-center gap-1">
                   <span className="w-1.5 h-1.5 rounded-full bg-[#00A86B] animate-pulse"></span>
-                  <span>Demo Switcher:</span>
+                  <span>Portal:</span>
                 </span>
                 {roleList.map((r) => {
                   const isSelected = currentRole === r.id;
