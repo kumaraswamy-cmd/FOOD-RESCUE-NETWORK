@@ -9,6 +9,8 @@ dist
 
 # Environment & Local DB
 .env
+.env.*
+!.env.example
 *.log
 
 # OS Junk

@@ -12,9 +12,9 @@ import {
 import { getFirestore } from 'firebase/firestore';
 import { getStorage } from 'firebase/storage';
 
-// Live Firebase Configuration for food-rescue-network-8d050
+// Secure Firebase Configuration from Environment Variables
 const firebaseConfig = {
-  apiKey: import.meta.env.VITE_FIREBASE_API_KEY || "AIzaSyA1Ce720sDtHOHCCclcSn_4XkRNIV-1BKI",
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY || "",
   authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || "food-rescue-network-8d050.firebaseapp.com",
   projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID || "food-rescue-network-8d050",
   storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET || "food-rescue-network-8d050.firebasestorage.app",
@@ -23,15 +23,34 @@ const firebaseConfig = {
   measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID || "G-T3579DZELT"
 };
 
-// Initialize Firebase App
-const app = initializeApp(firebaseConfig);
-export const auth = getAuth(app);
-export const db = getFirestore(app);
-export const storage = getStorage(app);
-export const googleProvider = new GoogleAuthProvider();
+// Initialize Firebase App if API Key is available
+let app = null;
+let auth = null;
+let db = null;
+let storage = null;
+let googleProvider = null;
+
+if (firebaseConfig.apiKey) {
+  try {
+    app = initializeApp(firebaseConfig);
+    auth = getAuth(app);
+    db = getFirestore(app);
+    storage = getStorage(app);
+    googleProvider = new GoogleAuthProvider();
+  } catch (err) {
+    console.warn("⚠️ Firebase initialization warning:", err.message);
+  }
+} else {
+  console.info("ℹ️ Firebase running in local fallback mode. Set VITE_FIREBASE_API_KEY in client/.env for Cloud Firestore sync.");
+}
+
+export { auth, db, storage, googleProvider };
 
 // Google Popup Login Helper
 export const signInWithGoogle = async () => {
+  if (!auth || !googleProvider) {
+    return { user: null, error: "Firebase Auth is not initialized. Set VITE_FIREBASE_API_KEY in client/.env" };
+  }
   try {
     const result = await signInWithPopup(auth, googleProvider);
     return { user: result.user, error: null };
@@ -43,6 +62,9 @@ export const signInWithGoogle = async () => {
 
 // Email / Password Signup Helper
 export const signUpWithEmail = async (email, password, displayName) => {
+  if (!auth) {
+    return { user: null, error: "Firebase Auth is not initialized. Set VITE_FIREBASE_API_KEY in client/.env" };
+  }
   try {
     const result = await createUserWithEmailAndPassword(auth, email, password);
     if (displayName && result.user) {
@@ -57,6 +79,9 @@ export const signUpWithEmail = async (email, password, displayName) => {
 
 // Email / Password Login Helper
 export const loginWithEmail = async (email, password) => {
+  if (!auth) {
+    return { user: null, error: "Firebase Auth is not initialized. Set VITE_FIREBASE_API_KEY in client/.env" };
+  }
   try {
     const result = await signInWithEmailAndPassword(auth, email, password);
     return { user: result.user, error: null };
@@ -68,6 +93,7 @@ export const loginWithEmail = async (email, password) => {
 
 // Sign Out Helper
 export const logoutFirebase = async () => {
+  if (!auth) return { success: true };
   try {
     await signOut(auth);
     return { success: true };
