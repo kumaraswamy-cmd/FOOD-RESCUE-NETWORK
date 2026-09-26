@@ -50,11 +50,9 @@ The application will be running live at:
 
 ## 👥 Student & Faculty Credits
 
-### Team Members (Batch 04):
-- **P. SARVWAN** (Reg No: 24331A4746)
-- **CH. RAJAESHRI** (Reg No: 24331A4709)
+### Team Members:
 - **T. KUMARA SWAMY** (Reg No: 24331A4760)
-- **N. HANISH VARMA** (Reg No: 24331A4742)
+- **P. SARVWAN** (Reg No: 24331A4746)
 
 ### Faculty Guidance:
 - **Project Guide**: Ms P. Monika (Assistant Professor, Dept of Data Engineering)
