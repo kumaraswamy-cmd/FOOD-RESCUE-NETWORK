@@ -561,37 +561,97 @@ async function handleFirestoreOperation(url, options = {}) {
 
     // 8. GET /api/ngos/:ngoId/incoming-matches
     if (pathname.includes('/incoming-matches')) {
-      const incoming = donations.filter(d => d.status === 'posted' || d.status === 'ngo_notified' || d.status === 'accepted' || d.status === 'flagged');
-      return { success: true, incoming };
+      const ngoId = pathname.split('/')[3] || 'NGO-002';
+      const ngoObj = ngos.find(n => n.id === ngoId);
+      const incoming = donations.filter(d => 
+        (d.status === 'posted' || d.status === 'ngo_notified' || d.status === 'flagged_for_inspection' || d.status === 'flagged') &&
+        d.status !== 'accepted' && d.status !== 'NGO_ACCEPTED' && d.status !== 'volunteer_assigned' && d.status !== 'picked_up' && d.status !== 'delivered' && d.status !== 'rejected' && d.status !== 'expired' &&
+        !d.acceptedByNgoId && !d.accepted_by_ngo_id
+      );
+      return { success: true, ngo: ngoObj, incoming };
     }
 
     // 9. GET /api/ngos/:ngoId/pickups
     if (pathname.includes('/pickups')) {
-      const pickups = donations.filter(d => d.status === 'accepted' || d.status === 'volunteer_assigned' || d.status === 'picked_up' || d.status === 'delivered');
+      const ngoId = pathname.split('/')[3] || 'NGO-002';
+      const ngoObj = ngos.find(n => n.id === ngoId);
+      const ngoName = ngoObj ? ngoObj.name : null;
+
+      const pickups = donations.filter(d => {
+        const isAcceptedStatus = (d.status === 'accepted' || d.status === 'NGO_ACCEPTED' || d.status === 'volunteer_assigned' || d.status === 'picked_up' || d.status === 'delivered');
+        const belongsToNgo = (d.acceptedByNgoId === ngoId || d.accepted_by_ngo_id === ngoId || d.ngo_id === ngoId || (ngoName && (d.assigned_ngo_name === ngoName || d.ngo_name === ngoName)));
+        return isAcceptedStatus && belongsToNgo;
+      });
       return { success: true, pickups };
     }
 
     // 10. POST /api/ngos/:ngoId/respond-match
     if (pathname.includes('/respond-match') && method === 'POST') {
-      const { donation_id, action } = body;
-      const target = donations.find(d => String(d.id) === String(donation_id));
+      const ngoId = pathname.split('/')[3] || body.ngo_id || 'NGO-002';
+      const ngoObj = ngos.find(n => n.id === ngoId);
+      const activeNgoName = body.ngo_name || (ngoObj ? ngoObj.name : 'Verified NGO');
+      const targetId = body.donation_id || body.donationId;
+      const target = donations.find(d => String(d.id) === String(targetId));
+      const now = new Date().toISOString();
+      const auditId = `AUDIT-${targetId}-${Date.now().toString().slice(-4)}`;
+
+      const auditChecks = body.checks || {
+        sensoryInspection: true,
+        cookedTimeWindow: true,
+        hygieneAndContainer: true,
+        transitPlan: true
+      };
+
+      const auditRecord = {
+        donationId: targetId,
+        auditStatus: 'PASSED',
+        auditedBy: ngoId,
+        auditedAt: now,
+        checks: auditChecks
+      };
+
       if (target) {
-        target.status = action === 'accept' ? 'accepted' : 'rejected';
-        target.assigned_ngo_name = 'Don Bosco Navajeevan for Boys';
-        target.ngo_name = 'Don Bosco Navajeevan for Boys';
-        setStored('frn_donations_v3', donations);
+        if (body.action === 'accept') {
+          target.status = 'accepted';
+          target.acceptedByNgoId = ngoId;
+          target.accepted_by_ngo_id = ngoId;
+          target.acceptedAt = now;
+          target.accepted_at = now;
+          target.auditId = auditId;
+          target.audit_id = auditId;
+          target.assigned_ngo_name = activeNgoName;
+          target.ngo_name = activeNgoName;
+          target.ngo_id = ngoId;
+          target.auditRecord = auditRecord;
+        } else {
+          target.status = 'rejected';
+        }
+        setStored('frn_donations_v4', donations);
       }
 
       try {
-        const ref = doc(db, 'donations', donation_id);
+        const ref = doc(db, 'donations', targetId);
         await setDoc(ref, {
-          status: action === 'accept' ? 'accepted' : 'rejected',
-          assigned_ngo_name: 'Don Bosco Navajeevan for Boys',
-          ngo_name: 'Don Bosco Navajeevan for Boys'
+          status: body.action === 'accept' ? 'accepted' : 'rejected',
+          acceptedByNgoId: ngoId,
+          accepted_by_ngo_id: ngoId,
+          acceptedAt: now,
+          accepted_at: now,
+          auditId: auditId,
+          audit_id: auditId,
+          assigned_ngo_name: activeNgoName,
+          ngo_name: activeNgoName,
+          ngo_id: ngoId,
+          auditRecord: auditRecord
         }, { merge: true });
       } catch(e) {}
 
-      return { success: true };
+      return { 
+        success: true, 
+        message: `FSSAI Audit Passed! Donation accepted for ${activeNgoName}.`,
+        auditId,
+        audit: auditRecord
+      };
     }
 
     // 11. GET /api/volunteers/open-jobs

@@ -428,36 +428,98 @@ app.get('/api/ngos/:ngoId/incoming-matches', (req, res) => {
     SELECT d.*, coalesce(don.name, 'N Convention Centre') as donor_name, coalesce(don.phone, '9849012345') as donor_phone
     FROM donations d
     LEFT JOIN donors don ON d.donor_id = don.id
-    WHERE d.status IN ('posted', 'ngo_notified', 'accepted', 'flagged_for_inspection')
+    WHERE d.status IN ('posted', 'ngo_notified', 'flagged_for_inspection')
+      AND (d.accepted_by_ngo_id IS NULL OR d.accepted_by_ngo_id = '')
     ORDER BY d.created_at DESC
   `).all();
+
+  incoming.forEach(d => {
+    if (d.food_items && typeof d.food_items === 'string') {
+      try { d.food_items = JSON.parse(d.food_items); } catch(e) {}
+    }
+  });
 
   return res.json({ success: true, ngo: ngo || { id: ngoId, name: 'Don Bosco Navajeevan for Boys', status: 'verified', verified: 1 }, incoming });
 });
 
 app.post('/api/ngos/:ngoId/respond-match', (req, res) => {
   const { ngoId } = req.params;
-  const { donation_id, action, fssai_confirmed } = req.body;
+  const { donation_id, donationId, action, fssai_confirmed, checks, ngo_name } = req.body;
+  const targetId = donation_id || donationId;
 
-  if (!donation_id || !action) return res.status(400).json({ error: 'donation_id and action (accept/reject) required.' });
+  if (!targetId || !action) return res.status(400).json({ error: 'donation_id and action (accept/reject) required.' });
+
+  const ngo = db.prepare('SELECT * FROM ngos WHERE id = ?').get(ngoId);
+  const activeNgoName = ngo_name || (ngo ? ngo.name : 'Verified NGO');
+  const now = new Date().toISOString();
+  const auditId = `AUDIT-${targetId}-${Date.now().toString().slice(-4)}`;
 
   if (action === 'accept') {
-    db.prepare("UPDATE donations SET status = 'accepted' WHERE id = ?").run(donation_id);
+    const auditChecks = checks || {
+      sensoryInspection: true,
+      cookedTimeWindow: true,
+      hygieneAndContainer: true,
+      transitPlan: true
+    };
 
-    // Create Delivery Record
+    const checksJson = JSON.stringify(auditChecks);
+
+    try {
+      db.prepare(`
+        INSERT OR REPLACE INTO fssai_audits (id, donation_id, audit_status, audited_by, audited_at, checks_json)
+        VALUES (?, ?, 'PASSED', ?, ?, ?)
+      `).run(auditId, targetId, ngoId, now, checksJson);
+    } catch(e) {}
+
+    db.prepare(`
+      UPDATE donations 
+      SET status = 'accepted', 
+          accepted_by_ngo_id = ?, 
+          accepted_at = ?, 
+          audit_id = ?
+      WHERE id = ?
+    `).run(ngoId, now, auditId, targetId);
+
+    // Create or update Delivery Record
     const delId = `DEL-${Date.now().toString().slice(-6)}`;
-    const existingDel = db.prepare('SELECT * FROM deliveries WHERE donation_id = ?').get(donation_id);
+    const existingDel = db.prepare('SELECT * FROM deliveries WHERE donation_id = ?').get(targetId);
     if (!existingDel) {
       db.prepare(`
         INSERT INTO deliveries (id, donation_id, ngo_id, delivery_confirmed)
         VALUES (?, ?, ?, 0)
-      `).run(delId, donation_id, ngoId);
+      `).run(delId, targetId, ngoId);
     } else {
-      db.prepare('UPDATE deliveries SET ngo_id = ? WHERE donation_id = ?').run(ngoId, donation_id);
+      db.prepare('UPDATE deliveries SET ngo_id = ? WHERE donation_id = ?').run(ngoId, targetId);
     }
 
-    return res.json({ success: true, message: 'Donation match accepted! Ready for logistics pickup.' });
+    const updatedDonation = db.prepare(`
+      SELECT d.*, coalesce(don.name, 'N Convention Centre') as donor_name, coalesce(don.phone, '9849012345') as donor_phone
+      FROM donations d
+      LEFT JOIN donors don ON d.donor_id = don.id
+      WHERE d.id = ?
+    `).get(targetId);
+
+    if (updatedDonation && updatedDonation.food_items && typeof updatedDonation.food_items === 'string') {
+      try { updatedDonation.food_items = JSON.parse(updatedDonation.food_items); } catch(e) {}
+    }
+
+    const auditRecord = {
+      donationId: targetId,
+      auditStatus: 'PASSED',
+      auditedBy: ngoId,
+      auditedAt: now,
+      checks: auditChecks
+    };
+
+    return res.json({ 
+      success: true, 
+      message: `FSSAI Audit Passed! Donation accepted for ${activeNgoName}.`,
+      auditId,
+      audit: auditRecord,
+      donation: updatedDonation
+    });
   } else {
+    db.prepare("UPDATE donations SET status = 'rejected' WHERE id = ?").run(targetId);
     return res.json({ success: true, message: 'Donation request declined.' });
   }
 });
@@ -489,6 +551,9 @@ app.post('/api/ngos/assign-volunteer', (req, res) => {
 
 app.get('/api/ngos/:ngoId/pickups', (req, res) => {
   const { ngoId } = req.params;
+  const ngo = db.prepare('SELECT * FROM ngos WHERE id = ?').get(ngoId);
+  const ngoName = ngo ? ngo.name : null;
+
   const pickups = db.prepare(`
     SELECT d.*, del.id as delivery_id, del.volunteer_id, del.picked_up_at, del.delivered_at, del.beneficiary_name, del.delivery_photo_url,
            vol.name as volunteer_name, coalesce(don.name, 'N Convention Centre') as donor_name, coalesce(don.phone, '9849012345') as donor_phone
@@ -496,9 +561,16 @@ app.get('/api/ngos/:ngoId/pickups', (req, res) => {
     LEFT JOIN deliveries del ON d.id = del.donation_id
     LEFT JOIN donors don ON d.donor_id = don.id
     LEFT JOIN volunteers vol ON del.volunteer_id = vol.id
-    WHERE d.status IN ('accepted', 'volunteer_assigned', 'picked_up', 'delivered')
+    WHERE (d.status IN ('accepted', 'NGO_ACCEPTED', 'volunteer_assigned', 'picked_up', 'delivered'))
+      AND (del.ngo_id = ? OR d.accepted_by_ngo_id = ? OR (d.assigned_ngo_name = ? AND ? IS NOT NULL))
     ORDER BY d.created_at DESC
-  `).all();
+  `).all(ngoId, ngoId, ngoName, ngoName);
+
+  pickups.forEach(p => {
+    if (p.food_items && typeof p.food_items === 'string') {
+      try { p.food_items = JSON.parse(p.food_items); } catch(e) {}
+    }
+  });
 
   return res.json({ success: true, pickups });
 });

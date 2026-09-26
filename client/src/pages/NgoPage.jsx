@@ -224,21 +224,66 @@ export default function NgoPage({ lang, user }) {
     setShowFssai(true);
   };
 
-  const handleConfirmAccept = async () => {
+  const handleConfirmAccept = async (auditPayload) => {
     if (!selectedDonation) return;
+    const currentNgoId = ngo.id || user?.ngoId || user?.id || 'NGO-002';
+    const currentNgoName = ngo.name || user?.name || 'Verified NGO';
+
+    const auditChecks = auditPayload?.checks || {
+      sensoryInspection: true,
+      cookedTimeWindow: true,
+      hygieneAndContainer: true,
+      transitPlan: true
+    };
+
     try {
-      const data = await apiFetch(`/api/ngos/${ngo.id}/respond-match`, {
+      const data = await apiFetch(`/api/ngos/${currentNgoId}/respond-match`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           donation_id: selectedDonation.id,
+          donationId: selectedDonation.id,
           action: 'accept',
-          fssai_confirmed: true
+          fssai_confirmed: true,
+          ngo_id: currentNgoId,
+          ngo_name: currentNgoName,
+          checks: auditChecks
         })
       });
+
       if (data && data.success) {
-        alert(`FSSAI Audit Passed! Donation accepted for ${ngo.name}.`);
+        alert(`FSSAI Audit Passed! Donation accepted for ${currentNgoName}.`);
         setShowFssai(false);
+
+        const nowIso = new Date().toISOString();
+        const auditId = data.auditId || `AUDIT-${selectedDonation.id}`;
+
+        const acceptedItem = {
+          ...selectedDonation,
+          status: 'accepted',
+          acceptedByNgoId: currentNgoId,
+          accepted_by_ngo_id: currentNgoId,
+          acceptedAt: nowIso,
+          accepted_at: nowIso,
+          auditId: auditId,
+          audit_id: auditId,
+          assigned_ngo_name: currentNgoName,
+          ngo_name: currentNgoName,
+          ngo_id: currentNgoId,
+          auditRecord: data.audit || {
+            donationId: selectedDonation.id,
+            auditStatus: 'PASSED',
+            auditedBy: currentNgoId,
+            auditedAt: nowIso,
+            checks: auditChecks
+          }
+        };
+
+        // Remove from Incoming Matched Food Posts
+        setIncoming(prev => prev.filter(d => String(d.id) !== String(selectedDonation.id)));
+        // Add to NGO Accepted Pickups
+        setPickups(prev => [acceptedItem, ...prev.filter(p => String(p.id) !== String(selectedDonation.id))]);
+
         fetchIncoming();
         fetchPickups();
       } else {

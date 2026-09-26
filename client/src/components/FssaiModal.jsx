@@ -50,8 +50,15 @@ export default function FssaiModal({ isOpen, onClose, onConfirm, donationTitle }
           </button>
           <button 
             disabled={!allChecked} 
-            onClick={onConfirm} 
-            className="px-5 py-2 text-sm font-bold bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg disabled:opacity-50 flex items-center gap-2"
+            onClick={() => onConfirm({
+              checks: {
+                sensoryInspection: c1,
+                cookedTimeWindow: c2,
+                hygieneAndContainer: c3,
+                transitPlan: c4
+              }
+            })} 
+            className="px-5 py-2 text-sm font-bold bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg disabled:opacity-50 flex items-center gap-2 cursor-pointer"
           >
             <CheckCircle2 className="w-4 h-4" />
             <span>Pass Audit & Accept</span>

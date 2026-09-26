@@ -127,6 +127,16 @@ function initSchema() {
       verified INTEGER DEFAULT 1,
       created_at TEXT NOT NULL
     );
+
+    CREATE TABLE IF NOT EXISTS fssai_audits (
+      id TEXT PRIMARY KEY,
+      donation_id TEXT NOT NULL,
+      audit_status TEXT NOT NULL,
+      audited_by TEXT NOT NULL,
+      audited_at TEXT NOT NULL,
+      checks_json TEXT NOT NULL,
+      FOREIGN KEY (donation_id) REFERENCES donations(id) ON DELETE CASCADE
+    );
   `);
 
   // Migrate existing databases if columns missing
@@ -144,6 +154,9 @@ function initSchema() {
   safeAddColumn('donations', "food_image_url TEXT");
   safeAddColumn('donations', "delivery_photo_url TEXT");
   safeAddColumn('donations', "food_items TEXT");
+  safeAddColumn('donations', "accepted_by_ngo_id TEXT");
+  safeAddColumn('donations', "accepted_at TEXT");
+  safeAddColumn('donations', "audit_id TEXT");
   safeAddColumn('deliveries', "delivery_photo_url TEXT");
 }
 
