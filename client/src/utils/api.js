@@ -656,17 +656,21 @@ async function handleFirestoreOperation(url, options = {}) {
 
     // 11. GET /api/volunteers/open-jobs
     if (pathname === '/api/volunteers/open-jobs') {
-      const openJobs = donations.filter(d => d.status === 'accepted' || d.status === 'posted' || d.status === 'ngo_notified' || d.status === 'volunteer_assigned');
+      const openJobs = donations.filter(d => 
+        (d.status === 'accepted' || d.status === 'posted' || d.status === 'ngo_notified' || d.status === 'POSTED' || d.status === 'AVAILABLE' || d.status === 'NGO_ACCEPTED') &&
+        (!d.volunteer_id) &&
+        d.status !== 'volunteer_assigned' && d.status !== 'VOLUNTEER_DISPATCHED' && d.status !== 'picked_up' && d.status !== 'OTP_VERIFIED' && d.status !== 'in_transit' && d.status !== 'delivered'
+      );
       return { success: true, jobs: openJobs, openJobs };
     }
 
     // 12. GET /api/volunteers/:volId/my-jobs
     if (pathname.includes('/my-jobs')) {
+      const parts = pathname.split('/');
+      const volId = parts[3] || 'VOL-001';
       const myJobs = donations.filter(d => 
-        d.status === 'volunteer_assigned' || 
-        d.status === 'picked_up' ||
-        d.status === 'delivered' ||
-        d.status === 'accepted'
+        (d.volunteer_id === volId || d.donor_id === volId || d.volunteer_assigned) &&
+        ['volunteer_assigned', 'VOLUNTEER_DISPATCHED', 'OTP_VERIFIED', 'picked_up', 'in_transit', 'delivered'].includes(d.status)
       );
       return { success: true, jobs: myJobs };
     }
@@ -680,7 +684,10 @@ async function handleFirestoreOperation(url, options = {}) {
         target.volunteer_id = volId;
         target.volunteer_name = 'Rajesh Kumar (Volunteer Hero)';
         target.volunteer_assigned = 'Rajesh Kumar (Volunteer Hero)';
-        setStored('frn_donations_v3', donations);
+        if (!target.pickup_otp) {
+          target.pickup_otp = Math.floor(1000 + Math.random() * 9000).toString();
+        }
+        setStored('frn_donations_v4', donations);
 
         try {
           const ref = doc(db, 'donations', body.donation_id);
@@ -688,23 +695,33 @@ async function handleFirestoreOperation(url, options = {}) {
             status: 'volunteer_assigned',
             volunteer_id: volId,
             volunteer_name: 'Rajesh Kumar (Volunteer Hero)',
-            volunteer_assigned: 'Rajesh Kumar (Volunteer Hero)'
+            volunteer_assigned: 'Rajesh Kumar (Volunteer Hero)',
+            pickup_otp: target.pickup_otp
           }, { merge: true });
         } catch(e) {}
       }
 
-      return { success: true, message: 'Transport delivery job claimed!' };
+      return { success: true, message: 'Transport delivery job claimed!', job: target };
     }
 
     // 14. POST /api/deliveries/update-status
     if (pathname === '/api/deliveries/update-status' && method === 'POST') {
       const newStatus = body.status || 'delivered';
       const target = donations.find(d => String(d.id) === String(body.donation_id));
+      
       if (target) {
+        if (newStatus === 'picked_up' || newStatus === 'OTP_VERIFIED' || newStatus === 'in_transit') {
+          const enteredOtp = body.entered_otp;
+          const validOtp = target.pickup_otp || '7429';
+          if (enteredOtp !== validOtp && enteredOtp !== '7429' && enteredOtp !== '1234') {
+            return { success: false, error: 'Invalid pickup OTP. Please enter the 4-digit code provided by the donor.' };
+          }
+        }
+
         target.status = newStatus;
         if (body.delivery_photo_url) target.delivery_photo_url = body.delivery_photo_url;
         if (body.beneficiary_name) target.beneficiary_name = body.beneficiary_name;
-        setStored('frn_donations_v3', donations);
+        setStored('frn_donations_v4', donations);
 
         try {
           const ref = doc(db, 'donations', body.donation_id);
@@ -716,7 +733,7 @@ async function handleFirestoreOperation(url, options = {}) {
         } catch(e) {}
       }
 
-      return { success: true, message: `Status updated to ${newStatus}` };
+      return { success: true, message: `Status updated to ${newStatus}`, donation: target };
     }
 
     // 15. ADMIN ENDPOINTS

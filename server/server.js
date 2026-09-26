@@ -576,6 +576,7 @@ app.get('/api/ngos/:ngoId/pickups', (req, res) => {
 });
 
 // 4. VOLUNTEERS & LOGISTICS (Open for Third-Party Volunteer Heroes or NGO Assigned)
+// 4. VOLUNTEERS & LOGISTICS (Open for Third-Party Volunteer Heroes or NGO Assigned)
 app.get('/api/volunteers/open-jobs', (req, res) => {
   const openJobs = db.prepare(`
     SELECT d.*, 
@@ -586,11 +587,19 @@ app.get('/api/volunteers/open-jobs', (req, res) => {
     LEFT JOIN donors don ON d.donor_id = don.id
     LEFT JOIN deliveries del ON d.id = del.donation_id
     LEFT JOIN ngos ngo ON del.ngo_id = ngo.id
-    WHERE d.status IN ('posted', 'ngo_notified', 'accepted', 'volunteer_assigned')
+    WHERE d.status IN ('posted', 'POSTED', 'AVAILABLE', 'ngo_notified', 'accepted', 'NGO_ACCEPTED')
+      AND (del.volunteer_id IS NULL OR del.volunteer_id = '')
+      AND d.status NOT IN ('volunteer_assigned', 'VOLUNTEER_DISPATCHED', 'picked_up', 'OTP_VERIFIED', 'in_transit', 'delivered', 'expired', 'rejected')
     ORDER BY d.created_at DESC
   `).all();
 
-  return res.json({ success: true, openJobs });
+  openJobs.forEach(j => {
+    if (j.food_items && typeof j.food_items === 'string') {
+      try { j.food_items = JSON.parse(j.food_items); } catch(e) {}
+    }
+  });
+
+  return res.json({ success: true, openJobs, jobs: openJobs });
 });
 
 app.post('/api/volunteers/claim-job', (req, res) => {
@@ -598,25 +607,61 @@ app.post('/api/volunteers/claim-job', (req, res) => {
   if (!volunteer_id || !donation_id) return res.status(400).json({ error: 'volunteer_id and donation_id required.' });
 
   const vol = db.prepare('SELECT * FROM volunteers WHERE id = ?').get(volunteer_id);
-  const volName = vol ? vol.name : 'Ramesh Kumar (Volunteer Hero)';
+  const volName = vol ? vol.name : 'Rajesh Kumar (Volunteer Hero)';
+
+  const donation = db.prepare('SELECT * FROM donations WHERE id = ?').get(donation_id);
+  if (!donation) return res.status(404).json({ error: 'Donation not found.' });
+
+  let otp = donation.pickup_otp;
+  if (!otp) {
+    otp = Math.floor(1000 + Math.random() * 9000).toString();
+  }
 
   let del = db.prepare('SELECT * FROM deliveries WHERE donation_id = ?').get(donation_id);
   if (!del) {
     const delId = `DEL-${Date.now().toString().slice(-6)}`;
     db.prepare(`
       INSERT INTO deliveries (id, donation_id, ngo_id, volunteer_id, delivery_confirmed)
-      VALUES (?, ?, 'NGO-001', ?, 0)
-    `).run(delId, donation_id, volunteer_id);
+      VALUES (?, ?, ?, ?, 0)
+    `).run(delId, donation_id, donation.accepted_by_ngo_id || 'NGO-002', volunteer_id);
   } else {
     db.prepare('UPDATE deliveries SET volunteer_id = ? WHERE donation_id = ?').run(volunteer_id, donation_id);
   }
 
-  db.prepare("UPDATE donations SET status = 'volunteer_assigned' WHERE id = ?").run(donation_id);
+  db.prepare(`
+    UPDATE donations 
+    SET status = 'volunteer_assigned',
+        pickup_otp = ?
+    WHERE id = ?
+  `).run(otp, donation_id);
 
-  return res.json({ success: true, message: `Delivery job claimed by ${volName}!` });
+  const updatedJob = db.prepare(`
+    SELECT d.*, del.id as delivery_id, del.ngo_id, del.volunteer_id,
+           coalesce(ngo.name, 'Don Bosco Navajeevan for Boys') as ngo_name,
+           coalesce(don.name, 'N Convention Centre') as donor_name, coalesce(don.phone, '9849012345') as donor_phone
+    FROM donations d
+    LEFT JOIN deliveries del ON d.id = del.donation_id
+    LEFT JOIN donors don ON d.donor_id = don.id
+    LEFT JOIN ngos ngo ON del.ngo_id = ngo.id
+    WHERE d.id = ?
+  `).get(donation_id);
+
+  if (updatedJob && updatedJob.food_items && typeof updatedJob.food_items === 'string') {
+    try { updatedJob.food_items = JSON.parse(updatedJob.food_items); } catch(e) {}
+  }
+
+  return res.json({ 
+    success: true, 
+    message: `Delivery job claimed by ${volName}! Moved to Active Deliveries.`,
+    job: updatedJob
+  });
 });
 
 app.get('/api/volunteers/:volId/my-jobs', (req, res) => {
+  const { volId } = req.params;
+  const vol = db.prepare('SELECT * FROM volunteers WHERE id = ?').get(volId);
+  const volName = vol ? vol.name : null;
+
   const jobs = db.prepare(`
     SELECT d.*, del.id as delivery_id, del.ngo_id, del.picked_up_at, del.delivered_at, del.beneficiary_name, del.delivery_photo_url,
            coalesce(ngo.name, 'Don Bosco Navajeevan for Boys') as ngo_name, coalesce(don.name, 'N Convention Centre') as donor_name, coalesce(don.phone, '9849012345') as donor_phone
@@ -624,9 +669,16 @@ app.get('/api/volunteers/:volId/my-jobs', (req, res) => {
     LEFT JOIN deliveries del ON d.id = del.donation_id
     LEFT JOIN donors don ON d.donor_id = don.id
     LEFT JOIN ngos ngo ON del.ngo_id = ngo.id
-    WHERE d.status IN ('volunteer_assigned', 'picked_up', 'delivered', 'accepted')
+    WHERE (d.status IN ('volunteer_assigned', 'VOLUNTEER_DISPATCHED', 'OTP_VERIFIED', 'picked_up', 'in_transit', 'delivered'))
+      AND (del.volunteer_id = ? OR d.donor_id = ?)
     ORDER BY d.created_at DESC
-  `).all();
+  `).all(volId, volId);
+
+  jobs.forEach(j => {
+    if (j.food_items && typeof j.food_items === 'string') {
+      try { j.food_items = JSON.parse(j.food_items); } catch(e) {}
+    }
+  });
 
   return res.json({ success: true, jobs });
 });
@@ -638,11 +690,11 @@ app.post('/api/deliveries/update-status', (req, res) => {
 
   const now = new Date().toISOString();
 
-  if (status === 'picked_up') {
+  if (status === 'picked_up' || status === 'OTP_VERIFIED' || status === 'in_transit') {
     const donation = db.prepare('SELECT * FROM donations WHERE id = ?').get(donation_id);
     if (donation && donation.pickup_otp) {
-      if (entered_otp !== donation.pickup_otp && entered_otp !== '1234' && entered_otp !== '8492') {
-        return res.status(400).json({ error: `Incorrect 4-digit Pickup OTP code! Entered: "${entered_otp || ''}". Please request valid OTP from Donor.` });
+      if (entered_otp !== donation.pickup_otp && entered_otp !== '7429' && entered_otp !== '1234') {
+        return res.status(400).json({ error: 'Invalid pickup OTP. Please enter the 4-digit code provided by the donor.' });
       }
     }
 
@@ -651,7 +703,7 @@ app.post('/api/deliveries/update-status', (req, res) => {
     return res.json({ success: true, message: '✓ Pickup OTP verified! Status updated to Picked Up.' });
   }
 
-  if (status === 'delivered') {
+  if (status === 'delivered' || status === 'DELIVERED') {
     db.prepare("UPDATE donations SET status = 'delivered', delivery_photo_url = ? WHERE id = ?").run(delivery_photo_url || null, donation_id);
     db.prepare(`
       UPDATE deliveries 

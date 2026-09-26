@@ -1,20 +1,36 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { KeyRound, X, CheckCircle2, ShieldAlert } from 'lucide-react';
 
 export default function PickupVerifyModal({ isOpen, onClose, onVerify, donation }) {
   const [otpCode, setOtpCode] = useState('');
   const [errorMsg, setErrorMsg] = useState('');
 
+  useEffect(() => {
+    if (isOpen) {
+      setOtpCode('');
+      setErrorMsg('');
+    }
+  }, [isOpen, donation?.id]);
+
   if (!isOpen || !donation) return null;
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!otpCode || otpCode.length < 4) {
       setErrorMsg('Please enter the full 4-digit pickup OTP provided by the Donor.');
       return;
     }
     setErrorMsg('');
-    onVerify(otpCode);
+    try {
+      const res = await onVerify(otpCode);
+      if (res && res.error) {
+        setErrorMsg(res.error);
+      } else if (res && res.success === false) {
+        setErrorMsg(res.message || 'Invalid pickup OTP. Please enter the 4-digit code provided by the donor.');
+      }
+    } catch (err) {
+      setErrorMsg(err.message || 'Invalid pickup OTP. Please enter the 4-digit code provided by the donor.');
+    }
   };
 
   return (

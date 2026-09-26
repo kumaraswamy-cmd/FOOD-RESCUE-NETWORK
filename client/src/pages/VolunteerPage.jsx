@@ -105,10 +105,9 @@ export default function VolunteerPage({ lang, user }) {
         body: JSON.stringify({ volunteer_id: volunteer.id, donation_id: donationId })
       });
       if (data && data.success) {
-        alert(`Transport delivery job claimed by ${volunteer.name}! Moved to Active Deliveries.`);
-        
         // Instant UI update
-        const claimed = openJobs.find(j => j.id === donationId) || {
+        const claimedFromState = openJobs.find(j => j.id === donationId);
+        const claimed = data.job || (claimedFromState ? { ...claimedFromState, status: 'volunteer_assigned', volunteer_id: volunteer.id } : {
           id: donationId,
           food_type: 'Naan (90 Servings)',
           quantity: 90,
@@ -118,8 +117,9 @@ export default function VolunteerPage({ lang, user }) {
           ngo_name: 'Don Bosco Navajeevan for Boys',
           donor_name: 'HITEX Exhibition Center',
           donor_phone: '9849023456',
-          status: 'volunteer_assigned'
-        };
+          status: 'volunteer_assigned',
+          volunteer_id: volunteer.id
+        });
 
         claimed.status = 'volunteer_assigned';
         setMyTasks(prev => [claimed, ...prev.filter(t => t.id !== donationId)]);
@@ -145,7 +145,7 @@ export default function VolunteerPage({ lang, user }) {
   };
 
   const handleVerifyPickupOtp = async (enteredOtp) => {
-    if (!selectedPickupDonation) return;
+    if (!selectedPickupDonation) return { success: false, error: 'No donation selected.' };
     try {
       const data = await apiFetch('/api/deliveries/update-status', {
         method: 'POST',
@@ -153,15 +153,15 @@ export default function VolunteerPage({ lang, user }) {
         body: JSON.stringify({ donation_id: selectedPickupDonation.id, status: 'picked_up', entered_otp: enteredOtp })
       });
       if (data && data.success) {
-        alert(data.message || '✓ Pickup OTP verified! Status updated to Picked Up.');
         setShowPickupOtpModal(false);
         setMyTasks(prev => prev.map(t => t.id === selectedPickupDonation.id ? { ...t, status: 'picked_up' } : t));
         fetchMyTasks();
+        return { success: true };
       } else {
-        alert(data ? data.error : 'Incorrect OTP code.');
+        return { success: false, error: data?.error || data?.message || 'Invalid pickup OTP. Please enter the 4-digit code provided by the donor.' };
       }
     } catch(e) {
-      alert('Error verifying OTP code.');
+      return { success: false, error: 'Invalid pickup OTP. Please enter the 4-digit code provided by the donor.' };
     }
   };
 
@@ -416,28 +416,34 @@ export default function VolunteerPage({ lang, user }) {
                       </button>
                     </div>
 
-                    <div className="pt-2 flex gap-2">
-                      {(task.status === 'volunteer_assigned' || task.status === 'accepted') && (
+                    <div className="pt-2 flex flex-col sm:flex-row gap-2">
+                      {(task.status === 'volunteer_assigned' || task.status === 'accepted' || task.status === 'VOLUNTEER_DISPATCHED') && (
                         <button 
                           onClick={() => handleOpenPickupOtp(task)}
-                          className="px-3 py-2 bg-amber-500 hover:bg-amber-600 text-white text-xs font-bold rounded-xl shadow-sm flex-1 flex items-center justify-center gap-1.5"
+                          className="px-3.5 py-2.5 bg-amber-500 hover:bg-amber-600 text-white text-xs font-black rounded-xl shadow-sm flex-1 flex items-center justify-center gap-1.5 transition-all"
                         >
                           <KeyRound className="w-4 h-4" />
-                          <span>Enter Pickup OTP (from Donor)</span>
+                          <span>🔑 Enter Pickup OTP (from Donor)</span>
                         </button>
                       )}
-                      {task.status === 'picked_up' && (
-                        <button 
-                          onClick={() => handleOpenDeliveryProof(task)}
-                          className="px-3 py-2 bg-[#00A86B] hover:bg-[#00965E] text-white text-xs font-bold rounded-xl shadow-sm flex-1 flex items-center justify-center gap-1.5"
-                        >
-                          <Camera className="w-4 h-4" />
-                          <span>Upload Delivery Photo & Confirm</span>
-                        </button>
+                      {(task.status === 'picked_up' || task.status === 'OTP_VERIFIED' || task.status === 'in_transit') && (
+                        <div className="flex-1 flex flex-col sm:flex-row gap-2 items-center">
+                          <span className="px-3 py-2 bg-emerald-100 dark:bg-emerald-950/80 text-emerald-700 dark:text-emerald-300 rounded-xl text-xs font-black flex items-center gap-1 border border-emerald-300 dark:border-emerald-800">
+                            <CheckCircle2 className="w-4 h-4 text-[#00A86B]" />
+                            <span>✓ Pickup Verified</span>
+                          </span>
+                          <button 
+                            onClick={() => handleOpenDeliveryProof(task)}
+                            className="px-3.5 py-2.5 bg-[#00A86B] hover:bg-[#00965E] text-white text-xs font-extrabold rounded-xl shadow-sm flex-1 flex items-center justify-center gap-1.5 transition-all"
+                          >
+                            <Camera className="w-4 h-4" />
+                            <span>Upload Delivery Photo & Confirm</span>
+                          </button>
+                        </div>
                       )}
                       {task.status === 'delivered' && (
-                        <div className="flex-1 text-[#00875A] dark:text-emerald-400 text-xs font-black flex items-center gap-1">
-                          <CheckCircle2 className="w-4 h-4" />
+                        <div className="flex-1 p-2 bg-emerald-50 dark:bg-emerald-950/40 rounded-xl border border-emerald-200 dark:border-emerald-800 text-[#00875A] dark:text-emerald-400 text-xs font-black flex items-center justify-center gap-1.5">
+                          <CheckCircle2 className="w-4 h-4 text-[#00A86B]" />
                           <span>Delivery Completed</span>
                         </div>
                       )}
